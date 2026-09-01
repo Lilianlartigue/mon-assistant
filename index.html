@@ -2,8 +2,13 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Mon Assistant</title>
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     * {
@@ -13,14 +18,15 @@
     }
 
     body {
-      font-family: Arial, sans-serif;
-      background: #f2f4f8;
-      color: #222;
-      padding: 20px;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #eef1f6;
+      color: #1f2937;
+      padding: 15px;
     }
 
     .container {
-      max-width: 1400px;
+      width: 100%;
+      max-width: 1450px;
       margin: auto;
     }
 
@@ -28,20 +34,23 @@
       background: linear-gradient(135deg, #4f46e5, #7c3aed);
       color: white;
       padding: 25px;
-      border-radius: 20px;
+      border-radius: 22px;
       margin-bottom: 20px;
+
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 20px;
     }
 
     header h1 {
-      font-size: 28px;
+      font-size: 30px;
+      margin-bottom: 5px;
     }
 
     .weather {
-      font-size: 18px;
       text-align: right;
+      font-size: 18px;
     }
 
     .grid {
@@ -52,9 +61,9 @@
 
     .card {
       background: white;
-      border-radius: 18px;
       padding: 20px;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.07);
+      border-radius: 20px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.06);
     }
 
     .card h2 {
@@ -72,12 +81,18 @@
       margin-top: 15px;
     }
 
-    input {
-      flex: 1;
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
       padding: 12px;
-      border: 1px solid #ddd;
+      border: 1px solid #d1d5db;
       border-radius: 10px;
       font-size: 15px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #6366f1;
     }
 
     button {
@@ -98,7 +113,7 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 10px;
+      padding: 11px 5px;
       border-bottom: 1px solid #eee;
     }
 
@@ -108,73 +123,37 @@
 
     .item span {
       flex: 1;
+      word-break: break-word;
+    }
+
+    .item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
     }
 
     .delete {
       background: #ef4444;
-      padding: 6px 9px;
+      padding: 7px 9px;
     }
 
     .delete:hover {
       background: #b91c1c;
     }
 
+    .edit {
+      background: #f59e0b;
+      padding: 7px 9px;
+    }
+
+    .edit:hover {
+      background: #d97706;
+    }
+
     .add {
       display: flex;
       gap: 8px;
       margin-top: 15px;
-    }
-
-    .add input {
-      min-width: 0;
-    }
-
-    .budget-number {
-      font-size: 30px;
-      font-weight: bold;
-      color: #16a34a;
-      margin-bottom: 15px;
-    }
-
-    .budget-line {
-      display: flex;
-      justify-content: space-between;
-      margin: 8px 0;
-    }
-
-    .progress {
-      width: 100%;
-      height: 12px;
-      background: #e5e7eb;
-      border-radius: 10px;
-      overflow: hidden;
-      margin: 15px 0;
-    }
-
-    .progress-bar {
-      height: 100%;
-      background: #22c55e;
-      width: 50%;
-      transition: width 0.3s;
-    }
-
-    .spotify {
-      text-align: center;
-    }
-
-    .spotify-player {
-      background: #111827;
-      color: white;
-      padding: 20px;
-      border-radius: 15px;
-      margin-top: 10px;
-    }
-
-    .spotify-buttons {
-      margin-top: 15px;
-      display: flex;
-      justify-content: center;
-      gap: 10px;
     }
 
     .mail {
@@ -187,28 +166,91 @@
       margin-bottom: 4px;
     }
 
+    .budget-number {
+      font-size: 32px;
+      font-weight: bold;
+      color: #16a34a;
+      margin-bottom: 15px;
+    }
+
+    .budget-line {
+      display: flex;
+      justify-content: space-between;
+      margin: 9px 0;
+    }
+
+    .progress {
+      width: 100%;
+      height: 12px;
+      background: #e5e7eb;
+      border-radius: 20px;
+      overflow: hidden;
+      margin: 15px 0;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: #22c55e;
+      width: 50%;
+      transition: width .3s;
+    }
+
+    .budget-form {
+      display: grid;
+      gap: 8px;
+      margin-top: 15px;
+    }
+
+    .spotify {
+      text-align: center;
+    }
+
+    .spotify-player {
+      background: #111827;
+      color: white;
+      padding: 25px;
+      border-radius: 17px;
+    }
+
+    .spotify-buttons {
+      margin-top: 15px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .spotify-buttons button {
+      background: #22c55e;
+    }
+
     .suggestion {
       background: white;
       padding: 12px;
       border-radius: 10px;
+      margin-top: 12px;
+    }
+
+    .status {
+      font-size: 13px;
       margin-top: 10px;
+      color: #16a34a;
     }
 
     footer {
       text-align: center;
       color: #777;
-      margin-top: 25px;
+      padding: 25px 0 10px;
     }
 
     @media (max-width: 800px) {
+
       body {
-        padding: 10px;
+        padding: 8px;
       }
 
       header {
         flex-direction: column;
         align-items: flex-start;
-        gap: 15px;
       }
 
       .weather {
@@ -224,8 +266,13 @@
         flex-direction: column;
       }
 
-      button {
+      .assistant-box button,
+      .add button {
         width: 100%;
+      }
+
+      header h1 {
+        font-size: 25px;
       }
     }
   </style>
@@ -235,7 +282,10 @@
 
 <div class="container">
 
+  <!-- HEADER -->
+
   <header>
+
     <div>
       <h1>🏠 Mon Assistant</h1>
       <p>Ton tableau de bord personnel</p>
@@ -245,12 +295,17 @@
       🌤️ <strong>23°C</strong><br>
       Temps agréable
     </div>
+
   </header>
+
 
   <div class="grid">
 
+
     <!-- ASSISTANT -->
+
     <div class="card assistant">
+
       <h2>🤖 Assistant IA</h2>
 
       <p id="assistantMessage">
@@ -258,72 +313,112 @@
       </p>
 
       <div class="assistant-box">
+
         <input
           id="assistantInput"
           type="text"
-          placeholder="Écris ta demande..."
+          placeholder="Ex : ajoute du lait aux courses"
         >
-        <button onclick="askAssistant()">Envoyer</button>
+
+        <button onclick="askAssistant()">
+          Envoyer
+        </button>
+
       </div>
 
       <div class="suggestion">
-        💡 Suggestion : pense à vérifier ta liste de courses.
+        💡 Je pourrai bientôt gérer tes courses,
+        tâches, rappels et budgets.
       </div>
+
     </div>
 
+
     <!-- MAILS -->
+
     <div class="card">
+
       <h2>📧 Mes mails</h2>
 
       <div class="mail">
         <strong>Gmail</strong>
-        3 nouveaux messages
+        Connexion à Gmail à venir
       </div>
 
       <div class="mail">
         <strong>iCloud</strong>
-        1 nouveau message
+        Connexion à iCloud à venir
       </div>
 
       <p style="margin-top:15px;color:#777;">
-        🔒 Les comptes Gmail et iCloud seront connectés plus tard.
+        🔒 Les comptes seront connectés plus tard.
       </p>
+
     </div>
 
+
     <!-- COURSES -->
+
     <div class="card">
+
       <h2>🛒 Liste de courses</h2>
 
-      <div id="shoppingList"></div>
+      <div id="shoppingList">
+        Chargement...
+      </div>
 
       <div class="add">
+
         <input
           id="shoppingInput"
           type="text"
           placeholder="Ajouter une course..."
         >
-        <button onclick="addShopping()">+ Ajouter</button>
+
+        <button onclick="addShopping()">
+          + Ajouter
+        </button>
+
       </div>
+
+      <div id="shoppingStatus" class="status"></div>
+
     </div>
 
+
     <!-- TACHES -->
+
     <div class="card">
+
       <h2>✅ À faire</h2>
 
-      <div id="todoList"></div>
+      <div id="todoList">
+        Chargement...
+      </div>
 
       <div class="add">
+
         <input
           id="todoInput"
           type="text"
           placeholder="Ajouter une tâche..."
         >
-        <button onclick="addTodo()">+ Ajouter</button>
+
+        <button onclick="addTodo()">
+          + Ajouter
+        </button>
+
       </div>
+
+      <div id="todoStatus" class="status"></div>
+
     </div>
 
+
     <!-- BUDGET PERSONNEL -->
+
     <div class="card">
+
       <h2>💰 Budget personnel</h2>
 
       <div class="budget-number">
@@ -332,25 +427,43 @@
 
       <div class="budget-line">
         <span>Revenus</span>
-        <strong>1800 €</strong>
+        <strong id="personalIncome">1800 €</strong>
       </div>
 
       <div class="budget-line">
         <span>Dépenses</span>
-        <strong>550 €</strong>
+        <strong id="personalExpenses">550 €</strong>
       </div>
 
       <div class="progress">
-        <div class="progress-bar" style="width:69%"></div>
+        <div
+          id="personalProgress"
+          class="progress-bar"
+          style="width:31%"
+        ></div>
       </div>
 
-      <button onclick="alert('La gestion complète du budget sera ajoutée ensuite.')">
-        + Ajouter une dépense
-      </button>
+      <div class="budget-form">
+
+        <input
+          id="personalExpense"
+          type="number"
+          placeholder="Montant de la dépense"
+        >
+
+        <button onclick="addPersonalExpense()">
+          + Ajouter une dépense
+        </button>
+
+      </div>
+
     </div>
 
+
     <!-- BUDGET MAISON -->
+
     <div class="card">
+
       <h2>🏠 Budget maison</h2>
 
       <div class="budget-number">
@@ -359,245 +472,663 @@
 
       <div class="budget-line">
         <span>Revenus</span>
-        <strong>1400 €</strong>
+        <strong id="houseIncome">1400 €</strong>
       </div>
 
       <div class="budget-line">
         <span>Dépenses</span>
-        <strong>550 €</strong>
+        <strong id="houseExpenses">550 €</strong>
       </div>
 
       <div class="progress">
-        <div class="progress-bar" style="width:61%"></div>
+        <div
+          id="houseProgress"
+          class="progress-bar"
+          style="width:39%"
+        ></div>
       </div>
 
-      <button onclick="alert('La gestion complète du budget sera ajoutée ensuite.')">
-        + Ajouter une dépense
-      </button>
+      <div class="budget-form">
+
+        <input
+          id="houseExpense"
+          type="number"
+          placeholder="Montant de la dépense"
+        >
+
+        <button onclick="addHouseExpense()">
+          + Ajouter une dépense
+        </button>
+
+      </div>
+
     </div>
 
+
     <!-- SPOTIFY -->
+
     <div class="card spotify">
+
       <h2>🎵 Spotify</h2>
 
       <div class="spotify-player">
-        <div style="font-size:40px;">🎵</div>
 
-        <h3>Musique en cours</h3>
+        <div style="font-size:45px;">
+          🎵
+        </div>
+
+        <h3>Spotify</h3>
 
         <p style="margin-top:5px;color:#aaa;">
-          Spotify sera connecté prochainement
+          Connexion à Spotify à venir
         </p>
 
         <div class="spotify-buttons">
+
           <button>⏮️</button>
           <button>▶️</button>
           <button>⏭️</button>
+
         </div>
+
       </div>
+
     </div>
+
 
   </div>
 
+
   <footer>
-    Mon Assistant — Version 1
+    Mon Assistant — V1
   </footer>
 
 </div>
 
+
 <script>
 
-  // ==============================
-  // LISTE DE COURSES
-  // ==============================
+  // =====================================================
+  // SUPABASE
+  // =====================================================
 
-  let shoppingItems = [
-    { name: "Pain", done: true },
-    { name: "Lait", done: false },
-    { name: "Café", done: false }
-  ];
+  const SUPABASE_URL =
+    "https://arnjwtcjesgxpdtjptmt.supabase.co";
 
-  function displayShopping() {
+  const SUPABASE_KEY =
+    "REMPLACE_PAR_TA_CLE_PUBLISHABLE";
 
-    const list = document.getElementById("shoppingList");
+  const supabaseClient =
+    window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+
+  // =====================================================
+  // COURSES
+  // =====================================================
+
+  async function loadShopping() {
+
+    const { data, error } =
+      await supabaseClient
+        .from("course")
+        .select("*")
+        .order("id", { ascending: true });
+
+    if (error) {
+
+      console.error(error);
+
+      document.getElementById("shoppingList").innerHTML =
+        "❌ Impossible de charger les courses.";
+
+      return;
+    }
+
+    const list =
+      document.getElementById("shoppingList");
 
     list.innerHTML = "";
 
-    shoppingItems.forEach((item, index) => {
+    data.forEach(item => {
 
-      const div = document.createElement("div");
+      const div =
+        document.createElement("div");
+
       div.className = "item";
 
       div.innerHTML = `
+
         <input
           type="checkbox"
           ${item.done ? "checked" : ""}
-          onchange="toggleShopping(${index})"
+          onchange="toggleShopping(${item.id}, ${item.done})"
         >
 
-        <span style="${item.done ? 'text-decoration:line-through;color:#999' : ''}">
-          ${item.name}
+        <span
+          style="${
+            item.done
+              ? "text-decoration:line-through;color:#999"
+              : ""
+          }"
+        >
+          ${escapeHtml(item.name)}
         </span>
 
         <button
+          class="edit"
+          onclick="editShopping(${item.id}, '${escapeJs(item.name)}')"
+        >
+          ✏️
+        </button>
+
+        <button
           class="delete"
-          onclick="deleteShopping(${index})"
+          onclick="deleteShopping(${item.id})"
         >
           🗑️
         </button>
+
       `;
 
       list.appendChild(div);
+
     });
   }
 
-  function addShopping() {
 
-    const input = document.getElementById("shoppingInput");
+  async function addShopping() {
 
-    const value = input.value.trim();
+    const input =
+      document.getElementById("shoppingInput");
 
-    if (value === "") return;
+    const name =
+      input.value.trim();
 
-    shoppingItems.push({
-      name: value,
-      done: false
-    });
+    if (!name) return;
+
+    const { error } =
+      await supabaseClient
+        .from("course")
+        .insert({
+          name: name,
+          done: false
+        });
+
+    if (error) {
+
+      alert("Erreur : " + error.message);
+
+      return;
+    }
 
     input.value = "";
 
-    displayShopping();
-  }
+    showStatus(
+      "shoppingStatus",
+      "Course ajoutée ✓"
+    );
 
-  function toggleShopping(index) {
-
-    shoppingItems[index].done =
-      !shoppingItems[index].done;
-
-    displayShopping();
-  }
-
-  function deleteShopping(index) {
-
-    shoppingItems.splice(index, 1);
-
-    displayShopping();
+    loadShopping();
   }
 
 
-  // ==============================
-  // LISTE DE TACHES
-  // ==============================
+  async function toggleShopping(id, currentValue) {
 
-  let todos = [
-    { name: "Appeler Paul", done: false },
-    { name: "Prendre rendez-vous", done: false },
-    { name: "Acheter un cadeau", done: true }
-  ];
+    const { error } =
+      await supabaseClient
+        .from("course")
+        .update({
+          done: !currentValue
+        })
+        .eq("id", id);
 
-  function displayTodos() {
+    if (error) {
 
-    const list = document.getElementById("todoList");
+      alert("Erreur : " + error.message);
+
+      return;
+    }
+
+    loadShopping();
+  }
+
+
+  async function deleteShopping(id) {
+
+    if (!confirm("Supprimer cette course ?")) {
+      return;
+    }
+
+    const { error } =
+      await supabaseClient
+        .from("course")
+        .delete()
+        .eq("id", id);
+
+    if (error) {
+
+      alert("Erreur : " + error.message);
+
+      return;
+    }
+
+    loadShopping();
+  }
+
+
+  async function editShopping(id, oldName) {
+
+    const newName =
+      prompt("Modifier la course :", oldName);
+
+    if (!newName || !newName.trim()) {
+      return;
+    }
+
+    const { error } =
+      await supabaseClient
+        .from("course")
+        .update({
+          name: newName.trim()
+        })
+        .eq("id", id);
+
+    if (error) {
+
+      alert("Erreur : " + error.message);
+
+      return;
+    }
+
+    loadShopping();
+  }
+
+
+  // =====================================================
+  // TACHES
+  // =====================================================
+
+  async function loadTodos() {
+
+    const { data, error } =
+      await supabaseClient
+        .from("tasks")
+        .select("*")
+        .order("id", { ascending: true });
+
+    if (error) {
+
+      console.error(error);
+
+      document.getElementById("todoList").innerHTML =
+        "❌ Impossible de charger les tâches.";
+
+      return;
+    }
+
+    const list =
+      document.getElementById("todoList");
 
     list.innerHTML = "";
 
-    todos.forEach((todo, index) => {
+    data.forEach(item => {
 
-      const div = document.createElement("div");
+      const div =
+        document.createElement("div");
 
       div.className = "item";
 
       div.innerHTML = `
+
         <input
           type="checkbox"
-          ${todo.done ? "checked" : ""}
-          onchange="toggleTodo(${index})"
+          ${item.done ? "checked" : ""}
+          onchange="toggleTodo(${item.id}, ${item.done})"
         >
 
-        <span style="${todo.done ? 'text-decoration:line-through;color:#999' : ''}">
-          ${todo.name}
+        <span
+          style="${
+            item.done
+              ? "text-decoration:line-through;color:#999"
+              : ""
+          }"
+        >
+          ${escapeHtml(item.name)}
         </span>
 
         <button
+          class="edit"
+          onclick="editTodo(${item.id}, '${escapeJs(item.name)}')"
+        >
+          ✏️
+        </button>
+
+        <button
           class="delete"
-          onclick="deleteTodo(${index})"
+          onclick="deleteTodo(${item.id})"
         >
           🗑️
         </button>
+
       `;
 
       list.appendChild(div);
+
     });
   }
 
-  function addTodo() {
 
-    const input = document.getElementById("todoInput");
+  async function addTodo() {
 
-    const value = input.value.trim();
+    const input =
+      document.getElementById("todoInput");
 
-    if (value === "") return;
+    const name =
+      input.value.trim();
 
-    todos.push({
-      name: value,
-      done: false
-    });
+    if (!name) return;
+
+    const { error } =
+      await supabaseClient
+        .from("tasks")
+        .insert({
+          name: name,
+          done: false
+        });
+
+    if (error) {
+
+      alert("Erreur : " + error.message);
+
+      return;
+    }
 
     input.value = "";
 
-    displayTodos();
-  }
+    showStatus(
+      "todoStatus",
+      "Tâche ajoutée ✓"
+    );
 
-  function toggleTodo(index) {
-
-    todos[index].done =
-      !todos[index].done;
-
-    displayTodos();
-  }
-
-  function deleteTodo(index) {
-
-    todos.splice(index, 1);
-
-    displayTodos();
+    loadTodos();
   }
 
 
-  // ==============================
-  // ASSISTANT
-  // ==============================
+  async function toggleTodo(id, currentValue) {
 
-  function askAssistant() {
+    const { error } =
+      await supabaseClient
+        .from("tasks")
+        .update({
+          done: !currentValue
+        })
+        .eq("id", id);
+
+    if (error) {
+
+      alert("Erreur : " + error.message);
+
+      return;
+    }
+
+    loadTodos();
+  }
+
+
+  async function deleteTodo(id) {
+
+    if (!confirm("Supprimer cette tâche ?")) {
+      return;
+    }
+
+    const { error } =
+      await supabaseClient
+        .from("tasks")
+        .delete()
+        .eq("id", id);
+
+    if (error) {
+
+      alert("Erreur : " + error.message);
+
+      return;
+    }
+
+    loadTodos();
+  }
+
+
+  async function editTodo(id, oldName) {
+
+    const newName =
+      prompt("Modifier la tâche :", oldName);
+
+    if (!newName || !newName.trim()) {
+      return;
+    }
+
+    const { error } =
+      await supabaseClient
+        .from("tasks")
+        .update({
+          name: newName.trim()
+        })
+        .eq("id", id);
+
+    if (error) {
+
+      alert("Erreur : " + error.message);
+
+      return;
+    }
+
+    loadTodos();
+  }
+
+
+  // =====================================================
+  // BUDGETS
+  // =====================================================
+
+  let personalIncome = 1800;
+  let personalExpenses = 550;
+
+  let houseIncome = 1400;
+  let houseExpenses = 550;
+
+
+  function updateBudgets() {
+
+    const personalRemaining =
+      personalIncome - personalExpenses;
+
+    const houseRemaining =
+      houseIncome - houseExpenses;
+
+    document.getElementById(
+      "personalRemaining"
+    ).textContent =
+      personalRemaining.toFixed(2);
+
+    document.getElementById(
+      "personalExpenses"
+    ).textContent =
+      personalExpenses.toFixed(2) + " €";
+
+    document.getElementById(
+      "houseRemaining"
+    ).textContent =
+      houseRemaining.toFixed(2);
+
+    document.getElementById(
+      "houseExpenses"
+    ).textContent =
+      houseExpenses.toFixed(2) + " €";
+
+    const personalPercent =
+      Math.min(
+        (personalExpenses / personalIncome) * 100,
+        100
+      );
+
+    const housePercent =
+      Math.min(
+        (houseExpenses / houseIncome) * 100,
+        100
+      );
+
+    document.getElementById(
+      "personalProgress"
+    ).style.width =
+      personalPercent + "%";
+
+    document.getElementById(
+      "houseProgress"
+    ).style.width =
+      housePercent + "%";
+  }
+
+
+  function addPersonalExpense() {
 
     const input =
-      document.getElementById("assistantInput");
+      document.getElementById(
+        "personalExpense"
+      );
+
+    const amount =
+      Number(input.value);
+
+    if (!amount || amount <= 0) {
+      return;
+    }
+
+    personalExpenses += amount;
+
+    input.value = "";
+
+    updateBudgets();
+  }
+
+
+  function addHouseExpense() {
+
+    const input =
+      document.getElementById(
+        "houseExpense"
+      );
+
+    const amount =
+      Number(input.value);
+
+    if (!amount || amount <= 0) {
+      return;
+    }
+
+    houseExpenses += amount;
+
+    input.value = "";
+
+    updateBudgets();
+  }
+
+
+  // =====================================================
+  // ASSISTANT
+  // =====================================================
+
+  async function askAssistant() {
+
+    const input =
+      document.getElementById(
+        "assistantInput"
+      );
 
     const message =
-      document.getElementById("assistantMessage");
+      document.getElementById(
+        "assistantMessage"
+      );
 
     const value =
       input.value.trim();
 
-    if (value === "") return;
+    if (!value) return;
+
+
+    // Ajout automatique d'une course
+    if (
+      value.toLowerCase().startsWith("ajoute ")
+      &&
+      value.toLowerCase().includes("course")
+    ) {
+
+      message.innerHTML =
+        "🤖 Je pourrai bientôt comprendre automatiquement ta demande et modifier tes listes.";
+
+      input.value = "";
+
+      return;
+    }
+
 
     message.innerHTML =
-      "💭 Tu as demandé : <strong>" +
-      value +
+      "💭 Tu as écrit : <strong>" +
+      escapeHtml(value) +
       "</strong><br><br>" +
-      "🤖 L'intelligence artificielle sera connectée dans la prochaine version.";
+      "🤖 Le véritable assistant IA sera connecté prochainement.";
 
     input.value = "";
   }
 
 
-  // ==============================
-  // INITIALISATION
-  // ==============================
+  // =====================================================
+  // OUTILS
+  // =====================================================
 
-  displayShopping();
+  function escapeHtml(text) {
 
-  displayTodos();
+    const div =
+      document.createElement("div");
+
+    div.textContent = text;
+
+    return div.innerHTML;
+  }
+
+
+  function escapeJs(text) {
+
+    return text
+      .replace(/\\/g, "\\\\")
+      .replace(/'/g, "\\'");
+  }
+
+
+  function showStatus(id, text) {
+
+    const element =
+      document.getElementById(id);
+
+    element.textContent = text;
+
+    setTimeout(() => {
+      element.textContent = "";
+    }, 2500);
+  }
+
+
+  // =====================================================
+  // DEMARRAGE
+  // =====================================================
+
+  loadShopping();
+
+  loadTodos();
+
+  updateBudgets();
 
 </script>
 
