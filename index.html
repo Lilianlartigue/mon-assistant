@@ -2,31 +2,27 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>Mon Assistant</title>
 
-  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
     * {
       box-sizing: border-box;
-      margin: 0;
-      padding: 0;
     }
 
     body {
-      font-family: Arial, Helvetica, sans-serif;
+      margin: 0;
+      padding: 15px;
+      font-family: Arial, sans-serif;
       background: #eef1f6;
       color: #1f2937;
-      padding: 15px;
     }
 
     .container {
-      width: 100%;
-      max-width: 1450px;
+      max-width: 1400px;
       margin: auto;
     }
 
@@ -34,51 +30,32 @@
       background: linear-gradient(135deg, #4f46e5, #7c3aed);
       color: white;
       padding: 25px;
-      border-radius: 22px;
+      border-radius: 20px;
       margin-bottom: 20px;
-
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 20px;
     }
 
-    header h1 {
-      font-size: 30px;
-      margin-bottom: 5px;
-    }
-
-    .weather {
-      text-align: right;
-      font-size: 18px;
+    h1, h2, h3 {
+      margin-top: 0;
     }
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: 1fr 1fr;
       gap: 20px;
     }
 
     .card {
       background: white;
       padding: 20px;
-      border-radius: 20px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.06);
-    }
-
-    .card h2 {
-      margin-bottom: 15px;
-      font-size: 21px;
+      border-radius: 18px;
+      box-shadow: 0 5px 20px rgba(0,0,0,.06);
     }
 
     .assistant {
-      background: linear-gradient(135deg, #eef2ff, #f5f3ff);
-    }
-
-    .assistant-box {
-      display: flex;
-      gap: 10px;
-      margin-top: 15px;
+      background: linear-gradient(135deg,#eef2ff,#f5f3ff);
     }
 
     input[type="text"],
@@ -88,15 +65,10 @@
       border: 1px solid #d1d5db;
       border-radius: 10px;
       font-size: 15px;
-      outline: none;
-    }
-
-    input:focus {
-      border-color: #6366f1;
     }
 
     button {
-      border: none;
+      border: 0;
       background: #4f46e5;
       color: white;
       padding: 11px 15px;
@@ -109,78 +81,53 @@
       background: #3730a3;
     }
 
-    .item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 11px 5px;
-      border-bottom: 1px solid #eee;
-    }
-
-    .item:last-child {
-      border-bottom: none;
-    }
-
-    .item span {
-      flex: 1;
-      word-break: break-word;
-    }
-
-    .item input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
-      cursor: pointer;
-    }
-
-    .delete {
-      background: #ef4444;
-      padding: 7px 9px;
-    }
-
-    .delete:hover {
-      background: #b91c1c;
-    }
-
-    .edit {
-      background: #f59e0b;
-      padding: 7px 9px;
-    }
-
-    .edit:hover {
-      background: #d97706;
-    }
-
     .add {
       display: flex;
       gap: 8px;
       margin-top: 15px;
     }
 
-    .mail {
-      padding: 12px;
+    .item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
       border-bottom: 1px solid #eee;
     }
 
-    .mail strong {
-      display: block;
-      margin-bottom: 4px;
+    .item span {
+      flex: 1;
+    }
+
+    .delete {
+      background: #ef4444;
+      padding: 7px 10px;
+    }
+
+    .edit {
+      background: #f59e0b;
+      padding: 7px 10px;
+    }
+
+    .status {
+      margin-top: 10px;
+      color: #16a34a;
+      font-size: 14px;
     }
 
     .budget-number {
-      font-size: 32px;
+      font-size: 30px;
       font-weight: bold;
       color: #16a34a;
-      margin-bottom: 15px;
     }
 
     .budget-line {
       display: flex;
       justify-content: space-between;
-      margin: 9px 0;
+      margin: 10px 0;
     }
 
     .progress {
-      width: 100%;
       height: 12px;
       background: #e5e7eb;
       border-radius: 20px;
@@ -191,14 +138,12 @@
     .progress-bar {
       height: 100%;
       background: #22c55e;
-      width: 50%;
       transition: width .3s;
     }
 
-    .budget-form {
-      display: grid;
-      gap: 8px;
-      margin-top: 15px;
+    .mail {
+      padding: 12px 0;
+      border-bottom: 1px solid #eee;
     }
 
     .spotify {
@@ -209,41 +154,21 @@
       background: #111827;
       color: white;
       padding: 25px;
-      border-radius: 17px;
+      border-radius: 15px;
     }
 
     .spotify-buttons {
-      margin-top: 15px;
       display: flex;
       justify-content: center;
       gap: 10px;
+      margin-top: 15px;
     }
 
     .spotify-buttons button {
       background: #22c55e;
     }
 
-    .suggestion {
-      background: white;
-      padding: 12px;
-      border-radius: 10px;
-      margin-top: 12px;
-    }
-
-    .status {
-      font-size: 13px;
-      margin-top: 10px;
-      color: #16a34a;
-    }
-
-    footer {
-      text-align: center;
-      color: #777;
-      padding: 25px 0 10px;
-    }
-
-    @media (max-width: 800px) {
-
+    @media(max-width:800px) {
       body {
         padding: 8px;
       }
@@ -251,28 +176,19 @@
       header {
         flex-direction: column;
         align-items: flex-start;
-      }
-
-      .weather {
-        text-align: left;
+        gap: 10px;
       }
 
       .grid {
         grid-template-columns: 1fr;
       }
 
-      .assistant-box,
       .add {
         flex-direction: column;
       }
 
-      .assistant-box button,
       .add button {
         width: 100%;
-      }
-
-      header h1 {
-        font-size: 25px;
       }
     }
   </style>
@@ -282,85 +198,64 @@
 
 <div class="container">
 
-  <!-- HEADER -->
-
   <header>
-
     <div>
       <h1>🏠 Mon Assistant</h1>
       <p>Ton tableau de bord personnel</p>
     </div>
 
-    <div class="weather">
+    <div>
       🌤️ <strong>23°C</strong><br>
       Temps agréable
     </div>
-
   </header>
 
 
   <div class="grid">
 
-
     <!-- ASSISTANT -->
 
     <div class="card assistant">
-
       <h2>🤖 Assistant IA</h2>
 
       <p id="assistantMessage">
         Bonjour 👋 Que puis-je faire pour toi ?
       </p>
 
-      <div class="assistant-box">
-
+      <div class="add">
         <input
           id="assistantInput"
           type="text"
-          placeholder="Ex : ajoute du lait aux courses"
+          placeholder="Écris ta demande..."
         >
 
         <button onclick="askAssistant()">
           Envoyer
         </button>
-
       </div>
-
-      <div class="suggestion">
-        💡 Je pourrai bientôt gérer tes courses,
-        tâches, rappels et budgets.
-      </div>
-
     </div>
 
 
     <!-- MAILS -->
 
     <div class="card">
-
       <h2>📧 Mes mails</h2>
 
       <div class="mail">
-        <strong>Gmail</strong>
-        Connexion à Gmail à venir
+        <strong>Gmail</strong><br>
+        Connexion à venir
       </div>
 
       <div class="mail">
-        <strong>iCloud</strong>
-        Connexion à iCloud à venir
+        <strong>iCloud</strong><br>
+        Connexion à venir
       </div>
-
-      <p style="margin-top:15px;color:#777;">
-        🔒 Les comptes seront connectés plus tard.
-      </p>
-
     </div>
 
 
     <!-- COURSES -->
 
     <div class="card">
-
       <h2>🛒 Liste de courses</h2>
 
       <div id="shoppingList">
@@ -368,28 +263,24 @@
       </div>
 
       <div class="add">
-
         <input
           id="shoppingInput"
           type="text"
-          placeholder="Ajouter une course..."
+          placeholder="Ex : lait"
         >
 
         <button onclick="addShopping()">
           + Ajouter
         </button>
-
       </div>
 
       <div id="shoppingStatus" class="status"></div>
-
     </div>
 
 
     <!-- TACHES -->
 
     <div class="card">
-
       <h2>✅ À faire</h2>
 
       <div id="todoList">
@@ -397,37 +288,33 @@
       </div>
 
       <div class="add">
-
         <input
           id="todoInput"
           type="text"
-          placeholder="Ajouter une tâche..."
+          placeholder="Ex : appeler Paul"
         >
 
         <button onclick="addTodo()">
           + Ajouter
         </button>
-
       </div>
 
       <div id="todoStatus" class="status"></div>
-
     </div>
 
 
     <!-- BUDGET PERSONNEL -->
 
     <div class="card">
-
       <h2>💰 Budget personnel</h2>
 
       <div class="budget-number">
-        <span id="personalRemaining">1250</span> €
+        <span id="personalRemaining">1250.00</span> €
       </div>
 
       <div class="budget-line">
         <span>Revenus</span>
-        <strong id="personalIncome">1800 €</strong>
+        <strong>1800 €</strong>
       </div>
 
       <div class="budget-line">
@@ -443,36 +330,32 @@
         ></div>
       </div>
 
-      <div class="budget-form">
-
+      <div class="add">
         <input
           id="personalExpense"
           type="number"
-          placeholder="Montant de la dépense"
+          placeholder="Montant"
         >
 
         <button onclick="addPersonalExpense()">
-          + Ajouter une dépense
+          + Dépense
         </button>
-
       </div>
-
     </div>
 
 
     <!-- BUDGET MAISON -->
 
     <div class="card">
-
       <h2>🏠 Budget maison</h2>
 
       <div class="budget-number">
-        <span id="houseRemaining">850</span> €
+        <span id="houseRemaining">850.00</span> €
       </div>
 
       <div class="budget-line">
         <span>Revenus</span>
-        <strong id="houseIncome">1400 €</strong>
+        <strong>1400 €</strong>
       </div>
 
       <div class="budget-line">
@@ -488,75 +371,59 @@
         ></div>
       </div>
 
-      <div class="budget-form">
-
+      <div class="add">
         <input
           id="houseExpense"
           type="number"
-          placeholder="Montant de la dépense"
+          placeholder="Montant"
         >
 
         <button onclick="addHouseExpense()">
-          + Ajouter une dépense
+          + Dépense
         </button>
-
       </div>
-
     </div>
 
 
     <!-- SPOTIFY -->
 
     <div class="card spotify">
-
       <h2>🎵 Spotify</h2>
 
       <div class="spotify-player">
-
-        <div style="font-size:45px;">
-          🎵
-        </div>
+        <div style="font-size:45px">🎵</div>
 
         <h3>Spotify</h3>
 
-        <p style="margin-top:5px;color:#aaa;">
-          Connexion à Spotify à venir
+        <p style="color:#aaa">
+          Connexion à venir
         </p>
 
         <div class="spotify-buttons">
-
           <button>⏮️</button>
           <button>▶️</button>
           <button>⏭️</button>
-
         </div>
-
       </div>
-
     </div>
 
-
   </div>
-
-
-  <footer>
-    Mon Assistant — V1
-  </footer>
 
 </div>
 
 
 <script>
 
-  // =====================================================
-  // SUPABASE
-  // =====================================================
+  /* =====================================================
+     SUPABASE
+     ===================================================== */
 
   const SUPABASE_URL =
     "https://arnjwtcjesgxpdtjptmt.supabase.co";
 
   const SUPABASE_KEY =
-    "REMPLACE_PAR_TA_CLE_PUBLISHABLE";
+    "sb_publishable_4-hMh1oMaJCu4Gz0-OlPSA_a3g3gj4N";
+
 
   const supabaseClient =
     window.supabase.createClient(
@@ -565,9 +432,9 @@
     );
 
 
-  // =====================================================
-  // COURSES
-  // =====================================================
+  /* =====================================================
+     COURSES
+     ===================================================== */
 
   async function loadShopping() {
 
@@ -578,11 +445,10 @@
         .order("id", { ascending: true });
 
     if (error) {
-
       console.error(error);
 
       document.getElementById("shoppingList").innerHTML =
-        "❌ Impossible de charger les courses.";
+        "❌ Erreur de connexion à Supabase";
 
       return;
     }
@@ -599,39 +465,51 @@
 
       div.className = "item";
 
-      div.innerHTML = `
+      const checkbox =
+        document.createElement("input");
 
-        <input
-          type="checkbox"
-          ${item.done ? "checked" : ""}
-          onchange="toggleShopping(${item.id}, ${item.done})"
-        >
+      checkbox.type = "checkbox";
+      checkbox.checked = item.done;
 
-        <span
-          style="${
-            item.done
-              ? "text-decoration:line-through;color:#999"
-              : ""
-          }"
-        >
-          ${escapeHtml(item.name)}
-        </span>
+      checkbox.onchange = () =>
+        toggleShopping(item.id, item.done);
 
-        <button
-          class="edit"
-          onclick="editShopping(${item.id}, '${escapeJs(item.name)}')"
-        >
-          ✏️
-        </button>
 
-        <button
-          class="delete"
-          onclick="deleteShopping(${item.id})"
-        >
-          🗑️
-        </button>
+      const span =
+        document.createElement("span");
 
-      `;
+      span.textContent = item.name;
+
+      if (item.done) {
+        span.style.textDecoration = "line-through";
+        span.style.color = "#999";
+      }
+
+
+      const edit =
+        document.createElement("button");
+
+      edit.className = "edit";
+      edit.textContent = "✏️";
+
+      edit.onclick = () =>
+        editShopping(item.id, item.name);
+
+
+      const del =
+        document.createElement("button");
+
+      del.className = "delete";
+      del.textContent = "🗑️";
+
+      del.onclick = () =>
+        deleteShopping(item.id);
+
+
+      div.appendChild(checkbox);
+      div.appendChild(span);
+      div.appendChild(edit);
+      div.appendChild(del);
 
       list.appendChild(div);
 
@@ -666,29 +544,49 @@
 
     input.value = "";
 
-    showStatus(
-      "shoppingStatus",
-      "Course ajoutée ✓"
-    );
+    document.getElementById("shoppingStatus")
+      .textContent = "Course ajoutée ✓";
 
     loadShopping();
   }
 
 
-  async function toggleShopping(id, currentValue) {
+  async function toggleShopping(id, oldValue) {
 
     const { error } =
       await supabaseClient
         .from("course")
         .update({
-          done: !currentValue
+          done: !oldValue
         })
         .eq("id", id);
 
     if (error) {
-
       alert("Erreur : " + error.message);
+      return;
+    }
 
+    loadShopping();
+  }
+
+
+  async function editShopping(id, oldName) {
+
+    const newName =
+      prompt("Modifier la course :", oldName);
+
+    if (!newName || !newName.trim()) return;
+
+    const { error } =
+      await supabaseClient
+        .from("course")
+        .update({
+          name: newName.trim()
+        })
+        .eq("id", id);
+
+    if (error) {
+      alert("Erreur : " + error.message);
       return;
     }
 
@@ -709,9 +607,7 @@
         .eq("id", id);
 
     if (error) {
-
       alert("Erreur : " + error.message);
-
       return;
     }
 
@@ -719,37 +615,9 @@
   }
 
 
-  async function editShopping(id, oldName) {
-
-    const newName =
-      prompt("Modifier la course :", oldName);
-
-    if (!newName || !newName.trim()) {
-      return;
-    }
-
-    const { error } =
-      await supabaseClient
-        .from("course")
-        .update({
-          name: newName.trim()
-        })
-        .eq("id", id);
-
-    if (error) {
-
-      alert("Erreur : " + error.message);
-
-      return;
-    }
-
-    loadShopping();
-  }
-
-
-  // =====================================================
-  // TACHES
-  // =====================================================
+  /* =====================================================
+     TACHES
+     ===================================================== */
 
   async function loadTodos() {
 
@@ -764,7 +632,7 @@
       console.error(error);
 
       document.getElementById("todoList").innerHTML =
-        "❌ Impossible de charger les tâches.";
+        "❌ Erreur de connexion à Supabase";
 
       return;
     }
@@ -781,39 +649,52 @@
 
       div.className = "item";
 
-      div.innerHTML = `
 
-        <input
-          type="checkbox"
-          ${item.done ? "checked" : ""}
-          onchange="toggleTodo(${item.id}, ${item.done})"
-        >
+      const checkbox =
+        document.createElement("input");
 
-        <span
-          style="${
-            item.done
-              ? "text-decoration:line-through;color:#999"
-              : ""
-          }"
-        >
-          ${escapeHtml(item.name)}
-        </span>
+      checkbox.type = "checkbox";
+      checkbox.checked = item.done;
 
-        <button
-          class="edit"
-          onclick="editTodo(${item.id}, '${escapeJs(item.name)}')"
-        >
-          ✏️
-        </button>
+      checkbox.onchange = () =>
+        toggleTodo(item.id, item.done);
 
-        <button
-          class="delete"
-          onclick="deleteTodo(${item.id})"
-        >
-          🗑️
-        </button>
 
-      `;
+      const span =
+        document.createElement("span");
+
+      span.textContent = item.name;
+
+      if (item.done) {
+        span.style.textDecoration = "line-through";
+        span.style.color = "#999";
+      }
+
+
+      const edit =
+        document.createElement("button");
+
+      edit.className = "edit";
+      edit.textContent = "✏️";
+
+      edit.onclick = () =>
+        editTodo(item.id, item.name);
+
+
+      const del =
+        document.createElement("button");
+
+      del.className = "delete";
+      del.textContent = "🗑️";
+
+      del.onclick = () =>
+        deleteTodo(item.id);
+
+
+      div.appendChild(checkbox);
+      div.appendChild(span);
+      div.appendChild(edit);
+      div.appendChild(del);
 
       list.appendChild(div);
 
@@ -848,29 +729,49 @@
 
     input.value = "";
 
-    showStatus(
-      "todoStatus",
-      "Tâche ajoutée ✓"
-    );
+    document.getElementById("todoStatus")
+      .textContent = "Tâche ajoutée ✓";
 
     loadTodos();
   }
 
 
-  async function toggleTodo(id, currentValue) {
+  async function toggleTodo(id, oldValue) {
 
     const { error } =
       await supabaseClient
         .from("tasks")
         .update({
-          done: !currentValue
+          done: !oldValue
         })
         .eq("id", id);
 
     if (error) {
-
       alert("Erreur : " + error.message);
+      return;
+    }
 
+    loadTodos();
+  }
+
+
+  async function editTodo(id, oldName) {
+
+    const newName =
+      prompt("Modifier la tâche :", oldName);
+
+    if (!newName || !newName.trim()) return;
+
+    const { error } =
+      await supabaseClient
+        .from("tasks")
+        .update({
+          name: newName.trim()
+        })
+        .eq("id", id);
+
+    if (error) {
+      alert("Erreur : " + error.message);
       return;
     }
 
@@ -891,9 +792,7 @@
         .eq("id", id);
 
     if (error) {
-
       alert("Erreur : " + error.message);
-
       return;
     }
 
@@ -901,37 +800,9 @@
   }
 
 
-  async function editTodo(id, oldName) {
-
-    const newName =
-      prompt("Modifier la tâche :", oldName);
-
-    if (!newName || !newName.trim()) {
-      return;
-    }
-
-    const { error } =
-      await supabaseClient
-        .from("tasks")
-        .update({
-          name: newName.trim()
-        })
-        .eq("id", id);
-
-    if (error) {
-
-      alert("Erreur : " + error.message);
-
-      return;
-    }
-
-    loadTodos();
-  }
-
-
-  // =====================================================
-  // BUDGETS
-  // =====================================================
+  /* =====================================================
+     BUDGETS
+     ===================================================== */
 
   let personalIncome = 1800;
   let personalExpenses = 550;
@@ -948,63 +819,59 @@
     const houseRemaining =
       houseIncome - houseExpenses;
 
+
     document.getElementById(
       "personalRemaining"
     ).textContent =
       personalRemaining.toFixed(2);
+
 
     document.getElementById(
       "personalExpenses"
     ).textContent =
       personalExpenses.toFixed(2) + " €";
 
+
     document.getElementById(
       "houseRemaining"
     ).textContent =
       houseRemaining.toFixed(2);
+
 
     document.getElementById(
       "houseExpenses"
     ).textContent =
       houseExpenses.toFixed(2) + " €";
 
-    const personalPercent =
-      Math.min(
-        (personalExpenses / personalIncome) * 100,
-        100
-      );
-
-    const housePercent =
-      Math.min(
-        (houseExpenses / houseIncome) * 100,
-        100
-      );
 
     document.getElementById(
       "personalProgress"
     ).style.width =
-      personalPercent + "%";
+      Math.min(
+        personalExpenses / personalIncome * 100,
+        100
+      ) + "%";
+
 
     document.getElementById(
       "houseProgress"
     ).style.width =
-      housePercent + "%";
+      Math.min(
+        houseExpenses / houseIncome * 100,
+        100
+      ) + "%";
   }
 
 
   function addPersonalExpense() {
 
     const input =
-      document.getElementById(
-        "personalExpense"
-      );
+      document.getElementById("personalExpense");
 
     const amount =
       Number(input.value);
 
-    if (!amount || amount <= 0) {
-      return;
-    }
+    if (!amount || amount <= 0) return;
 
     personalExpenses += amount;
 
@@ -1017,16 +884,12 @@
   function addHouseExpense() {
 
     const input =
-      document.getElementById(
-        "houseExpense"
-      );
+      document.getElementById("houseExpense");
 
     const amount =
       Number(input.value);
 
-    if (!amount || amount <= 0) {
-      return;
-    }
+    if (!amount || amount <= 0) return;
 
     houseExpenses += amount;
 
@@ -1036,57 +899,32 @@
   }
 
 
-  // =====================================================
-  // ASSISTANT
-  // =====================================================
+  /* =====================================================
+     ASSISTANT
+     ===================================================== */
 
-  async function askAssistant() {
+  function askAssistant() {
 
     const input =
-      document.getElementById(
-        "assistantInput"
-      );
+      document.getElementById("assistantInput");
 
     const message =
-      document.getElementById(
-        "assistantMessage"
-      );
+      document.getElementById("assistantMessage");
 
     const value =
       input.value.trim();
 
     if (!value) return;
 
-
-    // Ajout automatique d'une course
-    if (
-      value.toLowerCase().startsWith("ajoute ")
-      &&
-      value.toLowerCase().includes("course")
-    ) {
-
-      message.innerHTML =
-        "🤖 Je pourrai bientôt comprendre automatiquement ta demande et modifier tes listes.";
-
-      input.value = "";
-
-      return;
-    }
-
-
     message.innerHTML =
       "💭 Tu as écrit : <strong>" +
       escapeHtml(value) +
       "</strong><br><br>" +
-      "🤖 Le véritable assistant IA sera connecté prochainement.";
+      "🤖 L'IA sera connectée dans une prochaine étape.";
 
     input.value = "";
   }
 
-
-  // =====================================================
-  // OUTILS
-  // =====================================================
 
   function escapeHtml(text) {
 
@@ -1099,35 +937,12 @@
   }
 
 
-  function escapeJs(text) {
-
-    return text
-      .replace(/\\/g, "\\\\")
-      .replace(/'/g, "\\'");
-  }
-
-
-  function showStatus(id, text) {
-
-    const element =
-      document.getElementById(id);
-
-    element.textContent = text;
-
-    setTimeout(() => {
-      element.textContent = "";
-    }, 2500);
-  }
-
-
-  // =====================================================
-  // DEMARRAGE
-  // =====================================================
+  /* =====================================================
+     DEMARRAGE
+     ===================================================== */
 
   loadShopping();
-
   loadTodos();
-
   updateBudgets();
 
 </script>
