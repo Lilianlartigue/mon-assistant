@@ -1321,37 +1321,7 @@
      ASSISTANT
      ===================================================== */
 
-  function askAssistant() {
-
-    const input =
-      document.getElementById(
-        "assistantInput"
-      );
-
-
-    const message =
-      document.getElementById(
-        "assistantMessage"
-      );
-
-
-    const value =
-      input.value.trim();
-
-
-    if (!value) return;
-
-
-    message.innerHTML =
-      "💭 Tu as écrit : <strong>" +
-      escapeHtml(value) +
-      "</strong><br><br>" +
-      "🤖 L'IA sera connectée dans une prochaine étape.";
-
-
-    input.value = "";
-
-  }
+  
 
 
   /* =====================================================
