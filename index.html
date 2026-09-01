@@ -1,1 +1,605 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mon Assistant</title>
 
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f4f8;
+      color: #222;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: auto;
+    }
+
+    header {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      color: white;
+      padding: 25px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    header h1 {
+      font-size: 28px;
+    }
+
+    .weather {
+      font-size: 18px;
+      text-align: right;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.07);
+    }
+
+    .card h2 {
+      margin-bottom: 15px;
+      font-size: 21px;
+    }
+
+    .assistant {
+      background: linear-gradient(135deg, #eef2ff, #f5f3ff);
+    }
+
+    .assistant-box {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    input {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      font-size: 15px;
+    }
+
+    button {
+      border: none;
+      background: #4f46e5;
+      color: white;
+      padding: 11px 15px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background: #3730a3;
+    }
+
+    .item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .item:last-child {
+      border-bottom: none;
+    }
+
+    .item span {
+      flex: 1;
+    }
+
+    .delete {
+      background: #ef4444;
+      padding: 6px 9px;
+    }
+
+    .delete:hover {
+      background: #b91c1c;
+    }
+
+    .add {
+      display: flex;
+      gap: 8px;
+      margin-top: 15px;
+    }
+
+    .add input {
+      min-width: 0;
+    }
+
+    .budget-number {
+      font-size: 30px;
+      font-weight: bold;
+      color: #16a34a;
+      margin-bottom: 15px;
+    }
+
+    .budget-line {
+      display: flex;
+      justify-content: space-between;
+      margin: 8px 0;
+    }
+
+    .progress {
+      width: 100%;
+      height: 12px;
+      background: #e5e7eb;
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 15px 0;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: #22c55e;
+      width: 50%;
+      transition: width 0.3s;
+    }
+
+    .spotify {
+      text-align: center;
+    }
+
+    .spotify-player {
+      background: #111827;
+      color: white;
+      padding: 20px;
+      border-radius: 15px;
+      margin-top: 10px;
+    }
+
+    .spotify-buttons {
+      margin-top: 15px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .mail {
+      padding: 12px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .mail strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .suggestion {
+      background: white;
+      padding: 12px;
+      border-radius: 10px;
+      margin-top: 10px;
+    }
+
+    footer {
+      text-align: center;
+      color: #777;
+      margin-top: 25px;
+    }
+
+    @media (max-width: 800px) {
+      body {
+        padding: 10px;
+      }
+
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+      }
+
+      .weather {
+        text-align: left;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .assistant-box,
+      .add {
+        flex-direction: column;
+      }
+
+      button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <header>
+    <div>
+      <h1>🏠 Mon Assistant</h1>
+      <p>Ton tableau de bord personnel</p>
+    </div>
+
+    <div class="weather">
+      🌤️ <strong>23°C</strong><br>
+      Temps agréable
+    </div>
+  </header>
+
+  <div class="grid">
+
+    <!-- ASSISTANT -->
+    <div class="card assistant">
+      <h2>🤖 Assistant IA</h2>
+
+      <p id="assistantMessage">
+        Bonjour 👋 Que puis-je faire pour toi ?
+      </p>
+
+      <div class="assistant-box">
+        <input
+          id="assistantInput"
+          type="text"
+          placeholder="Écris ta demande..."
+        >
+        <button onclick="askAssistant()">Envoyer</button>
+      </div>
+
+      <div class="suggestion">
+        💡 Suggestion : pense à vérifier ta liste de courses.
+      </div>
+    </div>
+
+    <!-- MAILS -->
+    <div class="card">
+      <h2>📧 Mes mails</h2>
+
+      <div class="mail">
+        <strong>Gmail</strong>
+        3 nouveaux messages
+      </div>
+
+      <div class="mail">
+        <strong>iCloud</strong>
+        1 nouveau message
+      </div>
+
+      <p style="margin-top:15px;color:#777;">
+        🔒 Les comptes Gmail et iCloud seront connectés plus tard.
+      </p>
+    </div>
+
+    <!-- COURSES -->
+    <div class="card">
+      <h2>🛒 Liste de courses</h2>
+
+      <div id="shoppingList"></div>
+
+      <div class="add">
+        <input
+          id="shoppingInput"
+          type="text"
+          placeholder="Ajouter une course..."
+        >
+        <button onclick="addShopping()">+ Ajouter</button>
+      </div>
+    </div>
+
+    <!-- TACHES -->
+    <div class="card">
+      <h2>✅ À faire</h2>
+
+      <div id="todoList"></div>
+
+      <div class="add">
+        <input
+          id="todoInput"
+          type="text"
+          placeholder="Ajouter une tâche..."
+        >
+        <button onclick="addTodo()">+ Ajouter</button>
+      </div>
+    </div>
+
+    <!-- BUDGET PERSONNEL -->
+    <div class="card">
+      <h2>💰 Budget personnel</h2>
+
+      <div class="budget-number">
+        <span id="personalRemaining">1250</span> €
+      </div>
+
+      <div class="budget-line">
+        <span>Revenus</span>
+        <strong>1800 €</strong>
+      </div>
+
+      <div class="budget-line">
+        <span>Dépenses</span>
+        <strong>550 €</strong>
+      </div>
+
+      <div class="progress">
+        <div class="progress-bar" style="width:69%"></div>
+      </div>
+
+      <button onclick="alert('La gestion complète du budget sera ajoutée ensuite.')">
+        + Ajouter une dépense
+      </button>
+    </div>
+
+    <!-- BUDGET MAISON -->
+    <div class="card">
+      <h2>🏠 Budget maison</h2>
+
+      <div class="budget-number">
+        <span id="houseRemaining">850</span> €
+      </div>
+
+      <div class="budget-line">
+        <span>Revenus</span>
+        <strong>1400 €</strong>
+      </div>
+
+      <div class="budget-line">
+        <span>Dépenses</span>
+        <strong>550 €</strong>
+      </div>
+
+      <div class="progress">
+        <div class="progress-bar" style="width:61%"></div>
+      </div>
+
+      <button onclick="alert('La gestion complète du budget sera ajoutée ensuite.')">
+        + Ajouter une dépense
+      </button>
+    </div>
+
+    <!-- SPOTIFY -->
+    <div class="card spotify">
+      <h2>🎵 Spotify</h2>
+
+      <div class="spotify-player">
+        <div style="font-size:40px;">🎵</div>
+
+        <h3>Musique en cours</h3>
+
+        <p style="margin-top:5px;color:#aaa;">
+          Spotify sera connecté prochainement
+        </p>
+
+        <div class="spotify-buttons">
+          <button>⏮️</button>
+          <button>▶️</button>
+          <button>⏭️</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    Mon Assistant — Version 1
+  </footer>
+
+</div>
+
+<script>
+
+  // ==============================
+  // LISTE DE COURSES
+  // ==============================
+
+  let shoppingItems = [
+    { name: "Pain", done: true },
+    { name: "Lait", done: false },
+    { name: "Café", done: false }
+  ];
+
+  function displayShopping() {
+
+    const list = document.getElementById("shoppingList");
+
+    list.innerHTML = "";
+
+    shoppingItems.forEach((item, index) => {
+
+      const div = document.createElement("div");
+      div.className = "item";
+
+      div.innerHTML = `
+        <input
+          type="checkbox"
+          ${item.done ? "checked" : ""}
+          onchange="toggleShopping(${index})"
+        >
+
+        <span style="${item.done ? 'text-decoration:line-through;color:#999' : ''}">
+          ${item.name}
+        </span>
+
+        <button
+          class="delete"
+          onclick="deleteShopping(${index})"
+        >
+          🗑️
+        </button>
+      `;
+
+      list.appendChild(div);
+    });
+  }
+
+  function addShopping() {
+
+    const input = document.getElementById("shoppingInput");
+
+    const value = input.value.trim();
+
+    if (value === "") return;
+
+    shoppingItems.push({
+      name: value,
+      done: false
+    });
+
+    input.value = "";
+
+    displayShopping();
+  }
+
+  function toggleShopping(index) {
+
+    shoppingItems[index].done =
+      !shoppingItems[index].done;
+
+    displayShopping();
+  }
+
+  function deleteShopping(index) {
+
+    shoppingItems.splice(index, 1);
+
+    displayShopping();
+  }
+
+
+  // ==============================
+  // LISTE DE TACHES
+  // ==============================
+
+  let todos = [
+    { name: "Appeler Paul", done: false },
+    { name: "Prendre rendez-vous", done: false },
+    { name: "Acheter un cadeau", done: true }
+  ];
+
+  function displayTodos() {
+
+    const list = document.getElementById("todoList");
+
+    list.innerHTML = "";
+
+    todos.forEach((todo, index) => {
+
+      const div = document.createElement("div");
+
+      div.className = "item";
+
+      div.innerHTML = `
+        <input
+          type="checkbox"
+          ${todo.done ? "checked" : ""}
+          onchange="toggleTodo(${index})"
+        >
+
+        <span style="${todo.done ? 'text-decoration:line-through;color:#999' : ''}">
+          ${todo.name}
+        </span>
+
+        <button
+          class="delete"
+          onclick="deleteTodo(${index})"
+        >
+          🗑️
+        </button>
+      `;
+
+      list.appendChild(div);
+    });
+  }
+
+  function addTodo() {
+
+    const input = document.getElementById("todoInput");
+
+    const value = input.value.trim();
+
+    if (value === "") return;
+
+    todos.push({
+      name: value,
+      done: false
+    });
+
+    input.value = "";
+
+    displayTodos();
+  }
+
+  function toggleTodo(index) {
+
+    todos[index].done =
+      !todos[index].done;
+
+    displayTodos();
+  }
+
+  function deleteTodo(index) {
+
+    todos.splice(index, 1);
+
+    displayTodos();
+  }
+
+
+  // ==============================
+  // ASSISTANT
+  // ==============================
+
+  function askAssistant() {
+
+    const input =
+      document.getElementById("assistantInput");
+
+    const message =
+      document.getElementById("assistantMessage");
+
+    const value =
+      input.value.trim();
+
+    if (value === "") return;
+
+    message.innerHTML =
+      "💭 Tu as demandé : <strong>" +
+      value +
+      "</strong><br><br>" +
+      "🤖 L'intelligence artificielle sera connectée dans la prochaine version.";
+
+    input.value = "";
+  }
+
+
+  // ==============================
+  // INITIALISATION
+  // ==============================
+
+  displayShopping();
+
+  displayTodos();
+
+</script>
+
+</body>
+</html>
