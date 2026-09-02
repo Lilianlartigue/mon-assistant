@@ -15,7 +15,10 @@ export default async function handler(req, res) {
     }
 
     const openaiKey = process.env.OPENAI_API_KEY;
-    const geminiKey = process.env.GEMINI_API_KEY;
+const geminiKey = process.env.GEMINI_API_KEY;
+
+console.log("OpenAI key présente :", !!openaiKey);
+console.log("Gemini key présente :", !!geminiKey);
 
     if (!openaiKey) {
       throw new Error("OPENAI_API_KEY n'est pas configurée dans Vercel.");
