@@ -6,7 +6,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { message, userId } = req.body || {};
+    const { message } = req.body || {};
 
     if (!message || !message.trim()) {
       return res.status(400).json({
@@ -14,260 +14,180 @@ export default async function handler(req, res) {
       });
     }
 
-    const openaiKey = process.env.OPENAI_API_KEY;
-const geminiKey = process.env.GEMINI_API_KEY;
+    const geminiKey = process.env.GEMINI_API_KEY;
 
-console.log("OpenAI key présente :", !!openaiKey);
-console.log("Gemini key présente :", !!geminiKey);
-
-    if (!openaiKey) {
-      throw new Error("OPENAI_API_KEY n'est pas configurée dans Vercel.");
-    }
+    console.log("Gemini key présente :", !!geminiKey);
 
     if (!geminiKey) {
-      throw new Error("GEMINI_API_KEY n'est pas configurée dans Vercel.");
+      throw new Error(
+        "GEMINI_API_KEY n'est pas configurée dans Vercel."
+      );
     }
 
-    /*
-     * =====================================================
-     * 1. CHATGPT ANALYSE LA DEMANDE
-     * =====================================================
-     */
+    const prompt = `
+Tu es Mon Assistant, un assistant personnel intelligent.
 
-    const openaiPrompt = `
-Tu es le premier cerveau de "Mon Assistant", un assistant personnel.
+Tu dois comprendre les demandes de l'utilisateur.
 
-Analyse la demande de l'utilisateur et détermine ce qu'il veut faire.
+Réponds UNIQUEMENT avec un JSON valide, sans texte avant ou après.
 
-Tu dois répondre UNIQUEMENT avec un JSON valide sous cette forme :
+Format obligatoire :
 
 {
-  "answer": "réponse naturelle à l'utilisateur",
+  "answer": "réponse naturelle et courte",
   "action": {
-    "type": "none | add_task | delete_task | complete_task | add_shopping | delete_shopping | add_expense | delete_expense | add_reminder | delete_reminder | list_data",
+    "type": "none",
     "name": "",
     "amount": null,
-    "date": null,
     "category": ""
   }
 }
 
-Règles :
-- add_task = ajouter une tâche
-- delete_task = supprimer une tâche
-- complete_task = terminer une tâche
-- add_shopping = ajouter un article aux courses
-- delete_shopping = supprimer un article des courses
-- add_expense = enregistrer une dépense
-- delete_expense = supprimer une dépense
-- add_reminder = créer un rappel
-- delete_reminder = supprimer un rappel
-- list_data = demander la liste des tâches, courses, dépenses ou rappels
-- none = simple question ou conversation
+Actions possibles :
 
-Si plusieurs actions sont demandées, choisis l'action principale pour l'instant.
+- none : question ou conversation normale
+- add_shopping : ajouter un article à la liste de courses
+- delete_shopping : supprimer un article de la liste de courses
+- add_task : ajouter une tâche
+- delete_task : supprimer une tâche
+- complete_task : terminer une tâche
+- add_expense : ajouter une dépense
+
+Exemples :
+
+Utilisateur : ajoute du lait à ma liste de courses
+
+Réponse :
+{
+  "answer": "J'ai ajouté du lait à ta liste de courses.",
+  "action": {
+    "type": "add_shopping",
+    "name": "lait",
+    "amount": null,
+    "category": ""
+  }
+}
+
+Utilisateur : rappelle-moi d'appeler Paul
+
+Réponse :
+{
+  "answer": "Je note que tu dois appeler Paul.",
+  "action": {
+    "type": "add_task",
+    "name": "appeler Paul",
+    "amount": null,
+    "category": ""
+  }
+}
+
+Utilisateur : combien y a-t-il d'habitants en France ?
+
+Réponse :
+{
+  "answer": "La France compte environ 68 millions d'habitants.",
+  "action": {
+    "type": "none",
+    "name": "",
+    "amount": null,
+    "category": ""
+  }
+}
 
 Demande de l'utilisateur :
-${message}
-`;
 
-    const openaiResponse = await fetch(
-      "https://api.openai.com/v1/responses",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${openaiKey}`
-        },
-        body: JSON.stringify({
-          model: "gpt-5",
-          input: openaiPrompt
-        })
-      }
-    );
-
-    if (!openaiResponse.ok) {
-      const errorText = await openaiResponse.text();
-      throw new Error("Erreur OpenAI : " + errorText);
-    }
-
-    const openaiData = await openaiResponse.json();
-
-    const openaiText =
-      openaiData.output_text ||
-      "";
-
-    /*
-     * =====================================================
-     * 2. GEMINI ANALYSE LA MÊME DEMANDE
-     * =====================================================
-     */
-
-    const geminiPrompt = `
-Tu es le deuxième cerveau de "Mon Assistant".
-
-Analyse cette demande indépendamment de ChatGPT.
-
-Réponds UNIQUEMENT avec un JSON valide :
-
-{
-  "answer": "réponse naturelle à l'utilisateur",
-  "action": {
-    "type": "none | add_task | delete_task | complete_task | add_shopping | delete_shopping | add_expense | delete_expense | add_reminder | delete_reminder | list_data",
-    "name": "",
-    "amount": null,
-    "date": null,
-    "category": ""
-  }
-}
-
-Demande :
 ${message}
 `;
 
     const geminiResponse = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/interactions",
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" +
+      encodeURIComponent(geminiKey),
       {
         method: "POST",
+
         headers: {
-          "Content-Type": "application/json",
-          "x-goog-api-key": geminiKey
+          "Content-Type": "application/json"
         },
+
         body: JSON.stringify({
-          model: "gemini-3.7-flash",
-          input: geminiPrompt
+          contents: [
+            {
+              parts: [
+                {
+                  text: prompt
+                }
+              ]
+            }
+          ],
+
+          generationConfig: {
+            temperature: 0.2,
+            responseMimeType: "application/json"
+          }
         })
       }
     );
 
     if (!geminiResponse.ok) {
       const errorText = await geminiResponse.text();
-      throw new Error("Erreur Gemini : " + errorText);
+
+      console.error("Erreur Gemini :", errorText);
+
+      throw new Error(
+        "Erreur Gemini : " + errorText
+      );
     }
 
     const geminiData = await geminiResponse.json();
 
-    const geminiText =
-      geminiData.output_text ||
+    const text =
+      geminiData.candidates?.[0]?.content?.parts?.[0]?.text ||
       "";
 
-    /*
-     * =====================================================
-     * 3. CHATGPT CORRIGE / ARBITRE
-     * =====================================================
-     */
+    console.log("Réponse Gemini :", text);
 
-    const correctorPrompt = `
-Tu es le correcteur final de "Mon Assistant".
-
-Deux IA ont analysé la demande de l'utilisateur.
-
-Tu dois choisir la meilleure interprétation.
-
-Réponds UNIQUEMENT avec un JSON valide :
-
-{
-  "answer": "réponse naturelle à l'utilisateur",
-  "action": {
-    "type": "none | add_task | delete_task | complete_task | add_shopping | delete_shopping | add_expense | delete_expense | add_reminder | delete_reminder | list_data",
-    "name": "",
-    "amount": null,
-    "date": null,
-    "category": ""
-  }
-}
-
-IMPORTANT :
-- Ne crée jamais une action si elle n'est pas clairement demandée.
-- Si les deux IA sont d'accord, conserve leur interprétation.
-- Si elles divergent, choisis l'interprétation la plus logique.
-- Ne réponds avec aucun texte en dehors du JSON.
-
-DEMANDE UTILISATEUR :
-${message}
-
-ANALYSE CHATGPT :
-${openaiText}
-
-ANALYSE GEMINI :
-${geminiText}
-`;
-
-    const correctorResponse = await fetch(
-      "https://api.openai.com/v1/responses",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${openaiKey}`
-        },
-        body: JSON.stringify({
-          model: "gpt-5",
-          input: correctorPrompt
-        })
-      }
-    );
-
-    if (!correctorResponse.ok) {
-      const errorText = await correctorResponse.text();
-      throw new Error("Erreur du correcteur : " + errorText);
-    }
-
-    const correctorData = await correctorResponse.json();
-
-    const correctorText =
-      correctorData.output_text ||
-      "";
-
-    /*
-     * =====================================================
-     * 4. TRANSFORMATION DU JSON FINAL
-     * =====================================================
-     */
-
-    let finalResult;
+    let result;
 
     try {
-      finalResult = JSON.parse(cleanJson(correctorText));
+      result = JSON.parse(cleanJson(text));
     } catch (error) {
-      console.error("Réponse du correcteur :", correctorText);
 
-      finalResult = {
-        answer: correctorText || "Je n'ai pas réussi à comprendre.",
+      console.error(
+        "Impossible de lire le JSON Gemini :",
+        text
+      );
+
+      result = {
+        answer: text || "Je n'ai pas réussi à comprendre.",
         action: {
-          type: "none"
+          type: "none",
+          name: "",
+          amount: null,
+          category: ""
         }
       };
     }
 
-    /*
-     * =====================================================
-     * 5. RÉPONSE AU SITE
-     * =====================================================
-     */
-
     return res.status(200).json({
-      answer: finalResult.answer || "D'accord.",
-      action: finalResult.action || { type: "none" },
-
-      debug: {
-        userId: userId || null
+      answer: result.answer || "D'accord.",
+      action: result.action || {
+        type: "none"
       }
     });
 
   } catch (error) {
+
     console.error("Assistant IA :", error);
 
     return res.status(500).json({
-      error: error.message || "Erreur du serveur IA."
+      error:
+        error.message ||
+        "Erreur du serveur IA."
     });
   }
 }
 
 
-/*
- * Nettoie les éventuels blocs ```json ... ```
- */
 function cleanJson(text) {
   return String(text)
     .replace(/```json/gi, "")
