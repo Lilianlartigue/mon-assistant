@@ -1321,7 +1321,193 @@
      ASSISTANT
      ===================================================== */
 
-  
+  async function askAssistant() {
+
+  const input =
+    document.getElementById(
+      "assistantInput"
+    );
+
+  const messageElement =
+    document.getElementById(
+      "assistantMessage"
+    );
+
+  const value =
+    input.value.trim();
+
+
+  if (!value) return;
+
+
+  messageElement.innerHTML =
+    "🤖 Réflexion en cours...";
+
+
+  input.value = "";
+
+
+  try {
+
+    const response =
+      await fetch(
+        "/api/assistant",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json"
+          },
+
+          body:
+            JSON.stringify({
+              message: value
+            })
+        }
+      );
+
+
+    const data =
+      await response.json();
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        data.error ||
+        "Erreur avec l'assistant."
+      );
+
+    }
+
+
+    messageElement.innerHTML =
+      "🤖 " +
+      escapeHtml(
+        data.answer
+      );
+
+
+    /*
+     * =============================
+     * ACTIONS DE L'ASSISTANT
+     * =============================
+     */
+
+    if (
+      data.action &&
+      data.action.type ===
+        "add_shopping"
+    ) {
+
+      const { error } =
+        await supabaseClient
+          .from("course")
+          .insert({
+            name:
+              data.action.name,
+            done: false
+          });
+
+
+      if (error) {
+
+        console.error(error);
+
+        messageElement.innerHTML +=
+          "<br><br>❌ Je n'ai pas réussi à ajouter l'article.";
+
+        return;
+
+      }
+
+
+      loadShopping();
+
+    }
+
+
+    if (
+      data.action &&
+      data.action.type ===
+        "delete_shopping"
+    ) {
+
+      const { error } =
+        await supabaseClient
+          .from("course")
+          .delete()
+          .ilike(
+            "name",
+            data.action.name
+          );
+
+
+      if (error) {
+
+        console.error(error);
+
+        messageElement.innerHTML +=
+          "<br><br>❌ Je n'ai pas réussi à supprimer l'article.";
+
+        return;
+
+      }
+
+
+      loadShopping();
+
+    }
+
+
+    if (
+      data.action &&
+      data.action.type ===
+        "add_task"
+    ) {
+
+      const { error } =
+        await supabaseClient
+          .from("tasks")
+          .insert({
+            name:
+              data.action.name,
+            done: false
+          });
+
+
+      if (error) {
+
+        console.error(error);
+
+        messageElement.innerHTML +=
+          "<br><br>❌ Je n'ai pas réussi à ajouter la tâche.";
+
+        return;
+
+      }
+
+
+      loadTodos();
+
+    }
+
+
+  } catch (error) {
+
+    console.error(error);
+
+
+    messageElement.innerHTML =
+      "❌ " +
+      escapeHtml(
+        error.message
+      );
+
+  }
+
+}
 
 
   /* =====================================================
