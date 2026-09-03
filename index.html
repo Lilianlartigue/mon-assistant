@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,8 +10,11 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <link rel="stylesheet" href="css/style.css">
-
 </head>
+
+<body>
+
+<div class="container">
 
   <div class="grid">
 
@@ -22,14 +26,6 @@
       <p id="assistantMessage">
         Bonjour 👋 Que puis-je faire pour toi ?
       </p>
-
-      <div class="add">
-        <input
-          id="assistantInput"
-          type="text"
-          placeholder="Écris ta demande..."
-        >
-
         <button onclick="askAssistant()">
           Envoyer
         </button>
