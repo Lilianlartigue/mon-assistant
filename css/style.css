@@ -1,1 +1,848 @@
+/* =========================================
+   RESET
+========================================= */
 
+* {
+  box-sizing: border-box;
+}
+
+
+body {
+  margin: 0;
+
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  background: #f5f6fa;
+
+  color: #1f2937;
+}
+
+
+/* =========================================
+   APPLICATION
+========================================= */
+
+.app {
+  min-height: 100vh;
+}
+
+
+/* =========================================
+   BARRE SUPERIEURE
+========================================= */
+
+.topbar {
+
+  height: 72px;
+
+  background: white;
+
+  border-bottom:
+    1px solid #e5e7eb;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  padding:
+    0 5%;
+
+  position: sticky;
+
+  top: 0;
+
+  z-index: 100;
+
+}
+
+
+.logo {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  font-weight: 800;
+
+  font-size: 18px;
+
+  letter-spacing: 0.5px;
+
+}
+
+
+.logo-icon {
+
+  width: 42px;
+
+  height: 42px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  background: #eef2ff;
+
+  border-radius: 12px;
+
+  font-size: 22px;
+
+}
+
+
+.topbar-actions {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+}
+
+
+.icon-button,
+.profile-button {
+
+  border: none;
+
+  background: transparent;
+
+  cursor: pointer;
+
+  width: 42px;
+
+  height: 42px;
+
+  border-radius: 12px;
+
+  font-size: 18px;
+
+  transition: 0.2s;
+
+}
+
+
+.icon-button:hover {
+
+  background: #f3f4f6;
+
+}
+
+
+.profile-button {
+
+  background: #eef2ff;
+
+}
+
+
+.profile-button:hover {
+
+  background: #e0e7ff;
+
+}
+
+
+/* =========================================
+   DASHBOARD
+========================================= */
+
+.dashboard {
+
+  width: 100%;
+
+  max-width: 1150px;
+
+  margin: auto;
+
+  padding:
+
+    50px 25px
+
+    80px;
+
+}
+
+
+/* =========================================
+   BIENVENUE
+========================================= */
+
+.welcome {
+
+  margin-bottom: 35px;
+
+}
+
+
+.date {
+
+  color: #6b7280;
+
+  font-size: 14px;
+
+  margin-bottom: 8px;
+
+}
+
+
+.welcome h1 {
+
+  margin: 0;
+
+  font-size: 32px;
+
+}
+
+
+.subtitle {
+
+  color: #6b7280;
+
+  font-size: 17px;
+
+  margin-top: 8px;
+
+}
+
+
+/* =========================================
+   STATISTIQUES
+========================================= */
+
+.stats {
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 18px;
+
+  margin-bottom: 30px;
+
+}
+
+
+.stat-card {
+
+  border: none;
+
+  background: white;
+
+  border-radius: 18px;
+
+  padding: 22px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 15px;
+
+  cursor: pointer;
+
+  text-align: left;
+
+  box-shadow:
+
+    0 4px 15px
+
+    rgba(0, 0, 0, 0.04);
+
+  transition:
+
+    transform 0.2s,
+
+    box-shadow 0.2s;
+
+}
+
+
+.stat-card:hover {
+
+  transform:
+    translateY(-3px);
+
+  box-shadow:
+
+    0 8px 25px
+
+    rgba(0, 0, 0, 0.08);
+
+}
+
+
+.stat-icon {
+
+  width: 52px;
+
+  height: 52px;
+
+  border-radius: 15px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  background: #f3f4f6;
+
+  font-size: 24px;
+
+}
+
+
+.stat-content {
+
+  display: flex;
+
+  flex-direction: column;
+
+}
+
+
+.stat-label {
+
+  color: #6b7280;
+
+  font-size: 14px;
+
+}
+
+
+.stat-number {
+
+  font-size: 28px;
+
+  margin-top: 3px;
+
+}
+
+
+/* =========================================
+   ASSISTANT
+========================================= */
+
+.assistant-card {
+
+  background: white;
+
+  border-radius: 22px;
+
+  padding: 28px;
+
+  box-shadow:
+
+    0 4px 20px
+
+    rgba(0, 0, 0, 0.05);
+
+  margin-bottom: 40px;
+
+}
+
+
+.section-header {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: flex-start;
+
+}
+
+
+.section-header h2 {
+
+  margin: 0;
+
+  font-size: 22px;
+
+}
+
+
+.section-header p {
+
+  color: #6b7280;
+
+  margin-top: 6px;
+
+}
+
+
+.assistant-status {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 7px;
+
+  font-size: 13px;
+
+  color: #6b7280;
+
+}
+
+
+.status-dot {
+
+  width: 9px;
+
+  height: 9px;
+
+  border-radius: 50%;
+
+  background: #22c55e;
+
+}
+
+
+.assistant-conversation {
+
+  margin:
+
+    25px 0
+
+    18px;
+
+}
+
+
+.assistant-message {
+
+  display: inline-block;
+
+  background: #f3f4f6;
+
+  padding: 14px 18px;
+
+  border-radius:
+
+    5px 18px 18px 18px;
+
+  line-height: 1.5;
+
+}
+
+
+.assistant-input-container {
+
+  display: flex;
+
+  align-items: center;
+
+  background: #f8fafc;
+
+  border:
+
+    1px solid #e5e7eb;
+
+  border-radius: 15px;
+
+  padding: 6px;
+
+}
+
+
+.assistant-input-container input {
+
+  flex: 1;
+
+  border: none;
+
+  outline: none;
+
+  background: transparent;
+
+  padding: 13px;
+
+  font-size: 15px;
+
+}
+
+
+.send-button {
+
+  width: 45px;
+
+  height: 45px;
+
+  border: none;
+
+  border-radius: 12px;
+
+  background: #4f46e5;
+
+  color: white;
+
+  cursor: pointer;
+
+  font-size: 19px;
+
+  transition: 0.2s;
+
+}
+
+
+.send-button:hover {
+
+  background: #4338ca;
+
+  transform:
+    scale(1.05);
+
+}
+
+
+.assistant-suggestions {
+
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 10px;
+
+  margin-top: 16px;
+
+}
+
+
+.assistant-suggestions button {
+
+  border:
+
+    1px solid #e5e7eb;
+
+  background: white;
+
+  padding:
+
+    9px 13px;
+
+  border-radius: 20px;
+
+  cursor: pointer;
+
+  color: #4b5563;
+
+  transition: 0.2s;
+
+}
+
+
+.assistant-suggestions button:hover {
+
+  background: #f3f4f6;
+
+}
+
+
+/* =========================================
+   PROCHAINES TACHES
+========================================= */
+
+.tasks-preview {
+
+  margin-bottom: 45px;
+
+}
+
+
+.section-title {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  margin-bottom: 18px;
+
+}
+
+
+.section-title h2 {
+
+  margin: 0;
+
+  font-size: 22px;
+
+}
+
+
+.section-title p {
+
+  margin:
+
+    5px 0 0;
+
+  color: #6b7280;
+
+}
+
+
+.see-all {
+
+  border: none;
+
+  background: transparent;
+
+  color: #4f46e5;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+}
+
+
+.upcoming-tasks {
+
+  background: white;
+
+  border-radius: 18px;
+
+  padding: 8px;
+
+  box-shadow:
+
+    0 4px 20px
+
+    rgba(0, 0, 0, 0.04);
+
+}
+
+
+.upcoming-task {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 15px;
+
+  padding: 16px;
+
+}
+
+
+.task-check {
+
+  width: 22px;
+
+  height: 22px;
+
+  border:
+
+    2px solid #d1d5db;
+
+  border-radius: 7px;
+
+}
+
+
+.task-info {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 4px;
+
+}
+
+
+.task-info span {
+
+  color: #6b7280;
+
+  font-size: 14px;
+
+}
+
+
+/* =========================================
+   ACCES RAPIDES
+========================================= */
+
+.quick-access h2 {
+
+  font-size: 22px;
+
+  margin-bottom: 18px;
+
+}
+
+
+.quick-grid {
+
+  display: grid;
+
+  grid-template-columns:
+
+    repeat(5, 1fr);
+
+  gap: 15px;
+
+}
+
+
+.quick-card {
+
+  background: white;
+
+  border: none;
+
+  border-radius: 18px;
+
+  padding:
+
+    22px 10px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  gap: 12px;
+
+  cursor: pointer;
+
+  font-weight: 600;
+
+  box-shadow:
+
+    0 4px 18px
+
+    rgba(0, 0, 0, 0.04);
+
+  transition: 0.2s;
+
+}
+
+
+.quick-card:hover {
+
+  transform:
+    translateY(-4px);
+
+  box-shadow:
+
+    0 8px 25px
+
+    rgba(0, 0, 0, 0.08);
+
+}
+
+
+.quick-icon {
+
+  font-size: 28px;
+
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 800px) {
+
+
+  .dashboard {
+
+    padding:
+
+      30px 16px
+
+      60px;
+
+  }
+
+
+  .stats {
+
+    grid-template-columns:
+      1fr;
+
+  }
+
+
+  .quick-grid {
+
+    grid-template-columns:
+
+      repeat(2, 1fr);
+
+  }
+
+
+  .welcome h1 {
+
+    font-size: 27px;
+
+  }
+
+
+}
+
+
+@media (max-width: 500px) {
+
+
+  .topbar {
+
+    padding:
+      0 16px;
+
+  }
+
+
+  .logo span {
+
+    display: none;
+
+  }
+
+
+  .assistant-card {
+
+    padding: 20px;
+
+  }
+
+
+  .section-header {
+
+    flex-direction: column;
+
+    gap: 10px;
+
+  }
+
+
+  .section-title {
+
+    align-items: flex-start;
+
+  }
+
+
+}
