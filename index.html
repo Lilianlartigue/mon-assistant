@@ -3351,6 +3351,112 @@ async function loadPortfolio() {
     const li =
       document.createElement("li");
 
+
+    const checkbox =
+      document.createElement("input");
+
+    checkbox.type = "checkbox";
+
+    checkbox.checked =
+      item.completed;
+
+
+    checkbox.onchange =
+      async () => {
+
+        await supabaseClient
+          .from("portfolio")
+          .update({
+            completed: checkbox.checked
+          })
+          .eq("id", item.id);
+
+
+        loadPortfolio();
+
+      };
+
+
+    const span =
+      document.createElement("span");
+
+    span.textContent =
+      item.name;
+
+
+    if (item.completed) {
+
+      span.style.textDecoration =
+        "line-through";
+
+      span.style.opacity =
+        "0.5";
+
+    }
+
+
+    const deleteButton =
+      document.createElement("button");
+
+    deleteButton.textContent = "🗑️";
+
+
+    deleteButton.onclick =
+      async () => {
+
+        await supabaseClient
+          .from("portfolio")
+          .delete()
+          .eq("id", item.id);
+
+
+        loadPortfolio();
+
+      };
+
+
+    li.appendChild(checkbox);
+
+    li.appendChild(span);
+
+    li.appendChild(deleteButton);
+
+
+    list.appendChild(li);
+
+  });
+
+}
+
+  const list =
+    document.getElementById("portfolioList");
+
+  const { data, error } =
+    await supabaseClient
+      .from("portfolio")
+      .select("*")
+      .order("created_at", {
+        ascending: false
+      });
+
+  if (error) {
+
+    console.error(
+      "Erreur portfolio :",
+      error
+    );
+
+    return;
+
+  }
+
+  list.innerHTML = "";
+
+  data.forEach(item => {
+
+    const li =
+      document.createElement("li");
+
     li.innerHTML = `
       <span>
         ${escapeHtml(item.name)}
