@@ -1,138 +1,33 @@
 /* =====================================================
-   MON ASSISTANT
-   STYLE COMPLET
-===================================================== */
-
-
-/* =====================================================
-   RESET
+   GENERAL
 ===================================================== */
 
 * {
-
   box-sizing: border-box;
-
 }
-
-
-html {
-
-  width: 100%;
-
-}
-
 
 body {
-
   margin: 0;
-
   padding: 20px;
-
-  width: 100%;
-
-  min-height: 100vh;
 
   font-family:
     Arial,
     Helvetica,
     sans-serif;
 
-  color: #374151;
-
   background:
     linear-gradient(
       135deg,
-      #f8f7ff,
-      #fdf6f8
+      #f7f3ff,
+      #fff7f2
     );
 
+  color: #374151;
 }
-
-
-/* =====================================================
-   CONTENEUR PRINCIPAL
-===================================================== */
 
 .container {
-
-  width: 100%;
-
   max-width: 1500px;
-
   margin: auto;
-
-}
-
-
-/* =====================================================
-   HEADER
-===================================================== */
-
-header {
-
-  width: 100%;
-
-  min-height: 130px;
-
-  padding: 28px 35px;
-
-  margin-bottom: 25px;
-
-  display: flex;
-
-  justify-content: space-between;
-
-  align-items: center;
-
-  border-radius: 24px;
-
-  background:
-    linear-gradient(
-      135deg,
-      #dcd8ff,
-      #eadcff
-    );
-
-  box-shadow:
-    0 8px 25px
-    rgba(100, 90, 150, 0.12);
-
-}
-
-
-header h1 {
-
-  margin: 0 0 8px 0;
-
-  font-size: 28px;
-
-  color: #3f3b5c;
-
-}
-
-
-header p {
-
-  margin: 0;
-
-  color: #625d7c;
-
-}
-
-
-#weather {
-
-  min-width: 150px;
-
-  padding: 15px;
-
-  text-align: center;
-
-  border-radius: 16px;
-
-  background:
-    rgba(255, 255, 255, 0.45);
-
 }
 
 
@@ -143,17 +38,69 @@ header p {
 h1,
 h2,
 h3 {
-
   margin-top: 0;
+}
 
+h2 {
+  font-size: 21px;
 }
 
 
-h2 {
+/* =====================================================
+   HEADER
+===================================================== */
 
-  font-size: 21px;
+header {
 
-  color: #3f4654;
+  background:
+    linear-gradient(
+      135deg,
+      #c9c5f5,
+      #f3c6d3
+    );
+
+  padding: 25px;
+
+  border-radius: 24px;
+
+  margin-bottom: 22px;
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  gap: 20px;
+
+  box-shadow:
+    0 8px 25px
+    rgba(0, 0, 0, 0.08);
+}
+
+header h1 {
+  margin-bottom: 8px;
+}
+
+header p {
+  margin: 0;
+}
+
+
+/* =====================================================
+   METEO
+===================================================== */
+
+#weather {
+
+  text-align: right;
+
+  padding: 10px 15px;
+
+  background:
+    rgba(255, 255, 255, 0.35);
+
+  border-radius: 15px;
 
 }
 
@@ -163,8 +110,6 @@ h2 {
 ===================================================== */
 
 .grid {
-
-  width: 100%;
 
   display: grid;
 
@@ -180,7 +125,7 @@ h2 {
 
 
 /* =====================================================
-   CARTES GENERALES
+   CARTES
 ===================================================== */
 
 .card {
@@ -195,7 +140,7 @@ h2 {
 
   box-shadow:
     0 8px 25px
-    rgba(70, 70, 100, 0.08);
+    rgba(0, 0, 0, 0.06);
 
   overflow: hidden;
 
@@ -203,33 +148,19 @@ h2 {
 
 
 /* =====================================================
-   COULEURS DES CARTES
+   COULEURS PASTEL DES CARTES
 ===================================================== */
 
 
 /* Assistant */
 
-.card.assistant {
+.assistant {
 
   background:
     linear-gradient(
       135deg,
-      #dedcff,
-      #ece6ff
-    );
-
-}
-
-
-/* Mails */
-
-.card:has(#gmailStatus) {
-
-  background:
-    linear-gradient(
-      135deg,
-      #ffdfe4,
-      #ffe9ed
+      #dfe4ff,
+      #eee5ff
     );
 
 }
@@ -237,27 +168,27 @@ h2 {
 
 /* Courses */
 
-.card:has(#shoppingList) {
+.card:nth-child(3) {
 
   background:
     linear-gradient(
       135deg,
-      #fff1c9,
-      #fff7df
+      #fff0c9,
+      #fff7e5
     );
 
 }
 
 
-/* À faire */
+/* Taches */
 
-.card:has(#todoList) {
+.card:nth-child(4) {
 
   background:
     linear-gradient(
       135deg,
       #d9f0df,
-      #e7f7ea
+      #e9f8ed
     );
 
 }
@@ -265,13 +196,13 @@ h2 {
 
 /* Lycée */
 
-.card:has(#lyceeList) {
+.card:nth-child(5) {
 
   background:
     linear-gradient(
       135deg,
-      #d9e9f8,
-      #e7f2fc
+      #d6e5f5,
+      #e5f1fb
     );
 
 }
@@ -279,13 +210,13 @@ h2 {
 
 /* Portfolio */
 
-.card:has(#portfolioList) {
+.card:nth-child(6) {
 
   background:
     linear-gradient(
       135deg,
-      #eadcf5,
-      #f3e9fa
+      #e6d9f3,
+      #f2eafa
     );
 
 }
@@ -295,41 +226,29 @@ h2 {
 
 .calendar-card {
 
-  grid-column: 1 / -1;
-
   background:
     linear-gradient(
       135deg,
-      #dceef5,
-      #eaf7f4
+      #ffe1e8,
+      #fff0f4
     );
+
+  grid-column:
+    1 / -1;
 
 }
 
 
-/* Compte courant */
+/* Budget */
 
-.card:has(#courantNourriture) {
-
-  background:
-    linear-gradient(
-      135deg,
-      #ffe6cf,
-      #fff1e5
-    );
-
-}
-
-
-/* Livret A */
-
-.card:has(#livretPermis) {
+.card:nth-child(8),
+.card:nth-child(9) {
 
   background:
     linear-gradient(
       135deg,
-      #d9f1ed,
-      #e8f8f5
+      #d9f1ec,
+      #eaf9f5
     );
 
 }
@@ -337,58 +256,14 @@ h2 {
 
 /* Transactions */
 
-.card:has(#transactionsList) {
+.card:nth-child(10) {
 
   background:
     linear-gradient(
       135deg,
-      #e8e2fa,
-      #f2effc
+      #ffe8d6,
+      #fff3e9
     );
-
-}
-
-
-/* =====================================================
-   CHAMPS DE TEXTE
-===================================================== */
-
-input[type="text"],
-input[type="number"],
-input[type="datetime-local"] {
-
-  width: 100%;
-
-  min-width: 0;
-
-  padding: 14px 16px;
-
-  border:
-
-    1px solid
-    rgba(120, 120, 140, 0.2);
-
-  border-radius: 14px;
-
-  font-size: 15px;
-
-  background:
-    rgba(255, 255, 255, 0.65);
-
-  color: #374151;
-
-  outline: none;
-
-}
-
-
-input:focus {
-
-  border-color: #8b82d8;
-
-  box-shadow:
-    0 0 0 3px
-    rgba(139, 130, 216, 0.15);
 
 }
 
@@ -401,40 +276,91 @@ button {
 
   border: none;
 
-  padding: 11px 16px;
-
-  border-radius: 13px;
-
-  cursor: pointer;
-
-  font-size: 14px;
-
-  font-weight: bold;
+  background:
+    #7772c9;
 
   color: white;
 
-  background:
-    linear-gradient(
-      135deg,
-      #8077cf,
-      #7066bd
-    );
+  padding: 11px 16px;
+
+  border-radius: 12px;
+
+  cursor: pointer;
+
+  font-weight: bold;
+
+  font-size: 14px;
+
+  white-space: nowrap;
 
   transition:
-
     transform 0.15s,
-
     opacity 0.15s;
 
 }
 
-
 button:hover {
+
+  opacity: 0.9;
 
   transform:
     translateY(-1px);
 
-  opacity: 0.9;
+}
+
+
+/* Bouton modifier */
+
+.edit {
+
+  background:
+    #f5bf67;
+
+  padding:
+    8px 11px;
+
+}
+
+
+/* Bouton supprimer */
+
+.delete {
+
+  background:
+    #ec8c95;
+
+  padding:
+    8px 11px;
+
+}
+
+
+/* =====================================================
+   CHAMPS
+===================================================== */
+
+input[type="text"],
+input[type="number"],
+input[type="datetime-local"] {
+
+  width: 100%;
+
+  min-width: 0;
+
+  padding: 13px;
+
+  border:
+    1px solid
+    rgba(100, 100, 100, 0.18);
+
+  border-radius: 13px;
+
+  background:
+    rgba(255, 255, 255, 0.65);
+
+  font-size: 15px;
+
+  color: #374151;
 
 }
 
@@ -445,18 +371,17 @@ button:hover {
 
 .add {
 
-  width: 100%;
-
   display: flex;
 
   align-items: stretch;
 
-  gap: 10px;
+  gap: 8px;
 
   margin-top: 15px;
 
-}
+  width: 100%;
 
+}
 
 .add input {
 
@@ -466,237 +391,156 @@ button:hover {
 
 }
 
-
 .add button {
 
   flex-shrink: 0;
 
-  min-width: 88px;
-
 }
 
 
 /* =====================================================
-   LISTES
-===================================================== */
-
-#shoppingList,
-#todoList {
-
-  width: 100%;
-
-}
-
-
-#lyceeList,
-#portfolioList {
-
-  width: 100%;
-
-  margin: 0;
-
-  padding: 0;
-
-  list-style: none;
-
-}
-
-
-/* =====================================================
-   ELEMENT D'UNE LISTE
+   ELEMENTS DES LISTES
+   IMPORTANT : CORRECTION DU TEXTE
 ===================================================== */
 
 .item {
 
   width: 100%;
 
-  min-width: 0;
+  display: grid;
 
-  display: flex;
-
-  flex-direction: row;
+  grid-template-columns:
+    auto
+    minmax(0, 1fr)
+    auto
+    auto;
 
   align-items: center;
 
-  justify-content: flex-start;
+  column-gap: 10px;
 
-  gap: 12px;
-
-  padding: 11px 8px;
-
-  margin-bottom: 5px;
+  padding:
+    12px 0;
 
   border-bottom:
-
     1px solid
-    rgba(100, 100, 120, 0.12);
+    rgba(0, 0, 0, 0.08);
 
 }
 
 
-/* =====================================================
-   CASE A COCHER
-===================================================== */
-
-.item input[type="checkbox"] {
-
-  width: 18px;
-
-  height: 18px;
-
-  min-width: 18px;
-
-  flex: 0 0 18px;
-
-  margin: 0;
-
-  cursor: pointer;
-
-}
-
-
-/* =====================================================
-   TEXTE DES LISTES
-===================================================== */
+/* Le texte prend toute la place disponible */
 
 .item span {
 
-  flex: 1 1 auto;
+  display: block;
+
+  width: 100%;
 
   min-width: 0;
 
-  width: auto;
+  max-width: none;
 
-  margin: 0;
-
-  padding: 0;
+  flex: none;
 
   text-align: left;
 
-  white-space: nowrap;
-
-  overflow: hidden;
-
-  text-overflow: ellipsis;
-
-  line-height: 1.5;
+  white-space: normal;
 
   word-break: normal;
 
-  overflow-wrap: normal;
+  overflow-wrap: break-word;
+
+  line-height: 1.4;
 
 }
 
 
-/* =====================================================
-   BOUTONS DES LISTES
-===================================================== */
+/* Cases à cocher */
 
-.item button {
+.item input[type="checkbox"] {
 
-  flex: 0 0 auto;
+  width: 16px;
 
-  min-width: auto;
-
-  padding: 8px 11px;
+  height: 16px;
 
   margin: 0;
 
-  white-space: nowrap;
+}
+
+
+/* =====================================================
+   LISTES LYCEE ET PORTFOLIO
+===================================================== */
+
+#lyceeList,
+#portfolioList {
+
+  list-style: none;
+
+  padding: 0;
+
+  margin: 15px 0 0 0;
+
+  width: 100%;
 
 }
 
 
-.delete {
+/* Pour lycée et portfolio il n'y a qu'un bouton supprimer */
 
-  background:
-    #e58b94;
+#lyceeList .item,
+#portfolioList .item {
 
-}
-
-
-.edit {
-
-  background:
-    #efb95e;
+  grid-template-columns:
+    auto
+    minmax(0, 1fr)
+    auto;
 
 }
 
 
 /* =====================================================
-   STATUT
+   STATUS
 ===================================================== */
 
 .status {
 
   margin-top: 10px;
 
-  font-size: 14px;
+  color: #39945d;
 
-  color: #47855d;
+  font-size: 14px;
 
 }
 
 
 /* =====================================================
-   GMAIL
+   MAILS
 ===================================================== */
 
 .mail {
 
-  padding: 14px 0;
+  padding:
+    14px 0;
 
   border-bottom:
-
     1px solid
-    rgba(100, 100, 120, 0.12);
-
-}
-
-
-.mail:last-child {
-
-  border-bottom: none;
-
-}
-
-
-.gmail-actions {
-
-  display: flex;
-
-  flex-wrap: wrap;
-
-  gap: 8px;
-
-  margin-top: 12px;
+    rgba(0, 0, 0, 0.08);
 
 }
 
 
 .gmail-message {
 
-  padding: 14px;
+  padding: 13px;
 
   margin-top: 10px;
 
-  border-radius: 14px;
+  border-radius: 13px;
 
   background:
     rgba(255, 255, 255, 0.55);
-
-  border:
-
-    1px solid
-    rgba(255, 255, 255, 0.7);
-
-}
-
-
-.gmail-message:hover {
-
-  background:
-    rgba(255, 255, 255, 0.8);
 
 }
 
@@ -732,9 +576,36 @@ button:hover {
 
 .gmail-error {
 
+  color: #dc2626;
+
   margin-top: 10px;
 
-  color: #c85d67;
+}
+
+
+.gmail-actions {
+
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 8px;
+
+  margin-top: 12px;
+
+}
+
+
+.gmail-refresh {
+
+  background: #7772c9;
+
+}
+
+
+.gmail-logout {
+
+  background: #ec8c95;
 
 }
 
@@ -751,16 +622,9 @@ button:hover {
 
   align-items: center;
 
-  gap: 20px;
+  gap: 15px;
 
   margin-bottom: 20px;
-
-}
-
-
-.calendar-header h2 {
-
-  margin: 0;
 
 }
 
@@ -774,63 +638,58 @@ button:hover {
 }
 
 
-.seven-days-calendar,
-.calendar-days,
-#eventsList {
-
-  width: 100%;
-
-  min-width: 900px;
+.seven-days-calendar {
 
   display: grid;
 
   grid-template-columns:
-    repeat(7, 1fr);
+    repeat(7, minmax(160px, 1fr));
 
   gap: 12px;
+
+  width: 100%;
 
 }
 
 
 .calendar-day {
 
-  min-height: 230px;
+  background:
+    rgba(255, 255, 255, 0.55);
+
+  border-radius: 15px;
 
   padding: 12px;
 
-  border-radius: 16px;
-
-  background:
-    rgba(255, 255, 255, 0.5);
+  min-height: 180px;
 
 }
 
 
 .calendar-day-title {
 
+  text-align: center;
+
   padding-bottom: 10px;
 
   margin-bottom: 10px;
 
-  text-align: center;
-
   border-bottom:
-
     1px solid
-    rgba(100, 100, 120, 0.12);
+    rgba(0, 0, 0, 0.08);
 
 }
 
 
 .calendar-empty {
 
-  padding: 20px 5px;
-
   text-align: center;
+
+  color: #888;
 
   font-size: 13px;
 
-  color: #7b8794;
+  padding-top: 20px;
 
 }
 
@@ -839,14 +698,16 @@ button:hover {
 
   position: relative;
 
-  padding: 9px;
+  background:
+    rgba(255, 255, 255, 0.8);
 
-  margin-bottom: 8px;
+  padding: 10px;
+
+  padding-right: 35px;
 
   border-radius: 10px;
 
-  background:
-    rgba(255, 255, 255, 0.8);
+  margin-bottom: 8px;
 
 }
 
@@ -857,18 +718,14 @@ button:hover {
 
   font-weight: bold;
 
-  color: #7066bd;
+  color: #7772c9;
 
 }
 
 
 .calendar-event-title {
 
-  margin-top: 4px;
-
-  padding-right: 25px;
-
-  font-size: 13px;
+  margin-top: 5px;
 
   word-break: break-word;
 
@@ -879,41 +736,45 @@ button:hover {
 
   position: absolute;
 
-  top: 5px;
+  top: 7px;
 
-  right: 5px;
+  right: 7px;
 
-  padding: 4px 7px;
+  padding: 4px 6px;
 
-  font-size: 11px;
+  font-size: 12px;
 
-  background: #e58b94;
+  background: #ec8c95;
 
 }
 
 
 /* =====================================================
-   FENETRE AJOUT EVENEMENT
+   MODALE CALENDRIER
 ===================================================== */
 
 .modal {
 
-  position: fixed;
+  display: none;
 
-  inset: 0;
+  position: fixed;
 
   z-index: 1000;
 
-  display: none;
+  top: 0;
+
+  left: 0;
+
+  width: 100%;
+
+  height: 100%;
+
+  background:
+    rgba(0, 0, 0, 0.35);
 
   justify-content: center;
 
   align-items: center;
-
-  padding: 20px;
-
-  background:
-    rgba(50, 50, 70, 0.35);
 
 }
 
@@ -927,19 +788,15 @@ button:hover {
 
 .modal-content {
 
-  width: 100%;
+  width: 90%;
 
-  max-width: 500px;
+  max-width: 450px;
+
+  background: white;
 
   padding: 25px;
 
-  border-radius: 24px;
-
-  background: #fffafc;
-
-  box-shadow:
-    0 15px 50px
-    rgba(0, 0, 0, 0.2);
+  border-radius: 22px;
 
 }
 
@@ -957,20 +814,13 @@ button:hover {
 }
 
 
-.modal-header h2 {
-
-  margin: 0;
-
-}
-
-
 .modal-close {
 
-  padding: 5px 12px;
+  background: #ec8c95;
 
-  font-size: 24px;
+  font-size: 20px;
 
-  background: #e58b94;
+  padding: 5px 11px;
 
 }
 
@@ -979,10 +829,9 @@ button:hover {
 
   display: block;
 
-  margin:
+  margin-top: 15px;
 
-    15px 0
-    7px;
+  margin-bottom: 6px;
 
   font-weight: bold;
 
@@ -991,7 +840,7 @@ button:hover {
 
 .modal-content input {
 
-  width: 100%;
+  margin-bottom: 5px;
 
 }
 
@@ -1011,13 +860,13 @@ button:hover {
 
 .budget-number {
 
-  margin-top: 20px;
-
-  font-size: 25px;
+  font-size: 28px;
 
   font-weight: bold;
 
-  color: #4d8070;
+  color: #39945d;
+
+  margin-top: 15px;
 
 }
 
@@ -1028,9 +877,11 @@ button:hover {
 
   justify-content: space-between;
 
-  gap: 15px;
+  align-items: center;
 
-  margin: 14px 0;
+  gap: 10px;
+
+  margin: 12px 0;
 
 }
 
@@ -1041,12 +892,14 @@ button:hover {
 
   height: 12px;
 
-  overflow: hidden;
+  background:
+    rgba(255, 255, 255, 0.55);
 
   border-radius: 20px;
 
-  background:
-    rgba(255, 255, 255, 0.5);
+  overflow: hidden;
+
+  margin-bottom: 15px;
 
 }
 
@@ -1055,14 +908,7 @@ button:hover {
 
   height: 100%;
 
-  border-radius: 20px;
-
-  background:
-    linear-gradient(
-      90deg,
-      #76c7a3,
-      #9dd9bd
-    );
+  background: #78c9a1;
 
   transition:
     width 0.3s;
@@ -1084,12 +930,11 @@ button:hover {
 
   gap: 15px;
 
-  padding: 14px 0;
+  padding: 12px 0;
 
   border-bottom:
-
     1px solid
-    rgba(100, 100, 120, 0.12);
+    rgba(0, 0, 0, 0.08);
 
 }
 
@@ -1100,7 +945,7 @@ button:hover {
 
   align-items: center;
 
-  gap: 12px;
+  gap: 10px;
 
 }
 
@@ -1116,33 +961,32 @@ button:hover {
 
   display: block;
 
-  margin-top: 4px;
+  color: #777;
 
-  color: #7b8794;
+  margin-top: 3px;
 
 }
 
 
 .expense {
 
-  color: #d46b74;
+  color: #dc6b75;
 
 }
 
 
 .income {
 
-  color: #4c9b73;
+  color: #39945d;
 
 }
 
 
 /* =====================================================
-   RESPONSIVE TABLETTE
+   TABLETTE
 ===================================================== */
 
-@media screen and (max-width: 900px) {
-
+@media (max-width: 900px) {
 
   .grid {
 
@@ -1151,56 +995,47 @@ button:hover {
 
   }
 
-
   .calendar-card {
 
     grid-column: auto;
 
   }
 
-
 }
 
 
 /* =====================================================
-   RESPONSIVE TELEPHONE
+   TELEPHONE
 ===================================================== */
 
-@media screen and (max-width: 600px) {
-
+@media (max-width: 600px) {
 
   body {
 
-    padding: 12px;
+    padding: 10px;
 
   }
 
 
   header {
 
-    padding: 22px;
-
     flex-direction: column;
 
     align-items: flex-start;
-
-    gap: 20px;
 
   }
 
 
   #weather {
 
-    width: 100%;
+    text-align: left;
 
   }
 
 
   .card {
 
-    padding: 17px;
-
-    border-radius: 20px;
+    padding: 16px;
 
   }
 
@@ -1214,9 +1049,7 @@ button:hover {
 
   .add input {
 
-    width: 100%;
-
-    flex-basis: 100%;
+    min-width: 100%;
 
   }
 
@@ -1224,20 +1057,6 @@ button:hover {
   .add button {
 
     width: 100%;
-
-  }
-
-
-  .item {
-
-    gap: 8px;
-
-  }
-
-
-  .item button {
-
-    padding: 7px 9px;
 
   }
 
@@ -1256,6 +1075,5 @@ button:hover {
     width: 100%;
 
   }
-
 
 }
