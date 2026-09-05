@@ -3568,6 +3568,188 @@ async function addPortfolio() {
   await loadPortfolio();
 
 }
+  /* =====================================================
+   FONCTIONS IA - LYCEE
+===================================================== */
+
+async function addLyceeFromAssistant(name) {
+
+  if (!name) return;
+
+  const { error } =
+    await supabaseClient
+      .from("lycee")
+      .insert({
+        name: name,
+        completed: false
+      });
+
+  if (error) {
+
+    console.error(
+      "Erreur IA ajout lycée :",
+      error
+    );
+
+    return;
+
+  }
+
+  await loadLycee();
+
+}
+
+
+async function deleteLyceeByName(name) {
+
+  if (!name) return;
+
+  const { error } =
+    await supabaseClient
+      .from("lycee")
+      .delete()
+      .ilike(
+        "name",
+        name
+      );
+
+  if (error) {
+
+    console.error(
+      "Erreur IA suppression lycée :",
+      error
+    );
+
+    return;
+
+  }
+
+  await loadLycee();
+
+}
+
+
+async function completeLyceeByName(name) {
+
+  if (!name) return;
+
+  const { error } =
+    await supabaseClient
+      .from("lycee")
+      .update({
+        completed: true
+      })
+      .ilike(
+        "name",
+        name
+      );
+
+  if (error) {
+
+    console.error(
+      "Erreur IA tâche lycée :",
+      error
+    );
+
+    return;
+
+  }
+
+  await loadLycee();
+
+}
+
+
+/* =====================================================
+   FONCTIONS IA - PORTFOLIO
+===================================================== */
+
+async function addPortfolioFromAssistant(name) {
+
+  if (!name) return;
+
+  const { error } =
+    await supabaseClient
+      .from("portfolio")
+      .insert({
+        name: name,
+        completed: false
+      });
+
+  if (error) {
+
+    console.error(
+      "Erreur IA ajout portfolio :",
+      error
+    );
+
+    return;
+
+  }
+
+  await loadPortfolio();
+
+}
+
+
+async function deletePortfolioByName(name) {
+
+  if (!name) return;
+
+  const { error } =
+    await supabaseClient
+      .from("portfolio")
+      .delete()
+      .ilike(
+        "name",
+        name
+      );
+
+  if (error) {
+
+    console.error(
+      "Erreur IA suppression portfolio :",
+      error
+    );
+
+    return;
+
+  }
+
+  await loadPortfolio();
+
+}
+
+
+async function completePortfolioByName(name) {
+
+  if (!name) return;
+
+  const { error } =
+    await supabaseClient
+      .from("portfolio")
+      .update({
+        completed: true
+      })
+      .ilike(
+        "name",
+        name
+      );
+
+  if (error) {
+
+    console.error(
+      "Erreur IA tâche portfolio :",
+      error
+    );
+
+    return;
+
+  }
+
+  await loadPortfolio();
+
+}
 
 /* =====================================================
    DEMARRAGE
