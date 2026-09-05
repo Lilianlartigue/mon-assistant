@@ -807,44 +807,354 @@
 
 
 <script>
+/* =====================================================
+   CALENDRIER
+===================================================== */
 
-  <!-- ================= CALENDRIER ================= -->
+async function loadEvents() {
 
-<div class="card">
-
-  <h2>📅 Calendrier</h2>
-
-  <div class="add">
-
-    <input
-      id="eventTitle"
-      type="text"
-      placeholder="Nom de l'événement..."
-    >
-
-  </div>
-
-  <div class="add">
-
-    <input
-      id="eventStart"
-      type="datetime-local"
-    >
-
-    <button onclick="addEvent()">
-      Ajouter
-    </button>
-
-  </div>
+  const list =
+    document.getElementById("eventsList");
 
 
-  <div id="eventsList">
+  const { data, error } =
+    await supabaseClient
+      .from("events")
+      .select("*")
+      .order("start_date", {
+        ascending: true
+      });
 
-    Chargement du calendrier...
 
-  </div>
+  if (error) {
 
-</div>
+    console.error(
+      "Erreur calendrier :",
+      error
+    );
+
+
+    list.innerHTML =
+      "❌ Impossible de charger le calendrier.";
+
+    return;
+
+  }
+
+
+  if (!data || data.length === 0) {
+
+    list.innerHTML =
+      "<p>Aucun événement prévu.</p>";
+
+    return;
+
+  }
+
+
+  list.innerHTML = "";
+
+
+  data.forEach(event => {
+
+
+    const div =
+      document.createElement("div");
+
+
+    div.className =
+      "item";
+
+
+    const startDate =
+      new Date(event.start_date);
+
+
+    const startText =
+      startDate.toLocaleString(
+        "fr-FR",
+        {
+
+          weekday: "long",
+
+          day: "numeric",
+
+          month: "long",
+
+          hour: "2-digit",
+
+          minute: "2-digit"
+
+        }
+      );
+
+
+    let endText = "";
+
+
+    if (event.end_date) {
+
+      const endDate =
+        new Date(event.end_date);
+
+
+      endText =
+        endDate.toLocaleString(
+          "fr-FR",
+          {
+
+            weekday: "long",
+
+            day: "numeric",
+
+            month: "long",
+
+            hour: "2-digit",
+
+            minute: "2-digit"
+
+          }
+        );
+
+    }
+
+
+    const span =
+      document.createElement("span");
+
+
+    span.innerHTML =
+      "<strong>" +
+      escapeHtml(event.title) +
+      "</strong><br>" +
+
+      "Début : " +
+      startText +
+
+
+      (
+
+        endText
+
+          ? "<br>Fin : " +
+            endText
+
+          : ""
+
+      );
+
+
+    const deleteButton =
+      document.createElement("button");
+
+
+    deleteButton.className =
+      "delete";
+
+
+    deleteButton.textContent =
+      "🗑️";
+
+
+    deleteButton.onclick =
+      () => deleteEvent(event.id);
+
+
+    div.appendChild(span);
+
+    div.appendChild(deleteButton);
+
+    list.appendChild(div);
+
+
+  });
+
+
+}
+
+
+
+/* =====================================================
+   AJOUTER EVENEMENT
+===================================================== */
+
+async function addEvent() {
+
+
+  const titleInput =
+    document.getElementById(
+      "eventTitle"
+    );
+
+
+  const startInput =
+    document.getElementById(
+      "eventStart"
+    );
+
+
+  const endInput =
+    document.getElementById(
+      "eventEnd"
+    );
+
+
+  const title =
+    titleInput.value.trim();
+
+
+  const startDate =
+    startInput.value;
+
+
+  const endDate =
+    endInput.value;
+
+
+  if (!title || !startDate) {
+
+    alert(
+      "Indique au minimum un nom et une date de début."
+    );
+
+    return;
+
+  }
+
+
+  if (
+
+    endDate &&
+
+    new Date(endDate) <=
+    new Date(startDate)
+
+  ) {
+
+    alert(
+      "La date de fin doit être après la date de début."
+    );
+
+    return;
+
+  }
+
+
+  const eventData = {
+
+    title:
+      title,
+
+
+    start_date:
+      new Date(
+        startDate
+      ).toISOString(),
+
+
+    end_date:
+
+      endDate
+
+        ? new Date(
+            endDate
+          ).toISOString()
+
+        : null
+
+  };
+
+
+  const { error } =
+    await supabaseClient
+      .from("events")
+      .insert(
+        eventData
+      );
+
+
+  if (error) {
+
+    console.error(
+      "Erreur ajout événement :",
+      error
+    );
+
+
+    alert(
+      "Impossible d'ajouter l'événement."
+    );
+
+    return;
+
+  }
+
+
+  titleInput.value = "";
+
+  startInput.value = "";
+
+  endInput.value = "";
+
+
+  await loadEvents();
+
+
+}
+
+
+
+/* =====================================================
+   SUPPRIMER EVENEMENT
+===================================================== */
+
+async function deleteEvent(id) {
+
+
+  if (
+
+    !confirm(
+      "Supprimer cet événement ?"
+    )
+
+  ) {
+
+    return;
+
+  }
+
+
+  const { error } =
+    await supabaseClient
+      .from("events")
+      .delete()
+      .eq(
+        "id",
+        id
+      );
+
+
+  if (error) {
+
+    console.error(
+      "Erreur suppression événement :",
+      error
+    );
+
+
+    alert(
+      "Impossible de supprimer l'événement."
+    );
+
+    return;
+
+  }
+
+
+  await loadEvents();
+
+
+}
 
   /* =====================================================
    METEO EN TEMPS REEL
