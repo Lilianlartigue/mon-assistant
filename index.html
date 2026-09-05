@@ -1987,6 +1987,199 @@ async function loadBudgets() {
 }
 
 
+  /* =====================================================
+   HISTORIQUE DES TRANSACTIONS
+===================================================== */
+
+async function loadTransactions() {
+
+  const transactionsList =
+    document.getElementById(
+      "transactionsList"
+    );
+
+
+  const { data, error } =
+    await supabaseClient
+      .from("budget_transactions")
+      .select("*")
+      .order("created_at", {
+        ascending: false
+      })
+      .limit(10);
+
+
+  if (error) {
+
+    console.error(
+      "Erreur historique :",
+      error
+    );
+
+
+    transactionsList.innerHTML =
+      "<p>Impossible de charger les transactions.</p>";
+
+    return;
+
+  }
+
+
+  if (!data || data.length === 0) {
+
+    transactionsList.innerHTML =
+      "<p>Aucune transaction pour le moment.</p>";
+
+    return;
+
+  }
+
+
+  transactionsList.innerHTML = "";
+
+
+  data.forEach(transaction => {
+
+
+    const amount =
+      Number(transaction.amount);
+
+
+    const isExpense =
+      transaction.type === "expense" ||
+      transaction.type === "withdrawal";
+
+
+    const sign =
+      isExpense ? "−" : "+";
+
+
+    let icon = "💰";
+
+
+    /* ICONES SELON LA CATEGORIE */
+
+
+    if (
+      transaction.category === "nourriture"
+    ) {
+
+      icon = "🍔";
+
+    }
+
+
+    else if (
+      transaction.category === "loisirs"
+    ) {
+
+      icon = "🎮";
+
+    }
+
+
+    else if (
+      transaction.category === "autre"
+    ) {
+
+      icon = "📦";
+
+    }
+
+
+    else if (
+      transaction.category === "permis_code"
+    ) {
+
+      icon = "🚗";
+
+    }
+
+
+    else if (
+      transaction.category === "voiture"
+    ) {
+
+      icon = "🚙";
+
+    }
+
+
+    else if (
+      transaction.category === "reste"
+    ) {
+
+      icon = "💰";
+
+    }
+
+
+    const date =
+      new Date(
+        transaction.created_at
+      ).toLocaleDateString(
+        "fr-FR",
+        {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric"
+        }
+      );
+
+
+    const description =
+      escapeHtml(
+        transaction.description ||
+        "Transaction"
+      );
+
+
+    transactionsList.innerHTML += `
+
+      <div class="transaction">
+
+        <div class="transaction-info">
+
+          <span class="transaction-icon">
+            ${icon}
+          </span>
+
+          <div>
+
+            <strong>
+              ${description}
+            </strong>
+
+            <small>
+              ${date}
+            </small>
+
+          </div>
+
+        </div>
+
+
+        <strong class="${
+          isExpense
+            ? "expense"
+            : "income"
+        }">
+
+          ${sign}${amount.toFixed(2)} €
+
+        </strong>
+
+      </div>
+
+    `;
+
+
+  });
+
+
+}
+
+
 /* =====================================================
    ASSISTANT IA
 ===================================================== */
