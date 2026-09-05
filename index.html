@@ -3130,11 +3130,175 @@ supabaseClient
   );
 
 
-
 /* =====================================================
-   DEMARRAGE
+   LYCEE
 ===================================================== */
 
+async function loadLycee() {
+
+  const list =
+    document.getElementById("lyceeList");
+
+  const { data, error } =
+    await supabaseClient
+      .from("lycee")
+      .select("*")
+      .order("created_at", {
+        ascending: false
+      });
+
+  if (error) {
+
+    console.error("Erreur lycée :", error);
+
+    return;
+
+  }
+
+  list.innerHTML = "";
+
+  data.forEach(item => {
+
+    const li =
+      document.createElement("li");
+
+    li.innerHTML = `
+      <span>
+        ${escapeHtml(item.name)}
+      </span>
+    `;
+
+    list.appendChild(li);
+
+  });
+
+}
+
+
+async function addLycee() {
+
+  const input =
+    document.getElementById("lyceeInput");
+
+  const name =
+    input.value.trim();
+
+  if (!name) return;
+
+
+  const { error } =
+    await supabaseClient
+      .from("lycee")
+      .insert({
+        name: name
+      });
+
+
+  if (error) {
+
+    console.error(
+      "Erreur ajout lycée :",
+      error
+    );
+
+    return;
+
+  }
+
+
+  input.value = "";
+
+  loadLycee();
+
+}
+
+
+/* =====================================================
+   PORTFOLIO
+===================================================== */
+
+async function loadPortfolio() {
+
+  const list =
+    document.getElementById("portfolioList");
+
+  const { data, error } =
+    await supabaseClient
+      .from("portfolio")
+      .select("*")
+      .order("created_at", {
+        ascending: false
+      });
+
+  if (error) {
+
+    console.error(
+      "Erreur portfolio :",
+      error
+    );
+
+    return;
+
+  }
+
+  list.innerHTML = "";
+
+  data.forEach(item => {
+
+    const li =
+      document.createElement("li");
+
+    li.innerHTML = `
+      <span>
+        ${escapeHtml(item.name)}
+      </span>
+    `;
+
+    list.appendChild(li);
+
+  });
+
+}
+
+
+async function addPortfolio() {
+
+  const input =
+    document.getElementById(
+      "portfolioInput"
+    );
+
+  const name =
+    input.value.trim();
+
+  if (!name) return;
+
+
+  const { error } =
+    await supabaseClient
+      .from("portfolio")
+      .insert({
+        name: name
+      });
+
+
+  if (error) {
+
+    console.error(
+      "Erreur ajout portfolio :",
+      error
+    );
+
+    return;
+
+  }
+
+
+  input.value = "";
+
+  loadPortfolio();
+
+}
 
 /* =====================================================
    DEMARRAGE
