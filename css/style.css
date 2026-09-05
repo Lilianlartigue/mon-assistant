@@ -410,17 +410,29 @@ button:active {
    ELEMENTS DES LISTES
 ===================================================== */
 
+/* =====================================================
+   ELEMENTS DES LISTES
+===================================================== */
+
 .item {
 
-  display: flex;
+  display: grid;
+
+  grid-template-columns:
+    auto
+    minmax(0, 1fr)
+    auto
+    auto;
 
   align-items: center;
 
-  gap: 12px;
+  gap: 10px;
 
   padding: 12px 14px;
 
   margin-bottom: 9px;
+
+  width: 100%;
 
   border-radius: 14px;
 
@@ -428,7 +440,6 @@ button:active {
     rgba(255, 255, 255, 0.5);
 
   border:
-
     1px solid
     rgba(255, 255, 255, 0.6);
 
@@ -443,9 +454,19 @@ button:active {
 }
 
 
+/* TEXTE DES LISTES */
+
 .item span {
 
-  flex: 1;
+  min-width: 0;
+
+  width: 100%;
+
+  white-space: nowrap;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
 
   line-height: 1.4;
 
@@ -454,7 +475,7 @@ button:active {
 }
 
 
-/* Cases à cocher */
+/* CASE A COCHER */
 
 .item input[type="checkbox"] {
 
@@ -462,10 +483,22 @@ button:active {
 
   height: 18px;
 
+  margin: 0;
+
   cursor: pointer;
 
 }
 
+
+/* BOUTONS */
+
+.item button {
+
+  flex-shrink: 0;
+
+  white-space: nowrap;
+
+}
 
 /* =====================================================
    BOUTONS LISTES
