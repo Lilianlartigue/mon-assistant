@@ -1981,7 +1981,6 @@ async function loadBudgets() {
 
 async function askAssistant() {
 
-
   const input =
     document.getElementById(
       "assistantInput"
@@ -2005,13 +2004,11 @@ async function askAssistant() {
   }
 
 
-
   messageBox.innerHTML =
     "🤔 Je réfléchis...";
 
 
   input.value = "";
-
 
 
   try {
@@ -2030,20 +2027,15 @@ async function askAssistant() {
 
           body:
             JSON.stringify({
-
-              message:
-                userMessage
-
+              message: userMessage
             })
 
         }
       );
 
 
-
     const data =
       await response.json();
-
 
 
     if (!response.ok) {
@@ -2056,18 +2048,15 @@ async function askAssistant() {
     }
 
 
-
     console.log(
       "Réponse IA :",
       data
     );
 
 
-
     /*
      * AFFICHER LA REPONSE
      */
-
 
     messageBox.innerHTML =
       "🤖 " +
@@ -2077,11 +2066,9 @@ async function askAssistant() {
       );
 
 
-
     /*
      * EXECUTER L'ACTION
      */
-
 
     if (
       data.action &&
@@ -2093,148 +2080,164 @@ async function askAssistant() {
         data.action;
 
 
-
       /* AJOUT COURSE */
-
 
       if (
         action.type ===
         "add_shopping"
       ) {
 
-
         await addShoppingFromAssistant(
           action.name
         );
 
-
         messageBox.innerHTML +=
           "<br><br>🛒 Course ajoutée.";
-
 
       }
 
 
-
       /* AJOUT TACHE */
-
 
       else if (
         action.type ===
         "add_task"
       ) {
 
-
         await addTodoFromAssistant(
           action.name
         );
 
-
         messageBox.innerHTML +=
           "<br><br>✅ Tâche ajoutée.";
-
 
       }
 
 
-
       /* SUPPRESSION COURSE */
-
 
       else if (
         action.type ===
         "delete_shopping"
       ) {
 
-
         await deleteShoppingByName(
           action.name
         );
 
-
         messageBox.innerHTML +=
           "<br><br>🗑️ Course supprimée.";
-
 
       }
 
 
-
       /* SUPPRESSION TACHE */
-
 
       else if (
         action.type ===
         "delete_task"
       ) {
 
-
         await deleteTodoByName(
           action.name
         );
 
-
         messageBox.innerHTML +=
           "<br><br>🗑️ Tâche supprimée.";
-
 
       }
 
 
-
       /* TERMINER TACHE */
-
 
       else if (
         action.type ===
         "complete_task"
       ) {
 
-
         await completeTodoByName(
           action.name
         );
 
-
         messageBox.innerHTML +=
           "<br><br>✅ Tâche terminée.";
-
 
       }
 
 
-
-      /* AJOUT DEPENSE */
-
+      /* =========================
+         AJOUT DEPENSE / BUDGET
+         ========================= */
 
       else if (
-        action.type ===
-        "add_expense"
+        action.type === "add_expense" ||
+        action.type === "add_deposit" ||
+        action.type === "add_withdrawal"
       ) {
 
 
-        if (
-          action.category ===
-          "house"
-        ) {
+        const transactionType =
 
-          houseExpenses +=
-            Number(action.amount || 0);
+          action.type === "add_expense"
+
+            ? "expense"
+
+            : action.type === "add_deposit"
+
+            ? "deposit"
+
+            : "withdrawal";
 
 
-        } else {
+        const { error } =
+          await supabaseClient
+            .from("budget_transactions")
+            .insert([
+              {
+                account:
+                  action.account,
 
-          personalExpenses +=
-            Number(action.amount || 0);
+                category:
+                  action.category,
+
+                amount:
+                  Number(
+                    action.amount
+                  ),
+
+                type:
+                  transactionType,
+
+                description:
+                  action.description || ""
+              }
+            ]);
+
+
+        if (error) {
+
+          console.error(
+            "Erreur budget :",
+            error
+          );
+
+
+          messageBox.innerHTML +=
+            "<br><br>❌ Impossible d'enregistrer cette transaction.";
 
         }
 
 
-        updateBudgets();
+        else {
 
 
-        messageBox.innerHTML +=
-          "<br><br>💰 Dépense ajoutée.";
+          await loadBudgets();
+
+
+          messageBox.innerHTML +=
+            "<br><br>💰 Budget mis à jour.";
+
+        }
 
 
       }
@@ -2246,9 +2249,7 @@ async function askAssistant() {
   } catch (error) {
 
 
-    console.error(
-      error
-    );
+    console.error(error);
 
 
     messageBox.innerHTML =
@@ -2262,8 +2263,7 @@ async function askAssistant() {
 
 
 }
-
-
+  
 
 /* =====================================================
    SUPPRESSION COURSE PAR NOM
