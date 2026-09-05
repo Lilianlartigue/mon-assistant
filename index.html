@@ -2,7 +2,7 @@
 <html lang="fr">
 
 <head>
-<link rel="icon" type="image/png" href="/favicon.png">
+
   <meta charset="UTF-8">
 
   <meta
@@ -10,15 +10,30 @@
     content="width=device-width, initial-scale=1.0"
   >
 
+  <link
+    rel="icon"
+    type="image/png"
+    href="/favicon.png"
+  >
+
   <title>Mon Assistant</title>
+
+
+  <!-- SUPABASE -->
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 
   <style>
 
+    /* =====================================================
+       GENERAL
+    ===================================================== */
+
     * {
+
       box-sizing: border-box;
+
     }
 
 
@@ -26,42 +41,52 @@
 
       margin: 0;
 
-      padding: 15px;
+      padding: 20px;
 
-      font-family: Arial, sans-serif;
+      font-family:
+        Arial,
+        sans-serif;
 
-      background: #eef1f6;
+      background:
+        linear-gradient(
+          135deg,
+          #f8f7ff,
+          #fff7fb,
+          #f5fbff
+        );
 
-      color: #1f2937;
+      color: #374151;
 
     }
 
 
     .container {
 
-      max-width: 1400px;
+      max-width: 1500px;
 
       margin: auto;
 
     }
 
 
+    /* =====================================================
+       HEADER
+    ===================================================== */
+
     header {
 
       background:
         linear-gradient(
           135deg,
-          #4f46e5,
-          #7c3aed
+          #c9c4ff,
+          #e0c8ff
         );
 
-      color: white;
+      padding: 28px;
 
-      padding: 25px;
+      border-radius: 25px;
 
-      border-radius: 20px;
-
-      margin-bottom: 20px;
+      margin-bottom: 25px;
 
       display: flex;
 
@@ -69,8 +94,48 @@
 
       align-items: center;
 
+      box-shadow:
+        0 8px 25px
+        rgba(120,100,180,.12);
+
     }
 
+
+    header h1 {
+
+      margin: 0;
+
+      font-size: 30px;
+
+    }
+
+
+    header p {
+
+      margin-bottom: 0;
+
+      opacity: .8;
+
+    }
+
+
+    #weather {
+
+      background:
+        rgba(255,255,255,.5);
+
+      padding: 12px 18px;
+
+      border-radius: 15px;
+
+      text-align: center;
+
+    }
+
+
+    /* =====================================================
+       TITRES
+    ===================================================== */
 
     h1,
     h2,
@@ -81,86 +146,186 @@
     }
 
 
+    h2 {
+
+      font-size: 21px;
+
+    }
+
+
+    /* =====================================================
+       GRILLE
+    ===================================================== */
+
     .grid {
 
       display: grid;
 
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns:
+        repeat(
+          2,
+          minmax(0,1fr)
+        );
 
       gap: 20px;
 
     }
 
 
+    /* =====================================================
+       CARTES
+    ===================================================== */
+
     .card {
 
-      background: white;
+      padding: 22px;
 
-      padding: 20px;
-
-      border-radius: 18px;
+      border-radius: 22px;
 
       box-shadow:
-        0 5px 20px
-        rgba(0,0,0,.06);
+        0 6px 20px
+        rgba(0,0,0,.05);
 
     }
 
+
+    /* COULEURS PASTEL */
 
     .assistant {
 
-      background:
-        linear-gradient(
-          135deg,
-          #eef2ff,
-          #f5f3ff
-        );
+      background: #e8e4ff;
 
     }
 
 
-    input[type="text"],
-    input[type="number"] {
+    .mail-card {
+
+      background: #ffe7ef;
+
+    }
+
+
+    .shopping-card {
+
+      background: #fff3d6;
+
+    }
+
+
+    .todo-card {
+
+      background: #e2f7e8;
+
+    }
+
+
+    .lycee-card {
+
+      background: #e1f0ff;
+
+    }
+
+
+    .portfolio-card {
+
+      background: #f3e4ff;
+
+    }
+
+
+    .budget-card {
+
+      background: #e5f7f4;
+
+    }
+
+
+    .livret-card {
+
+      background: #fff0dc;
+
+    }
+
+
+    .transaction-card {
+
+      background: #f5f1ff;
+
+    }
+
+
+    /* =====================================================
+       INPUTS
+    ===================================================== */
+
+    input {
 
       width: 100%;
 
       padding: 12px;
 
       border:
-        1px solid #d1d5db;
 
-      border-radius: 10px;
+        1px solid
+        rgba(0,0,0,.1);
 
-      font-size: 15px;
+      border-radius: 12px;
+
+      font-size: 14px;
+
+      background:
+        rgba(255,255,255,.75);
 
     }
 
 
+    input:focus {
+
+      outline: none;
+
+      border-color: #8b7cf6;
+
+    }
+
+
+    /* =====================================================
+       BOUTONS
+    ===================================================== */
+
     button {
 
-      border: 0;
+      border: none;
 
-      background: #4f46e5;
+      background: #8276e8;
 
       color: white;
 
-      padding: 11px 15px;
+      padding: 11px 16px;
 
-      border-radius: 10px;
+      border-radius: 12px;
 
       cursor: pointer;
 
       font-weight: bold;
+
+      transition: .2s;
 
     }
 
 
     button:hover {
 
-      background: #3730a3;
+      transform:
+        translateY(-1px);
+
+      opacity: .9;
 
     }
 
+
+    /* =====================================================
+       AJOUT
+    ===================================================== */
 
     .add {
 
@@ -173,6 +338,10 @@
     }
 
 
+    /* =====================================================
+       LISTES
+    ===================================================== */
+
     .item {
 
       display: flex;
@@ -184,7 +353,9 @@
       padding: 10px 0;
 
       border-bottom:
-        1px solid #eee;
+
+        1px solid
+        rgba(0,0,0,.06);
 
     }
 
@@ -198,7 +369,7 @@
 
     .delete {
 
-      background: #ef4444;
+      background: #f28b8b;
 
       padding: 7px 10px;
 
@@ -207,141 +378,40 @@
 
     .edit {
 
-      background: #f59e0b;
+      background: #f5c978;
 
       padding: 7px 10px;
 
     }
 
 
+    /* =====================================================
+       STATUT
+    ===================================================== */
+
     .status {
 
       margin-top: 10px;
 
-      color: #16a34a;
-
       font-size: 14px;
 
-    }
-
-
-    .budget-number {
-
-      font-size: 30px;
-
-      font-weight: bold;
-
-      color: #16a34a;
+      color: #3f8f62;
 
     }
 
 
-    .budget-line {
-
-      display: flex;
-
-      justify-content: space-between;
-
-      margin: 10px 0;
-
-    }
-
-
-    .progress {
-
-      height: 12px;
-
-      background: #e5e7eb;
-
-      border-radius: 20px;
-
-      overflow: hidden;
-
-      margin: 15px 0;
-
-    }
-
-
-    .progress-bar {
-
-      height: 100%;
-
-      background: #22c55e;
-
-      transition: width .3s;
-
-    }
-
+    /* =====================================================
+       MAIL
+    ===================================================== */
 
     .mail {
 
       padding: 12px 0;
 
       border-bottom:
-        1px solid #eee;
 
-    }
-
-
-    .gmail-message {
-
-      padding: 12px;
-
-      margin-top: 8px;
-
-      border:
-        1px solid #e5e7eb;
-
-      border-radius: 10px;
-
-      background: #f9fafb;
-
-    }
-
-
-    .gmail-message:hover {
-
-      background: #f3f4f6;
-
-    }
-
-
-    .gmail-subject {
-
-      font-weight: bold;
-
-      margin-bottom: 4px;
-
-    }
-
-
-    .gmail-from {
-
-      font-size: 13px;
-
-      color: #6b7280;
-
-      margin-bottom: 5px;
-
-    }
-
-
-    .gmail-snippet {
-
-      font-size: 14px;
-
-      color: #4b5563;
-
-    }
-
-
-    .gmail-error {
-
-      color: #dc2626;
-
-      font-size: 14px;
-
-      margin-top: 10px;
+        1px solid
+        rgba(0,0,0,.08);
 
     }
 
@@ -352,26 +422,515 @@
 
       gap: 8px;
 
-      flex-wrap: wrap;
-
       margin-top: 12px;
+
+      flex-wrap: wrap;
 
     }
 
 
     .gmail-refresh {
 
-      background: #6366f1;
+      background: #8ba9e8;
 
     }
 
 
     .gmail-logout {
 
-      background: #ef4444;
+      background: #e88989;
 
     }
 
+
+    .gmail-message {
+
+      background:
+        rgba(255,255,255,.55);
+
+      padding: 12px;
+
+      margin-top: 10px;
+
+      border-radius: 12px;
+
+    }
+
+
+    .gmail-subject {
+
+      font-weight: bold;
+
+    }
+
+
+    .gmail-from {
+
+      font-size: 13px;
+
+      color: #6b7280;
+
+      margin-top: 4px;
+
+    }
+
+
+    .gmail-snippet {
+
+      font-size: 13px;
+
+      margin-top: 6px;
+
+      color: #4b5563;
+
+    }
+
+
+    /* =====================================================
+       CALENDRIER
+    ===================================================== */
+
+    .calendar-card {
+
+      grid-column: 1 / -1;
+
+      background:
+        linear-gradient(
+          135deg,
+          #dceeff,
+          #eee4ff,
+          #ffe5f0
+        );
+
+      width: 100%;
+
+    }
+
+
+    .calendar-header {
+
+      display: flex;
+
+      justify-content: space-between;
+
+      align-items: center;
+
+      margin-bottom: 20px;
+
+    }
+
+
+    .calendar-header p {
+
+      margin: 5px 0 0 0;
+
+      color: #6b7280;
+
+    }
+
+
+    .calendar-days {
+
+      display: grid;
+
+      grid-template-columns:
+        repeat(7, 1fr);
+
+      gap: 10px;
+
+      width: 100%;
+
+    }
+
+
+    .calendar-day {
+
+      background:
+        rgba(255,255,255,.7);
+
+      border-radius: 16px;
+
+      padding: 12px;
+
+      min-height: 200px;
+
+    }
+
+
+    .calendar-day-title {
+
+      text-align: center;
+
+      padding-bottom: 10px;
+
+      border-bottom:
+
+        1px solid
+        rgba(0,0,0,.08);
+
+      margin-bottom: 10px;
+
+    }
+
+
+    .calendar-empty {
+
+      text-align: center;
+
+      color: #9ca3af;
+
+      font-size: 13px;
+
+      margin-top: 25px;
+
+    }
+
+
+    .calendar-event {
+
+      background: #ffffff;
+
+      border-radius: 10px;
+
+      padding: 8px;
+
+      margin-bottom: 8px;
+
+      font-size: 13px;
+
+      position: relative;
+
+      box-shadow:
+        0 3px 8px
+        rgba(0,0,0,.05);
+
+    }
+
+
+    .calendar-event-time {
+
+      font-size: 11px;
+
+      color: #7c6fd8;
+
+      font-weight: bold;
+
+    }
+
+
+    .calendar-event-title {
+
+      margin-top: 4px;
+
+      padding-right: 25px;
+
+    }
+
+
+    .calendar-delete {
+
+      position: absolute;
+
+      top: 5px;
+
+      right: 5px;
+
+      padding: 4px 6px;
+
+      font-size: 11px;
+
+      background: #f3a0a0;
+
+    }
+
+
+    /* =====================================================
+       MODAL CALENDRIER
+    ===================================================== */
+
+    .modal {
+
+      display: none;
+
+      position: fixed;
+
+      z-index: 1000;
+
+      inset: 0;
+
+      background:
+        rgba(0,0,0,.25);
+
+      align-items: center;
+
+      justify-content: center;
+
+      padding: 20px;
+
+    }
+
+
+    .modal.active {
+
+      display: flex;
+
+    }
+
+
+    .modal-content {
+
+      width: 100%;
+
+      max-width: 500px;
+
+      background: #fff7fc;
+
+      padding: 25px;
+
+      border-radius: 22px;
+
+      box-shadow:
+        0 15px 40px
+        rgba(0,0,0,.15);
+
+    }
+
+
+    .modal-header {
+
+      display: flex;
+
+      justify-content: space-between;
+
+      align-items: center;
+
+      margin-bottom: 20px;
+
+    }
+
+
+    .modal-close {
+
+      background: #f3a0a0;
+
+      font-size: 20px;
+
+      padding: 4px 11px;
+
+    }
+
+
+    .modal-content label {
+
+      display: block;
+
+      margin-top: 15px;
+
+      margin-bottom: 6px;
+
+      font-weight: bold;
+
+    }
+
+
+    .event-save-button {
+
+      width: 100%;
+
+      margin-top: 22px;
+
+      background: #8b7ee8;
+
+    }
+
+
+    /* =====================================================
+       BUDGET
+    ===================================================== */
+
+    .budget-line {
+
+      display: flex;
+
+      justify-content: space-between;
+
+      margin: 12px 0;
+
+    }
+
+
+    .progress {
+
+      height: 10px;
+
+      background:
+        rgba(255,255,255,.7);
+
+      border-radius: 20px;
+
+      overflow: hidden;
+
+      margin-bottom: 15px;
+
+    }
+
+
+    .progress-bar {
+
+      height: 100%;
+
+      background: #76c7a1;
+
+    }
+
+
+    .budget-number {
+
+      font-size: 22px;
+
+      font-weight: bold;
+
+      margin-top: 20px;
+
+    }
+
+
+    /* =====================================================
+       TRANSACTIONS
+    ===================================================== */
+
+    .transaction {
+
+      display: flex;
+
+      justify-content: space-between;
+
+      align-items: center;
+
+      padding: 12px 0;
+
+      border-bottom:
+
+        1px solid
+        rgba(0,0,0,.08);
+
+    }
+
+
+    .transaction-info {
+
+      display: flex;
+
+      align-items: center;
+
+      gap: 12px;
+
+    }
+
+
+    .transaction-icon {
+
+      font-size: 24px;
+
+    }
+
+
+    .transaction small {
+
+      display: block;
+
+      color: #888;
+
+      margin-top: 4px;
+
+    }
+
+
+    .expense {
+
+      color: #d45b5b;
+
+    }
+
+
+    .income {
+
+      color: #4a9b70;
+
+    }
+
+
+    /* =====================================================
+       RESPONSIVE TELEPHONE
+    ===================================================== */
+
+    @media (max-width: 900px) {
+
+      .grid {
+
+        grid-template-columns: 1fr;
+
+      }
+
+
+      .calendar-card {
+
+        grid-column: auto;
+
+      }
+
+
+      .calendar-days {
+
+        grid-template-columns:
+          repeat(2, 1fr);
+
+      }
+
+
+      header {
+
+        flex-direction: column;
+
+        align-items: flex-start;
+
+        gap: 15px;
+
+      }
+
+    }
+
+
+    @media (max-width: 600px) {
+
+      body {
+
+        padding: 10px;
+
+      }
+
+
+      .calendar-days {
+
+        grid-template-columns: 1fr;
+
+      }
+
+
+      .add {
+
+        flex-direction: column;
+
+      }
+
+
+      header h1 {
+
+        font-size: 24px;
+
+      }
+
+    }
 
 
   </style>
@@ -384,6 +943,10 @@
 
 <div class="container">
 
+
+  <!-- =====================================================
+       HEADER
+  ===================================================== -->
 
   <header>
 
@@ -402,10 +965,9 @@
 
     <div id="weather">
 
-  📍 Localisation...
+      📍 Localisation...
 
-</div>
-  
+    </div>
 
   </header>
 
@@ -414,7 +976,9 @@
   <div class="grid">
 
 
-    <!-- ================= ASSISTANT IA ================= -->
+    <!-- =====================================================
+         ASSISTANT IA
+    ===================================================== -->
 
     <div class="card assistant">
 
@@ -433,13 +997,9 @@
       <div class="add">
 
         <input
-
           id="assistantInput"
-
           type="text"
-
           placeholder="Écris ta demande..."
-
         >
 
 
@@ -455,9 +1015,11 @@
 
 
 
-    <!-- ================= MAILS ================= -->
+    <!-- =====================================================
+         MAILS
+    ===================================================== -->
 
-    <div class="card">
+    <div class="card mail-card">
 
       <h2>
         📧 Mes mails
@@ -523,9 +1085,7 @@
 
         <div id="gmailMessages"></div>
 
-
       </div>
-
 
 
       <div class="mail">
@@ -534,26 +1094,21 @@
           iCloud
         </strong>
 
-        <br>
-
-
-        <span style="color:#6b7280;">
-
+        <p>
           Connexion à venir
-
-        </span>
+        </p>
 
       </div>
-
 
     </div>
 
 
 
-    <!-- ================= COURSES ================= -->
+    <!-- =====================================================
+         COURSES
+    ===================================================== -->
 
-    <div class="card">
-
+    <div class="card shopping-card">
 
       <h2>
         🛒 Liste de courses
@@ -569,15 +1124,10 @@
 
       <div class="add">
 
-
         <input
-
           id="shoppingInput"
-
           type="text"
-
           placeholder="Ex : lait"
-
         >
 
 
@@ -587,7 +1137,6 @@
 
         </button>
 
-
       </div>
 
 
@@ -596,15 +1145,15 @@
         class="status"
       ></div>
 
-
     </div>
 
 
 
-    <!-- ================= TACHES ================= -->
+    <!-- =====================================================
+         TACHES
+    ===================================================== -->
 
-    <div class="card">
-
+    <div class="card todo-card">
 
       <h2>
         ✅ À faire
@@ -620,15 +1169,10 @@
 
       <div class="add">
 
-
         <input
-
           id="todoInput"
-
           type="text"
-
-          placeholder="Ex : appeler Paul"
-
+          placeholder="Ex : appeler quelqu'un"
         >
 
 
@@ -638,7 +1182,6 @@
 
         </button>
 
-
       </div>
 
 
@@ -647,260 +1190,292 @@
         class="status"
       ></div>
 
-
     </div>
 
-    <!-- LISTE LYCEE -->
 
-<div class="card">
 
-  <h2>🎓 Lycée</h2>
+    <!-- =====================================================
+         LYCEE
+    ===================================================== -->
 
-  <div class="add">
-
-    <input
-      id="lyceeInput"
-      type="text"
-      placeholder="Ajouter une tâche pour le lycée..."
-    >
-
-    <button onclick="addLycee()">
-      Ajouter
-    </button>
-
-  </div>
-
-  <ul id="lyceeList"></ul>
-
-</div>
-
-
-<!-- LISTE PORTFOLIO -->
-
-<div class="card">
-
-  <h2>📁 Portfolio Lycée</h2>
-
-  <div class="add">
-
-    <input
-      id="portfolioInput"
-      type="text"
-      placeholder="Ajouter au portfolio..."
-    >
-
-    <button onclick="addPortfolio()">
-      Ajouter
-    </button>
-
-  </div>
-
-  <ul id="portfolioList"></ul>
-
-</div>
-    
-
-<!-- ================= CALENDRIER 7 JOURS ================= -->
-
-<div class="card calendar-card">
-
-  <div class="calendar-header">
-
-    <h2>📅 Les 7 prochains jours</h2>
-
-    <button onclick="showAddEventForm()">
-      + Ajouter
-    </button>
-
-  </div>
-
-
-  <div id="addEventForm" style="display:none;">
-
-    <div class="add">
-
-      <input
-        id="eventTitle"
-        type="text"
-        placeholder="Nom de l'événement..."
-      >
-
-      <input
-        id="eventStart"
-        type="datetime-local"
-      >
-
-      <input
-        id="eventEnd"
-        type="datetime-local"
-      >
-
-      <button onclick="addEvent()">
-        Ajouter
-      </button>
-
-    </div>
-
-  </div>
-
-
-  <div class="calendar-wrapper">
-
-    <div
-      id="sevenDaysCalendar"
-      class="seven-days-calendar"
-    >
-
-      Chargement du calendrier...
-
-    </div>
-
-  </div>
-
-</div>
-    <!-- ================= BUDGET MAISON ================= -->
-
-    <!-- COMPTE COURANT -->
-
-<div class="card">
-
-  <h2>💳 Compte courant</h2>
-
-  <div class="budget-line">
-    <span>🍔 Nourriture</span>
-    <strong id="courantNourriture">50.00 €</strong>
-  </div>
-
-  <div class="progress">
-    <div
-      id="courantNourritureProgress"
-      class="progress-bar"
-      style="width:100%"
-    ></div>
-  </div>
-
-
-  <div class="budget-line">
-    <span>🎮 Loisirs</span>
-    <strong id="courantLoisirs">50.00 €</strong>
-  </div>
-
-  <div class="progress">
-    <div
-      id="courantLoisirsProgress"
-      class="progress-bar"
-      style="width:100%"
-    ></div>
-  </div>
-
-
-  <div class="budget-line">
-    <span>📦 Autre</span>
-    <strong id="courantAutre">30.00 €</strong>
-  </div>
-
-  <div class="progress">
-    <div
-      id="courantAutreProgress"
-      class="progress-bar"
-      style="width:100%"
-    ></div>
-  </div>
-
-</div>
-
-
-<!-- LIVRET A -->
-
-<div class="card">
-
-  <h2>🏦 Livret A</h2>
-
-  <div class="budget-line">
-    <span>🚗 Permis + Code</span>
-    <strong id="livretPermis">1896.34 €</strong>
-  </div>
-
-
-  <div class="budget-line">
-    <span>🚙 Voiture</span>
-    <strong id="livretVoiture">3000.00 €</strong>
-  </div>
-
-
-  <div class="budget-line">
-    <span>💰 Reste</span>
-    <strong id="livretReste">1000.00 €</strong>
-  </div>
-
-
-  <div class="budget-number">
-
-    Total :
-    <span id="livretTotal">
-      5896.34
-    </span>
-
-    €
-
-  </div>
-
-</div>
-
-    <!-- HISTORIQUE DES TRANSACTIONS -->
-
-<div class="card">
-
-  <h2>📜 Dernières transactions</h2>
-
-  <div id="transactionsList">
-
-    <p>Chargement des transactions...</p>
-
-  </div>
-
-</div>
-
-
-
-<script>
-/<!-- ================= CALENDRIER ================= -->
-
-<div class="card calendar-card">
-
-  <div class="calendar-header">
-
-    <div>
+    <div class="card lycee-card">
 
       <h2>
-        📅 Les 7 prochains jours
+        🎓 Lycée
       </h2>
 
-      <p>
-        Tes rendez-vous et événements à venir
-      </p>
+
+      <div id="lyceeList"></div>
+
+
+      <div class="add">
+
+        <input
+          id="lyceeInput"
+          type="text"
+          placeholder="Ajouter une tâche..."
+        >
+
+
+        <button onclick="addLycee()">
+
+          Ajouter
+
+        </button>
+
+      </div>
 
     </div>
 
 
-    <button
-      class="add-event-button"
-      onclick="openEventModal()"
-    >
 
-      + Ajouter
+    <!-- =====================================================
+         PORTFOLIO
+    ===================================================== -->
 
-    </button>
+    <div class="card portfolio-card">
 
-  </div>
+      <h2>
+        📁 Portfolio Lycée
+      </h2>
 
 
-  <div
-    id="eventsList"
-    class="calendar-days"
-  >
+      <div id="portfolioList"></div>
 
-    Chargement du calendrier...
+
+      <div class="add">
+
+        <input
+          id="portfolioInput"
+          type="text"
+          placeholder="Ajouter au portfolio..."
+        >
+
+
+        <button onclick="addPortfolio()">
+
+          Ajouter
+
+        </button>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         CALENDRIER
+    ===================================================== -->
+
+    <div class="card calendar-card">
+
+      <div class="calendar-header">
+
+        <div>
+
+          <h2>
+            📅 Les 7 prochains jours
+          </h2>
+
+          <p>
+            Tes rendez-vous et événements à venir
+          </p>
+
+        </div>
+
+
+        <button onclick="openEventModal()">
+
+          + Ajouter
+
+        </button>
+
+      </div>
+
+
+      <div
+        id="eventsList"
+        class="calendar-days"
+      >
+
+        Chargement du calendrier...
+
+      </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         COMPTE COURANT
+    ===================================================== -->
+
+    <div class="card budget-card">
+
+      <h2>
+        💳 Compte courant
+      </h2>
+
+
+      <div class="budget-line">
+
+        <span>
+          🍔 Nourriture
+        </span>
+
+        <strong id="courantNourriture">
+          50.00 €
+        </strong>
+
+      </div>
+
+
+      <div class="progress">
+
+        <div
+          id="courantNourritureProgress"
+          class="progress-bar"
+        ></div>
+
+      </div>
+
+
+
+      <div class="budget-line">
+
+        <span>
+          🎮 Loisirs
+        </span>
+
+        <strong id="courantLoisirs">
+          50.00 €
+        </strong>
+
+      </div>
+
+
+      <div class="progress">
+
+        <div
+          id="courantLoisirsProgress"
+          class="progress-bar"
+        ></div>
+
+      </div>
+
+
+
+      <div class="budget-line">
+
+        <span>
+          📦 Autre
+        </span>
+
+        <strong id="courantAutre">
+          30.00 €
+        </strong>
+
+      </div>
+
+
+      <div class="progress">
+
+        <div
+          id="courantAutreProgress"
+          class="progress-bar"
+        ></div>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         LIVRET A
+    ===================================================== -->
+
+    <div class="card livret-card">
+
+      <h2>
+        🏦 Livret A
+      </h2>
+
+
+      <div class="budget-line">
+
+        <span>
+          🚗 Permis + Code
+        </span>
+
+        <strong id="livretPermis">
+          1896.34 €
+        </strong>
+
+      </div>
+
+
+      <div class="budget-line">
+
+        <span>
+          🚙 Voiture
+        </span>
+
+        <strong id="livretVoiture">
+          3000.00 €
+        </strong>
+
+      </div>
+
+
+      <div class="budget-line">
+
+        <span>
+          💰 Reste
+        </span>
+
+        <strong id="livretReste">
+          1000.00 €
+        </strong>
+
+      </div>
+
+
+      <div class="budget-number">
+
+        Total :
+        <span id="livretTotal">
+          5896.34
+        </span>
+
+        €
+
+      </div>
+
+    </div>
+
+
+
+    <!-- =====================================================
+         TRANSACTIONS
+    ===================================================== -->
+
+    <div class="card transaction-card">
+
+      <h2>
+        📜 Dernières transactions
+      </h2>
+
+
+      <div id="transactionsList">
+
+        Chargement...
+
+      </div>
+
+    </div>
+
 
   </div>
 
@@ -909,7 +1484,9 @@
 
 
 
-<!-- ================= FENETRE AJOUT EVENEMENT ================= -->
+<!-- =====================================================
+     MODAL AJOUT EVENEMENT
+===================================================== -->
 
 <div
   id="eventModal"
@@ -920,11 +1497,7 @@
   <div class="modal-content">
 
 
-    <!-- EN-TETE -->
-
-
     <div class="modal-header">
-
 
       <h2>
         📅 Ajouter un rendez-vous
@@ -940,15 +1513,11 @@
 
       </button>
 
-
     </div>
 
 
 
-    <!-- NOM -->
-
-
-    <label for="eventTitle">
+    <label>
 
       Nom du rendez-vous
 
@@ -963,10 +1532,7 @@
 
 
 
-    <!-- DATE DEBUT -->
-
-
-    <label for="eventStart">
+    <label>
 
       Début
 
@@ -980,10 +1546,7 @@
 
 
 
-    <!-- DATE FIN -->
-
-
-    <label for="eventEnd">
+    <label>
 
       Fin (facultatif)
 
@@ -995,9 +1558,6 @@
       type="datetime-local"
     >
 
-
-
-    <!-- BOUTON -->
 
 
     <button
@@ -1014,3861 +1574,14 @@
 
 
 </div>
-  /* =====================================================
-   METEO EN TEMPS REEL
-===================================================== */
 
-async function loadWeather() {
 
-  const weatherElement =
-    document.getElementById("weather");
 
+<!-- =====================================================
+     JAVASCRIPT
+===================================================== -->
 
-  if (!navigator.geolocation) {
-
-    weatherElement.innerHTML =
-      "📍 Géolocalisation indisponible";
-
-    return;
-
-  }
-
-
-  weatherElement.innerHTML =
-    "📍 Recherche de ta position...";
-
-
-  navigator.geolocation.getCurrentPosition(
-
-    async function(position) {
-
-
-      const latitude =
-        position.coords.latitude;
-
-
-      const longitude =
-        position.coords.longitude;
-
-
-      try {
-
-
-        const response =
-          await fetch(
-
-            "https://api.open-meteo.com/v1/forecast" +
-
-            "?latitude=" + latitude +
-
-            "&longitude=" + longitude +
-
-            "&current=temperature_2m,apparent_temperature,weather_code" +
-
-            "&timezone=auto"
-
-          );
-
-
-        const data =
-          await response.json();
-
-
-        const temperature =
-          Math.round(
-            data.current.temperature_2m
-          );
-
-
-        const weatherCode =
-          data.current.weather_code;
-
-
-        let icon = "🌤️";
-
-        let description =
-          "Temps variable";
-
-
-        if (weatherCode === 0) {
-
-          icon = "☀️";
-          description = "Ciel dégagé";
-
-        }
-
-        else if (
-          weatherCode === 1 ||
-          weatherCode === 2
-        ) {
-
-          icon = "🌤️";
-          description = "Partiellement nuageux";
-
-        }
-
-        else if (
-          weatherCode === 3
-        ) {
-
-          icon = "☁️";
-          description = "Couvert";
-
-        }
-
-        else if (
-          weatherCode === 45 ||
-          weatherCode === 48
-        ) {
-
-          icon = "🌫️";
-          description = "Brouillard";
-
-        }
-
-        else if (
-          weatherCode >= 51 &&
-          weatherCode <= 67
-        ) {
-
-          icon = "🌧️";
-          description = "Pluie";
-
-        }
-
-        else if (
-          weatherCode >= 71 &&
-          weatherCode <= 77
-        ) {
-
-          icon = "❄️";
-          description = "Neige";
-
-        }
-
-        else if (
-          weatherCode >= 80 &&
-          weatherCode <= 82
-        ) {
-
-          icon = "🌦️";
-          description = "Averses";
-
-        }
-
-        else if (
-          weatherCode >= 95
-        ) {
-
-          icon = "⛈️";
-          description = "Orage";
-
-        }
-
-
-        weatherElement.innerHTML =
-
-          icon +
-
-          " <strong>" +
-
-          temperature +
-
-          "°C</strong>" +
-
-          "<br>" +
-
-          description;
-
-
-      } catch (error) {
-
-
-        console.error(
-          "Erreur météo :",
-          error
-        );
-
-
-        weatherElement.innerHTML =
-          "❌ Impossible de charger la météo";
-
-
-      }
-
-
-    },
-
-
-    function(error) {
-
-
-      console.error(
-        "Erreur géolocalisation :",
-        error
-      );
-
-
-      weatherElement.innerHTML =
-        "📍 Autorise la localisation pour voir la météo";
-
-
-    },
-
-
-    {
-
-      enableHighAccuracy: true,
-
-      timeout: 10000,
-
-      maximumAge: 300000
-
-    }
-
-  );
-
-}
-
-/* =====================================================
-   SUPABASE
-===================================================== */
-
-
-const SUPABASE_URL =
-  "https://arnjwtcjesgxpdtjptmt.supabase.co";
-
-
-const SUPABASE_KEY =
-  "sb_publishable_4-hMh1oMaJCu4Gz0-OlPSA_a3g3gj4N";
-
-
-const supabaseClient =
-  window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
-
-
-
-/* =====================================================
-   COURSES
-===================================================== */
-
-
-async function loadShopping() {
-
-
-  const { data, error } =
-    await supabaseClient
-      .from("course")
-      .select("*")
-      .order("id", {
-        ascending: true
-      });
-
-
-  if (error) {
-
-    console.error(error);
-
-
-    document.getElementById(
-      "shoppingList"
-    ).innerHTML =
-      "❌ Erreur de connexion à Supabase";
-
-
-    return;
-
-  }
-
-
-  const list =
-    document.getElementById(
-      "shoppingList"
-    );
-
-
-  list.innerHTML = "";
-
-
-  data.forEach(item => {
-
-
-    const div =
-      document.createElement("div");
-
-
-    div.className =
-      "item";
-
-
-
-    const checkbox =
-      document.createElement("input");
-
-
-    checkbox.type =
-      "checkbox";
-
-
-    checkbox.checked =
-      item.done;
-
-
-
-    checkbox.onchange = () =>
-      toggleShopping(
-        item.id,
-        item.done
-      );
-
-
-
-    const span =
-      document.createElement("span");
-
-
-    span.textContent =
-      item.name;
-
-
-
-    if (item.done) {
-
-      span.style.textDecoration =
-        "line-through";
-
-
-      span.style.color =
-        "#999";
-
-    }
-
-
-
-    const edit =
-      document.createElement("button");
-
-
-    edit.className =
-      "edit";
-
-
-    edit.textContent =
-      "✏️";
-
-
-    edit.onclick = () =>
-      editShopping(
-        item.id,
-        item.name
-      );
-
-
-
-    const del =
-      document.createElement("button");
-
-
-    del.className =
-      "delete";
-
-
-    del.textContent =
-      "🗑️";
-
-
-    del.onclick = () =>
-      deleteShopping(
-        item.id
-      );
-
-
-
-    div.appendChild(
-      checkbox
-    );
-
-
-    div.appendChild(
-      span
-    );
-
-
-    div.appendChild(
-      edit
-    );
-
-
-    div.appendChild(
-      del
-    );
-
-
-    list.appendChild(
-      div
-    );
-
-
-  });
-
-
-}
-
-
-
-async function addShopping() {
-
-
-  const input =
-    document.getElementById(
-      "shoppingInput"
-    );
-
-
-  const name =
-    input.value.trim();
-
-
-  if (!name) return;
-
-
-  await addShoppingFromAssistant(
-    name
-  );
-
-
-  input.value = "";
-
-
-}
-
-
-
-/* AJOUT DE COURSE DEPUIS L'ASSISTANT */
-
-async function addShoppingFromAssistant(name) {
-
-
-  if (!name) return;
-
-
-  const { error } =
-    await supabaseClient
-      .from("course")
-      .insert({
-        name: name,
-        done: false
-      });
-
-
-  if (error) {
-
-    console.error(error);
-
-
-    document.getElementById(
-      "shoppingStatus"
-    ).textContent =
-      "❌ Erreur : " +
-      error.message;
-
-
-    return;
-
-  }
-
-
-  document.getElementById(
-    "shoppingStatus"
-  ).textContent =
-    "🛒 Course ajoutée ✓";
-
-
-  await loadShopping();
-
-
-}
-
-
-
-async function toggleShopping(
-  id,
-  oldValue
-) {
-
-
-  const { error } =
-    await supabaseClient
-      .from("course")
-      .update({
-        done: !oldValue
-      })
-      .eq("id", id);
-
-
-  if (error) {
-
-    alert(
-      "Erreur : " +
-      error.message
-    );
-
-
-    return;
-
-  }
-
-
-  loadShopping();
-
-
-}
-
-
-
-async function editShopping(
-  id,
-  oldName
-) {
-
-
-  const newName =
-    prompt(
-      "Modifier la course :",
-      oldName
-    );
-
-
-  if (
-    !newName ||
-    !newName.trim()
-  ) {
-
-    return;
-
-  }
-
-
-  const { error } =
-    await supabaseClient
-      .from("course")
-      .update({
-        name: newName.trim()
-      })
-      .eq("id", id);
-
-
-  if (error) {
-
-    alert(
-      "Erreur : " +
-      error.message
-    );
-
-
-    return;
-
-  }
-
-
-  loadShopping();
-
-
-}
-
-
-
-async function deleteShopping(id) {
-
-
-  if (
-    !confirm(
-      "Supprimer cette course ?"
-    )
-  ) {
-
-    return;
-
-  }
-
-
-  const { error } =
-    await supabaseClient
-      .from("course")
-      .delete()
-      .eq("id", id);
-
-
-  if (error) {
-
-    alert(
-      "Erreur : " +
-      error.message
-    );
-
-
-    return;
-
-  }
-
-
-  loadShopping();
-
-
-}
-
-
-
-/* =====================================================
-   TACHES
-===================================================== */
-
-
-async function loadTodos() {
-
-
-  const { data, error } =
-    await supabaseClient
-      .from("tasks")
-      .select("*")
-      .order("id", {
-        ascending: true
-      });
-
-
-  if (error) {
-
-    console.error(error);
-
-
-    document.getElementById(
-      "todoList"
-    ).innerHTML =
-      "❌ Erreur de connexion à Supabase";
-
-
-    return;
-
-  }
-
-
-  const list =
-    document.getElementById(
-      "todoList"
-    );
-
-
-  list.innerHTML = "";
-
-
-  data.forEach(item => {
-
-
-    const div =
-      document.createElement("div");
-
-
-    div.className =
-      "item";
-
-
-
-    const checkbox =
-      document.createElement("input");
-
-
-    checkbox.type =
-      "checkbox";
-
-
-    checkbox.checked =
-      item.done;
-
-
-    checkbox.onchange = () =>
-      toggleTodo(
-        item.id,
-        item.done
-      );
-
-
-
-    const span =
-      document.createElement("span");
-
-
-    span.textContent =
-      item.name;
-
-
-
-    if (item.done) {
-
-      span.style.textDecoration =
-        "line-through";
-
-
-      span.style.color =
-        "#999";
-
-    }
-
-
-
-    const edit =
-      document.createElement("button");
-
-
-    edit.className =
-      "edit";
-
-
-    edit.textContent =
-      "✏️";
-
-
-    edit.onclick = () =>
-      editTodo(
-        item.id,
-        item.name
-      );
-
-
-
-    const del =
-      document.createElement("button");
-
-
-    del.className =
-      "delete";
-
-
-    del.textContent =
-      "🗑️";
-
-
-    del.onclick = () =>
-      deleteTodo(
-        item.id
-      );
-
-
-
-    div.appendChild(
-      checkbox
-    );
-
-
-    div.appendChild(
-      span
-    );
-
-
-    div.appendChild(
-      edit
-    );
-
-
-    div.appendChild(
-      del
-    );
-
-
-    list.appendChild(
-      div
-    );
-
-
-  });
-
-
-}
-
-
-
-async function addTodo() {
-
-
-  const input =
-    document.getElementById(
-      "todoInput"
-    );
-
-
-  const name =
-    input.value.trim();
-
-
-  if (!name) return;
-
-
-  await addTodoFromAssistant(
-    name
-  );
-
-
-  input.value = "";
-
-
-}
-
-
-
-/* AJOUT DE TACHE DEPUIS L'ASSISTANT */
-
-async function addTodoFromAssistant(name) {
-
-
-  if (!name) return;
-
-
-  const { error } =
-    await supabaseClient
-      .from("tasks")
-      .insert({
-        name: name,
-        done: false
-      });
-
-
-  if (error) {
-
-    console.error(error);
-
-
-    document.getElementById(
-      "todoStatus"
-    ).textContent =
-      "❌ Erreur : " +
-      error.message;
-
-
-    return;
-
-  }
-
-
-  document.getElementById(
-    "todoStatus"
-  ).textContent =
-    "✅ Tâche ajoutée ✓";
-
-
-  await loadTodos();
-
-
-}
-
-
-
-async function toggleTodo(
-  id,
-  oldValue
-) {
-
-
-  const { error } =
-    await supabaseClient
-      .from("tasks")
-      .update({
-        done: !oldValue
-      })
-      .eq("id", id);
-
-
-  if (error) {
-
-    alert(
-      "Erreur : " +
-      error.message
-    );
-
-
-    return;
-
-  }
-
-
-  loadTodos();
-
-
-}
-
-
-
-async function editTodo(
-  id,
-  oldName
-) {
-
-
-  const newName =
-    prompt(
-      "Modifier la tâche :",
-      oldName
-    );
-
-
-  if (
-    !newName ||
-    !newName.trim()
-  ) {
-
-    return;
-
-  }
-
-
-  const { error } =
-    await supabaseClient
-      .from("tasks")
-      .update({
-        name: newName.trim()
-      })
-      .eq("id", id);
-
-
-  if (error) {
-
-    alert(
-      "Erreur : " +
-      error.message
-    );
-
-
-    return;
-
-  }
-
-
-  loadTodos();
-
-
-}
-
-
-
-async function deleteTodo(id) {
-
-
-  if (
-    !confirm(
-      "Supprimer cette tâche ?"
-    )
-  ) {
-
-    return;
-
-  }
-
-
-  const { error } =
-    await supabaseClient
-      .from("tasks")
-      .delete()
-      .eq("id", id);
-
-
-  if (error) {
-
-    alert(
-      "Erreur : " +
-      error.message
-    );
-
-
-    return;
-
-  }
-
-
-  loadTodos();
-
-
-}
-
-
-
-/* =====================================================
-   BUDGETS
-===================================================== */
-
-
-let personalIncome = 1800;
-
-let personalExpenses = 550;
-
-
-let houseIncome = 1400;
-
-let houseExpenses = 550;
-
-
-
-function updateBudgets() {
-
-
-  const personalRemaining =
-    personalIncome -
-    personalExpenses;
-
-
-  const houseRemaining =
-    houseIncome -
-    houseExpenses;
-
-
-
-  document.getElementById(
-    "personalRemaining"
-  ).textContent =
-    personalRemaining.toFixed(2);
-
-
-
-  document.getElementById(
-    "personalExpenses"
-  ).textContent =
-    personalExpenses.toFixed(2) +
-    " €";
-
-
-
-  document.getElementById(
-    "houseRemaining"
-  ).textContent =
-    houseRemaining.toFixed(2);
-
-
-
-  document.getElementById(
-    "houseExpenses"
-  ).textContent =
-    houseExpenses.toFixed(2) +
-    " €";
-
-
-
-  document.getElementById(
-    "personalProgress"
-  ).style.width =
-    Math.min(
-      personalExpenses /
-      personalIncome *
-      100,
-      100
-    ) +
-    "%";
-
-
-
-  document.getElementById(
-    "houseProgress"
-  ).style.width =
-    Math.min(
-      houseExpenses /
-      houseIncome *
-      100,
-      100
-    ) +
-    "%";
-
-
-}
-
-
-
-function addPersonalExpense() {
-
-
-  const input =
-    document.getElementById(
-      "personalExpense"
-    );
-
-
-  const amount =
-    Number(input.value);
-
-
-  if (
-    !amount ||
-    amount <= 0
-  ) {
-
-    return;
-
-  }
-
-
-  personalExpenses +=
-    amount;
-
-
-  input.value = "";
-
-
-  updateBudgets();
-
-
-}
-
-
-
-function addHouseExpense() {
-
-
-  const input =
-    document.getElementById(
-      "houseExpense"
-    );
-
-
-  const amount =
-    Number(input.value);
-
-
-  if (
-    !amount ||
-    amount <= 0
-  ) {
-
-    return;
-
-  }
-
-
-  houseExpenses +=
-    amount;
-
-
-  input.value = "";
-
-
-  updateBudgets();
-
-
-}
-/* =====================================================
-   BUDGETS SUPABASE
-   ===================================================== */
-
-const budgetInitial = {
-
-  courant: {
-    nourriture: 50,
-    loisirs: 50,
-    autre: 30
-  },
-
-  livret_a: {
-    permis_code: 1896.34,
-    voiture: 3000,
-    reste: 1000
-  }
-
-};
-
-
-async function loadBudgets() {
-
-  const { data, error } =
-    await supabaseClient
-      .from("budget_transactions")
-      .select("*")
-      .order("created_at", {
-        ascending: true
-      });
-
-
-  if (error) {
-
-    console.error(
-      "Erreur budget :",
-      error
-    );
-
-    return;
-  }
-
-
-  const budgets =
-    JSON.parse(
-      JSON.stringify(budgetInitial)
-    );
-
-
-  data.forEach(transaction => {
-
-    const account =
-      transaction.account;
-
-    const category =
-      transaction.category;
-
-    const amount =
-      Number(transaction.amount);
-
-
-    if (
-      !budgets[account] ||
-      budgets[account][category] === undefined
-    ) {
-      return;
-    }
-
-
-    if (
-      transaction.type === "expense" ||
-      transaction.type === "withdrawal"
-    ) {
-
-      budgets[account][category] -=
-        amount;
-
-    }
-
-
-    if (
-      transaction.type === "deposit"
-    ) {
-
-      budgets[account][category] +=
-        amount;
-
-    }
-
-  });
-
-
-  /* COMPTE COURANT */
-
-  document.getElementById(
-    "courantNourriture"
-  ).textContent =
-    budgets.courant.nourriture.toFixed(2) +
-    " €";
-
-
-  document.getElementById(
-    "courantLoisirs"
-  ).textContent =
-    budgets.courant.loisirs.toFixed(2) +
-    " €";
-
-
-  document.getElementById(
-    "courantAutre"
-  ).textContent =
-    budgets.courant.autre.toFixed(2) +
-    " €";
-
-
-  /* LIVRET A */
-
-  document.getElementById(
-    "livretPermis"
-  ).textContent =
-    budgets.livret_a.permis_code.toFixed(2) +
-    " €";
-
-
-  document.getElementById(
-    "livretVoiture"
-  ).textContent =
-    budgets.livret_a.voiture.toFixed(2) +
-    " €";
-
-
-  document.getElementById(
-    "livretReste"
-  ).textContent =
-    budgets.livret_a.reste.toFixed(2) +
-    " €";
-
-
-  const totalLivret =
-
-    budgets.livret_a.permis_code +
-
-    budgets.livret_a.voiture +
-
-    budgets.livret_a.reste;
-
-
-  document.getElementById(
-    "livretTotal"
-  ).textContent =
-    totalLivret.toFixed(2);
-
-}
-
-
-  /* =====================================================
-   HISTORIQUE DES TRANSACTIONS
-===================================================== */
-
-async function loadTransactions() {
-
-  const transactionsList =
-    document.getElementById(
-      "transactionsList"
-    );
-
-
-  const { data, error } =
-    await supabaseClient
-      .from("budget_transactions")
-      .select("*")
-      .order("created_at", {
-        ascending: false
-      })
-      .limit(10);
-
-
-  if (error) {
-
-    console.error(
-      "Erreur historique :",
-      error
-    );
-
-
-    transactionsList.innerHTML =
-      "<p>Impossible de charger les transactions.</p>";
-
-    return;
-
-  }
-
-
-  if (!data || data.length === 0) {
-
-    transactionsList.innerHTML =
-      "<p>Aucune transaction pour le moment.</p>";
-
-    return;
-
-  }
-
-
-  transactionsList.innerHTML = "";
-
-
-  data.forEach(transaction => {
-
-
-    const amount =
-      Number(transaction.amount);
-
-
-    const isExpense =
-      transaction.type === "expense" ||
-      transaction.type === "withdrawal";
-
-
-    const sign =
-      isExpense ? "−" : "+";
-
-
-    let icon = "💰";
-
-
-    /* ICONES SELON LA CATEGORIE */
-
-
-    if (
-      transaction.category === "nourriture"
-    ) {
-
-      icon = "🍔";
-
-    }
-
-
-    else if (
-      transaction.category === "loisirs"
-    ) {
-
-      icon = "🎮";
-
-    }
-
-
-    else if (
-      transaction.category === "autre"
-    ) {
-
-      icon = "📦";
-
-    }
-
-
-    else if (
-      transaction.category === "permis_code"
-    ) {
-
-      icon = "🚗";
-
-    }
-
-
-    else if (
-      transaction.category === "voiture"
-    ) {
-
-      icon = "🚙";
-
-    }
-
-
-    else if (
-      transaction.category === "reste"
-    ) {
-
-      icon = "💰";
-
-    }
-
-
-    const date =
-      new Date(
-        transaction.created_at
-      ).toLocaleDateString(
-        "fr-FR",
-        {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric"
-        }
-      );
-
-
-    const description =
-      escapeHtml(
-        transaction.description ||
-        "Transaction"
-      );
-
-
-    transactionsList.innerHTML += `
-
-      <div class="transaction">
-
-        <div class="transaction-info">
-
-          <span class="transaction-icon">
-            ${icon}
-          </span>
-
-          <div>
-
-            <strong>
-              ${description}
-            </strong>
-
-            <small>
-              ${date}
-            </small>
-
-          </div>
-
-        </div>
-
-
-        <strong class="${
-          isExpense
-            ? "expense"
-            : "income"
-        }">
-
-          ${sign}${amount.toFixed(2)} €
-
-        </strong>
-
-      </div>
-
-    `;
-
-
-  });
-
-
-}
-
-
-/* =====================================================
-   ASSISTANT IA
-===================================================== */
-
-
-async function askAssistant() {
-
-  const input =
-    document.getElementById(
-      "assistantInput"
-    );
-
-
-  const messageBox =
-    document.getElementById(
-      "assistantMessage"
-    );
-
-
-  const userMessage =
-    input.value.trim();
-
-
-  if (!userMessage) {
-
-    return;
-
-  }
-
-
-  messageBox.innerHTML =
-    "🤔 Je réfléchis...";
-
-
-  input.value = "";
-
-
-  try {
-/* =====================================================
-   CONTEXTE DES LISTES POUR L'IA
-===================================================== */
-
-const [
-  shoppingResult,
-  todosResult,
-  lyceeResult,
-  portfolioResult
-] = await Promise.all([
-
-  supabaseClient
-    .from("shopping")
-    .select("*"),
-
-  supabaseClient
-    .from("tasks")
-    .select("*"),
-
-  supabaseClient
-    .from("lycee")
-    .select("*"),
-
-  supabaseClient
-    .from("portfolio")
-    .select("*")
-
-]);
-
-
-const assistantContext = {
-
-  courses:
-    shoppingResult.data || [],
-
-  taches:
-    todosResult.data || [],
-
-  lycee:
-    lyceeResult.data || [],
-
-  portfolio:
-    portfolioResult.data || []
-
-};
-
-    const response =
-      await fetch(
-        "/api/assistant",
-        {
-          method: "POST",
-
-          headers: {
-            "Content-Type":
-              "application/json"
-          },
-
-          body:
-  JSON.stringify({
-
-    message:
-      userMessage,
-
-    context:
-      assistantContext
-
-  })
-
-        }
-      );
-
-
-    const data =
-      await response.json();
-
-
-    if (!response.ok) {
-
-      throw new Error(
-        data.error ||
-        "Erreur du serveur."
-      );
-
-    }
-
-
-    console.log(
-      "Réponse IA :",
-      data
-    );
-
-
-    /*
-     * AFFICHER LA REPONSE
-     */
-
-    messageBox.innerHTML =
-      "🤖 " +
-      escapeHtml(
-        data.answer ||
-        "D'accord."
-      );
-
-
-    /*
-     * EXECUTER L'ACTION
-     */
-
-    if (
-      data.action &&
-      data.action.type
-    ) {
-
-
-      const action =
-        data.action;
-
-
-      /* AJOUT COURSE */
-
-      if (
-        action.type ===
-        "add_shopping"
-      ) {
-
-        await addShoppingFromAssistant(
-          action.name
-        );
-
-        messageBox.innerHTML +=
-          "<br><br>🛒 Course ajoutée.";
-
-      }
-
-
-      /* AJOUT TACHE */
-
-      else if (
-        action.type ===
-        "add_task"
-      ) {
-
-        await addTodoFromAssistant(
-          action.name
-        );
-
-        messageBox.innerHTML +=
-          "<br><br>✅ Tâche ajoutée.";
-
-      }
-
-
-      /* SUPPRESSION COURSE */
-
-      else if (
-        action.type ===
-        "delete_shopping"
-      ) {
-
-        await deleteShoppingByName(
-          action.name
-        );
-
-        messageBox.innerHTML +=
-          "<br><br>🗑️ Course supprimée.";
-
-      }
-
-
-      /* SUPPRESSION TACHE */
-
-      else if (
-        action.type ===
-        "delete_task"
-      ) {
-
-        await deleteTodoByName(
-          action.name
-        );
-
-        messageBox.innerHTML +=
-          "<br><br>🗑️ Tâche supprimée.";
-
-      }
-
-
-      /* TERMINER TACHE */
-
-      else if (
-        action.type ===
-        "complete_task"
-      ) {
-
-        await completeTodoByName(
-          action.name
-        );
-
-        messageBox.innerHTML +=
-          "<br><br>✅ Tâche terminée.";
-
-      }
-
-/* AJOUT LYCEE */
-
-else if (
-  action.type === "add_lycee"
-) {
-
-  await addLyceeFromAssistant(
-    action.name
-  );
-
-  messageBox.innerHTML +=
-    "<br><br>🎓 Ajouté à ta liste Lycée.";
-
-}
-
-
-/* SUPPRESSION LYCEE */
-
-else if (
-  action.type === "delete_lycee"
-) {
-
-  await deleteLyceeByName(
-    action.name
-  );
-
-  messageBox.innerHTML +=
-    "<br><br>🗑️ Élément supprimé du Lycée.";
-
-}
-
-
-/* TERMINER LYCEE */
-
-else if (
-  action.type === "complete_lycee"
-) {
-
-  await completeLyceeByName(
-    action.name
-  );
-
-  messageBox.innerHTML +=
-    "<br><br>✅ Élément terminé.";
-
-}
-
-
-/* AJOUT PORTFOLIO */
-
-else if (
-  action.type === "add_portfolio"
-) {
-
-  await addPortfolioFromAssistant(
-    action.name
-  );
-
-  messageBox.innerHTML +=
-    "<br><br>📁 Ajouté au Portfolio.";
-
-}
-
-
-/* SUPPRESSION PORTFOLIO */
-
-else if (
-  action.type === "delete_portfolio"
-) {
-
-  await deletePortfolioByName(
-    action.name
-  );
-
-  messageBox.innerHTML +=
-    "<br><br>🗑️ Élément supprimé du Portfolio.";
-
-}
-
-
-/* TERMINER PORTFOLIO */
-
-else if (
-  action.type === "complete_portfolio"
-) {
-
-  await completePortfolioByName(
-    action.name
-  );
-
-  messageBox.innerHTML +=
-    "<br><br>✅ Élément terminé.";
-
-}
-      /* =========================
-         AJOUT DEPENSE / BUDGET
-         ========================= */
-
-      else if (
-        action.type === "add_expense" ||
-        action.type === "add_deposit" ||
-        action.type === "add_withdrawal"
-      ) {
-
-
-        const transactionType =
-
-          action.type === "add_expense"
-
-            ? "expense"
-
-            : action.type === "add_deposit"
-
-            ? "deposit"
-
-            : "withdrawal";
-
-
-        const { error } =
-          await supabaseClient
-            .from("budget_transactions")
-            .insert([
-              {
-                account:
-                  action.account,
-
-                category:
-                  action.category,
-
-                amount:
-                  Number(
-                    action.amount
-                  ),
-
-                type:
-                  transactionType,
-
-                description:
-                  action.description || ""
-              }
-            ]);
-
-
-        if (error) {
-
-          console.error(
-            "Erreur budget :",
-            error
-          );
-
-
-          messageBox.innerHTML +=
-            "<br><br>❌ Impossible d'enregistrer cette transaction.";
-
-        }
-
-
-        else {
-
-
-          await loadBudgets();
-
-await loadTransactions();
-
-          messageBox.innerHTML +=
-            "<br><br>💰 Budget mis à jour.";
-
-        }
-
-
-      }
-
-
-    }
-
-
-  } catch (error) {
-
-
-    console.error(error);
-
-
-    messageBox.innerHTML =
-      "❌ " +
-      escapeHtml(
-        error.message
-      );
-
-
-  }
-
-
-}
-  
-
-/* =====================================================
-   SUPPRESSION COURSE PAR NOM
-===================================================== */
-
-
-async function deleteShoppingByName(name) {
-
-
-  if (!name) return;
-
-
-  const { error } =
-    await supabaseClient
-      .from("course")
-      .delete()
-      .ilike(
-        "name",
-        name
-      );
-
-
-  if (error) {
-
-    console.error(error);
-
-  }
-
-
-  await loadShopping();
-
-
-}
-
-
-
-/* =====================================================
-   SUPPRESSION TACHE PAR NOM
-===================================================== */
-
-
-async function deleteTodoByName(name) {
-
-
-  if (!name) return;
-
-
-  const { error } =
-    await supabaseClient
-      .from("tasks")
-      .delete()
-      .ilike(
-        "name",
-        name
-      );
-
-
-  if (error) {
-
-    console.error(error);
-
-  }
-
-
-  await loadTodos();
-
-
-}
-
-
-
-/* =====================================================
-   TERMINER TACHE PAR NOM
-===================================================== */
-
-
-async function completeTodoByName(name) {
-
-
-  if (!name) return;
-
-
-  const { error } =
-    await supabaseClient
-      .from("tasks")
-      .update({
-        done: true
-      })
-      .ilike(
-        "name",
-        name
-      );
-
-
-  if (error) {
-
-    console.error(error);
-
-  }
-
-
-  await loadTodos();
-
-
-}
-
-
-
-/* =====================================================
-   GMAIL
-===================================================== */
-
-
-async function connectGmail() {
-
-
-  try {
-
-
-    const {
-      data,
-      error
-    } =
-      await supabaseClient
-        .auth
-        .signInWithOAuth({
-
-
-          provider:
-            "google",
-
-
-          options: {
-
-
-            redirectTo:
-              window.location.origin,
-
-
-            scopes:
-              "https://www.googleapis.com/auth/gmail.readonly"
-
-
-          }
-
-
-        });
-
-
-
-    if (error) {
-
-
-      console.error(error);
-
-
-      document.getElementById(
-        "gmailStatus"
-      ).textContent =
-        "❌ " +
-        error.message;
-
-
-      return;
-
-
-    }
-
-
-    console.log(
-      "Connexion Google lancée",
-      data
-    );
-
-
-  } catch (error) {
-
-
-    console.error(error);
-
-
-    document.getElementById(
-      "gmailStatus"
-    ).textContent =
-      "❌ Impossible de lancer la connexion Gmail.";
-
-
-  }
-
-
-}
-
-
-
-async function logoutGmail() {
-
-
-  const {
-    error
-  } =
-    await supabaseClient
-      .auth
-      .signOut();
-
-
-  if (error) {
-
-
-    alert(
-      "Erreur : " +
-      error.message
-    );
-
-
-    return;
-
-
-  }
-
-
-  updateGmailInterface(
-    null
-  );
-
-
-}
-
-
-
-async function getGmailSession() {
-
-
-  const {
-    data,
-    error
-  } =
-    await supabaseClient
-      .auth
-      .getSession();
-
-
-  if (error) {
-
-
-    console.error(error);
-
-
-    return null;
-
-
-  }
-
-
-  return data.session;
-
-
-}
-
-
-
-function updateGmailInterface(session) {
-
-
-  const connectButton =
-    document.getElementById(
-      "gmailConnectButton"
-    );
-
-
-  const refreshButton =
-    document.getElementById(
-      "gmailRefreshButton"
-    );
-
-
-  const logoutButton =
-    document.getElementById(
-      "gmailLogoutButton"
-    );
-
-
-  const status =
-    document.getElementById(
-      "gmailStatus"
-    );
-
-
-
-  if (!session) {
-
-
-    connectButton.style.display =
-      "inline-block";
-
-
-    refreshButton.style.display =
-      "none";
-
-
-    logoutButton.style.display =
-      "none";
-
-
-    status.textContent =
-      "Non connecté";
-
-
-    document.getElementById(
-      "gmailMessages"
-    ).innerHTML =
-      "";
-
-
-    return;
-
-
-  }
-
-
-
-  connectButton.style.display =
-    "none";
-
-
-  refreshButton.style.display =
-    "inline-block";
-
-
-  logoutButton.style.display =
-    "inline-block";
-
-
-  status.textContent =
-    "✅ Gmail connecté";
-
-
-  loadGmailMessages();
-
-
-}
-
-
-
-async function loadGmailMessages() {
-
-
-  const status =
-    document.getElementById(
-      "gmailStatus"
-    );
-
-
-  const messagesContainer =
-    document.getElementById(
-      "gmailMessages"
-    );
-
-
-  status.textContent =
-    "⏳ Chargement des mails...";
-
-
-  messagesContainer.innerHTML =
-    "";
-
-
-  const session =
-    await getGmailSession();
-
-
-  if (!session) {
-
-
-    status.textContent =
-      "❌ Connecte d'abord Gmail.";
-
-
-    return;
-
-
-  }
-
-
-  const accessToken =
-    session.provider_token;
-
-
-  if (!accessToken) {
-
-
-    status.textContent =
-      "❌ Autorisation Gmail introuvable. Reconnecte ton compte Google.";
-
-
-    return;
-
-
-  }
-
-
-  try {
-
-
-    const response =
-      await fetch(
-
-        "https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=5",
-
-        {
-
-          method: "GET",
-
-
-          headers: {
-
-            Authorization:
-              "Bearer " +
-              accessToken,
-
-            Accept:
-              "application/json"
-
-          }
-
-        }
-
-      );
-
-
-
-    if (!response.ok) {
-
-
-      throw new Error(
-        "Google refuse l'accès aux mails."
-      );
-
-
-    }
-
-
-
-    const data =
-      await response.json();
-
-
-
-    if (
-      !data.messages ||
-      data.messages.length === 0
-    ) {
-
-
-      status.textContent =
-        "✅ Gmail connecté";
-
-
-      messagesContainer.innerHTML =
-        "<p>Aucun mail trouvé.</p>";
-
-
-      return;
-
-
-    }
-
-
-
-    const mailPromises =
-      data.messages.map(
-
-        message =>
-          getGmailMessage(
-            message.id,
-            accessToken
-          )
-
-      );
-
-
-
-    const mails =
-      await Promise.all(
-        mailPromises
-      );
-
-
-    status.textContent =
-      "✅ Gmail connecté";
-
-
-    messagesContainer.innerHTML =
-      "";
-
-
-
-    mails.forEach(mail => {
-
-
-      const div =
-        document.createElement(
-          "div"
-        );
-
-
-      div.className =
-        "gmail-message";
-
-
-      div.innerHTML =
-
-        "<div class='gmail-subject'>" +
-
-        escapeHtml(
-          mail.subject
-        ) +
-
-        "</div>" +
-
-
-        "<div class='gmail-from'>" +
-
-        escapeHtml(
-          mail.from
-        ) +
-
-        "</div>" +
-
-
-        "<div class='gmail-snippet'>" +
-
-        escapeHtml(
-          mail.snippet
-        ) +
-
-        "</div>";
-
-
-
-      messagesContainer.appendChild(
-        div
-      );
-
-
-    });
-
-
-  } catch (error) {
-
-
-    console.error(error);
-
-
-    status.textContent =
-      "❌ Erreur Gmail";
-
-
-    messagesContainer.innerHTML =
-
-      "<div class='gmail-error'>" +
-
-      escapeHtml(
-        error.message
-      ) +
-
-      "</div>";
-
-
-  }
-
-
-}
-
-
-
-async function getGmailMessage(
-  messageId,
-  accessToken
-) {
-
-
-  const response =
-    await fetch(
-
-      "https://gmail.googleapis.com/gmail/v1/users/me/messages/" +
-
-      encodeURIComponent(
-        messageId
-      ) +
-
-      "?format=metadata&metadataHeaders=Subject&metadataHeaders=From",
-
-
-      {
-
-        method: "GET",
-
-
-        headers: {
-
-          Authorization:
-            "Bearer " +
-            accessToken,
-
-          Accept:
-            "application/json"
-
-        }
-
-      }
-
-    );
-
-
-  if (!response.ok) {
-
-
-    throw new Error(
-      "Impossible de lire un mail."
-    );
-
-
-  }
-
-
-  const data =
-    await response.json();
-
-
-  const headers =
-
-    data.payload &&
-    data.payload.headers
-
-      ? data.payload.headers
-
-      : [];
-
-
-  const subjectHeader =
-    headers.find(
-
-      header =>
-
-        header.name
-          .toLowerCase() ===
-        "subject"
-
-    );
-
-
-  const fromHeader =
-    headers.find(
-
-      header =>
-
-        header.name
-          .toLowerCase() ===
-        "from"
-
-    );
-
-
-  return {
-
-
-    subject:
-
-      subjectHeader
-
-        ? subjectHeader.value
-
-        : "(Sans objet)",
-
-
-    from:
-
-      fromHeader
-
-        ? fromHeader.value
-
-        : "(Expéditeur inconnu)",
-
-
-    snippet:
-
-      data.snippet || ""
-
-
-  };
-
-
-}
-
-
-
-/* =====================================================
-   SECURITE HTML
-===================================================== */
-
-
-function escapeHtml(text) {
-
-
-  const div =
-    document.createElement(
-      "div"
-    );
-
-
-  div.textContent =
-
-    text == null
-
-      ? ""
-
-      : String(text);
-
-
-  return div.innerHTML;
-
-
-}
-
-
-
-/* =====================================================
-   AUTHENTIFICATION
-===================================================== */
-
-
-supabaseClient
-  .auth
-  .onAuthStateChange(
-
-    async (
-      event,
-      session
-    ) => {
-
-
-      console.log(
-        "Auth event :",
-        event
-      );
-
-
-      updateGmailInterface(
-        session
-      );
-
-
-    }
-
-  );
-
-
-/* =====================================================
-   LYCEE
-===================================================== */
-
-async function loadLycee() {
-
-  const list =
-    document.getElementById("lyceeList");
-
-  const { data, error } =
-    await supabaseClient
-      .from("lycee")
-      .select("*")
-      .order("created_at", {
-        ascending: false
-      });
-
-  if (error) {
-
-    console.error("Erreur lycée :", error);
-
-    list.innerHTML =
-      "<li>❌ Impossible de charger la liste.</li>";
-
-    return;
-
-  }
-
-  list.innerHTML = "";
-
-  data.forEach(item => {
-
-    const li =
-      document.createElement("li");
-
-    li.className = "item";
-
-
-    const checkbox =
-      document.createElement("input");
-
-    checkbox.type = "checkbox";
-    checkbox.checked = item.completed;
-
-
-    checkbox.onchange =
-      async () => {
-
-        const { error } =
-          await supabaseClient
-            .from("lycee")
-            .update({
-              completed: checkbox.checked
-            })
-            .eq("id", item.id);
-
-        if (error) {
-
-          console.error(
-            "Erreur modification lycée :",
-            error
-          );
-
-        }
-
-        await loadLycee();
-
-      };
-
-
-    const span =
-      document.createElement("span");
-
-    span.textContent = item.name;
-
-
-    if (item.completed) {
-
-      span.style.textDecoration =
-        "line-through";
-
-      span.style.opacity = "0.5";
-
-    }
-
-
-    const deleteButton =
-      document.createElement("button");
-
-    deleteButton.className = "delete";
-    deleteButton.textContent = "🗑️";
-
-
-    deleteButton.onclick =
-      async () => {
-
-        const { error } =
-          await supabaseClient
-            .from("lycee")
-            .delete()
-            .eq("id", item.id);
-
-        if (error) {
-
-          console.error(
-            "Erreur suppression lycée :",
-            error
-          );
-
-          return;
-
-        }
-
-        await loadLycee();
-
-      };
-
-
-    li.appendChild(checkbox);
-    li.appendChild(span);
-    li.appendChild(deleteButton);
-
-    list.appendChild(li);
-
-  });
-
-}
-
-
-async function addLycee() {
-
-  const input =
-    document.getElementById("lyceeInput");
-
-  const name =
-    input.value.trim();
-
-  if (!name) return;
-
-
-  const { error } =
-    await supabaseClient
-      .from("lycee")
-      .insert({
-        name: name,
-        completed: false
-      });
-
-
-  if (error) {
-
-    console.error(
-      "Erreur ajout lycée :",
-      error
-    );
-
-    alert(
-      "Impossible d'ajouter cet élément."
-    );
-
-    return;
-
-  }
-
-
-  input.value = "";
-
-  await loadLycee();
-
-}
-
-
-/* =====================================================
-   PORTFOLIO
-===================================================== */
-
-async function loadPortfolio() {
-
-  const list =
-    document.getElementById("portfolioList");
-
-  const { data, error } =
-    await supabaseClient
-      .from("portfolio")
-      .select("*")
-      .order("created_at", {
-        ascending: false
-      });
-
-  if (error) {
-
-    console.error(
-      "Erreur portfolio :",
-      error
-    );
-
-    list.innerHTML =
-      "<li>❌ Impossible de charger la liste.</li>";
-
-    return;
-
-  }
-
-  list.innerHTML = "";
-
-  data.forEach(item => {
-
-    const li =
-      document.createElement("li");
-
-    li.className = "item";
-
-
-    const checkbox =
-      document.createElement("input");
-
-    checkbox.type = "checkbox";
-    checkbox.checked = item.completed;
-
-
-    checkbox.onchange =
-      async () => {
-
-        const { error } =
-          await supabaseClient
-            .from("portfolio")
-            .update({
-              completed: checkbox.checked
-            })
-            .eq("id", item.id);
-
-        if (error) {
-
-          console.error(
-            "Erreur modification portfolio :",
-            error
-          );
-
-        }
-
-        await loadPortfolio();
-
-      };
-
-
-    const span =
-      document.createElement("span");
-
-    span.textContent = item.name;
-
-
-    if (item.completed) {
-
-      span.style.textDecoration =
-        "line-through";
-
-      span.style.opacity = "0.5";
-
-    }
-
-
-    const deleteButton =
-      document.createElement("button");
-
-    deleteButton.className = "delete";
-    deleteButton.textContent = "🗑️";
-
-
-    deleteButton.onclick =
-      async () => {
-
-        const { error } =
-          await supabaseClient
-            .from("portfolio")
-            .delete()
-            .eq("id", item.id);
-
-        if (error) {
-
-          console.error(
-            "Erreur suppression portfolio :",
-            error
-          );
-
-          return;
-
-        }
-
-        await loadPortfolio();
-
-      };
-
-
-    li.appendChild(checkbox);
-    li.appendChild(span);
-    li.appendChild(deleteButton);
-
-    list.appendChild(li);
-
-  });
-
-}
-
-
-async function addPortfolio() {
-
-  const input =
-    document.getElementById("portfolioInput");
-
-  const name =
-    input.value.trim();
-
-  if (!name) return;
-
-
-  const { error } =
-    await supabaseClient
-      .from("portfolio")
-      .insert({
-        name: name,
-        completed: false
-      });
-
-
-  if (error) {
-
-    console.error(
-      "Erreur ajout portfolio :",
-      error
-    );
-
-    alert(
-      "Impossible d'ajouter cet élément."
-    );
-
-    return;
-
-  }
-
-
-  input.value = "";
-
-  await loadPortfolio();
-
-}
-  /* =====================================================
-   FONCTIONS IA - LYCEE
-===================================================== */
-
-async function addLyceeFromAssistant(name) {
-
-  if (!name) return;
-
-  const { error } =
-    await supabaseClient
-      .from("lycee")
-      .insert({
-        name: name,
-        completed: false
-      });
-
-  if (error) {
-
-    console.error(
-      "Erreur IA ajout lycée :",
-      error
-    );
-
-    return;
-
-  }
-
-  await loadLycee();
-
-}
-
-
-async function deleteLyceeByName(name) {
-
-  if (!name) return;
-
-  const { error } =
-    await supabaseClient
-      .from("lycee")
-      .delete()
-      .ilike(
-        "name",
-        name
-      );
-
-  if (error) {
-
-    console.error(
-      "Erreur IA suppression lycée :",
-      error
-    );
-
-    return;
-
-  }
-
-  await loadLycee();
-
-}
-
-
-async function completeLyceeByName(name) {
-
-  if (!name) return;
-
-  const { error } =
-    await supabaseClient
-      .from("lycee")
-      .update({
-        completed: true
-      })
-      .ilike(
-        "name",
-        name
-      );
-
-  if (error) {
-
-    console.error(
-      "Erreur IA tâche lycée :",
-      error
-    );
-
-    return;
-
-  }
-
-  await loadLycee();
-
-}
-
-
-/* =====================================================
-   FONCTIONS IA - PORTFOLIO
-===================================================== */
-
-async function addPortfolioFromAssistant(name) {
-
-  if (!name) return;
-
-  const { error } =
-    await supabaseClient
-      .from("portfolio")
-      .insert({
-        name: name,
-        completed: false
-      });
-
-  if (error) {
-
-    console.error(
-      "Erreur IA ajout portfolio :",
-      error
-    );
-
-    return;
-
-  }
-
-  await loadPortfolio();
-
-}
-
-
-async function deletePortfolioByName(name) {
-
-  if (!name) return;
-
-  const { error } =
-    await supabaseClient
-      .from("portfolio")
-      .delete()
-      .ilike(
-        "name",
-        name
-      );
-
-  if (error) {
-
-    console.error(
-      "Erreur IA suppression portfolio :",
-      error
-    );
-
-    return;
-
-  }
-
-  await loadPortfolio();
-
-}
-
-
-async function completePortfolioByName(name) {
-
-  if (!name) return;
-
-  const { error } =
-    await supabaseClient
-      .from("portfolio")
-      .update({
-        completed: true
-      })
-      .ilike(
-        "name",
-        name
-      );
-
-  if (error) {
-
-    console.error(
-      "Erreur IA tâche portfolio :",
-      error
-    );
-
-    return;
-
-  }
-
-  await loadPortfolio();
-
-}
-
-/* =====================================================
-   CALENDRIER - 7 PROCHAINS JOURS
-===================================================== */
-
-async function loadEvents() {
-
-  const list =
-    document.getElementById("eventsList");
-
-
-  if (!list) {
-
-    console.error(
-      "Calendrier introuvable : eventsList"
-    );
-
-    return;
-
-  }
-
-
-  list.innerHTML =
-    "Chargement du calendrier...";
-
-
-  const { data, error } =
-    await supabaseClient
-      .from("events")
-      .select("*")
-      .order("start_date", {
-        ascending: true
-      });
-
-
-  if (error) {
-
-    console.error(
-      "Erreur calendrier :",
-      error
-    );
-
-
-    list.innerHTML =
-      "❌ Impossible de charger le calendrier.";
-
-    return;
-
-  }
-
-
-  /* ===============================
-     CREATION DES 7 JOURS
-  =============================== */
-
-  const today =
-    new Date();
-
-
-  today.setHours(
-    0,
-    0,
-    0,
-    0
-  );
-
-
-  const days = [];
-
-
-  for (
-    let i = 0;
-    i < 7;
-    i++
-  ) {
-
-    const date =
-      new Date(today);
-
-
-    date.setDate(
-      today.getDate() + i
-    );
-
-
-    days.push(date);
-
-  }
-
-
-  list.innerHTML = "";
-
-
-  days.forEach(day => {
-
-
-    const dayColumn =
-      document.createElement("div");
-
-
-    dayColumn.className =
-      "calendar-day";
-
-
-    /* NOM DU JOUR */
-
-    const dayName =
-      day.toLocaleDateString(
-        "fr-FR",
-        {
-          weekday: "long"
-        }
-      );
-
-
-    /* DATE */
-
-    const dayNumber =
-      day.getDate();
-
-
-    const month =
-      day.toLocaleDateString(
-        "fr-FR",
-        {
-          month: "short"
-        }
-      );
-
-
-    dayColumn.innerHTML =
-
-      "<div class='calendar-day-title'>" +
-
-      "<strong>" +
-
-      dayName.charAt(0).toUpperCase() +
-      dayName.slice(1) +
-
-      "</strong>" +
-
-      "<br>" +
-
-      dayNumber +
-      " " +
-      month +
-
-      "</div>";
-
-
-    /* ===============================
-       EVENEMENTS DU JOUR
-    =============================== */
-
-
-    const eventsOfDay =
-      data.filter(event => {
-
-
-        const eventDate =
-          new Date(
-            event.start_date
-          );
-
-
-        return (
-
-          eventDate.getFullYear() ===
-          day.getFullYear()
-
-          &&
-
-          eventDate.getMonth() ===
-          day.getMonth()
-
-          &&
-
-          eventDate.getDate() ===
-          day.getDate()
-
-        );
-
-      });
-
-
-    if (
-      eventsOfDay.length === 0
-    ) {
-
-
-      const empty =
-        document.createElement("div");
-
-
-      empty.className =
-        "calendar-empty";
-
-
-      empty.textContent =
-        "Aucun rendez-vous";
-
-
-      dayColumn.appendChild(
-        empty
-      );
-
-
-    }
-
-
-    else {
-
-
-      eventsOfDay.forEach(event => {
-
-
-        const eventBox =
-          document.createElement("div");
-
-
-        eventBox.className =
-          "calendar-event";
-
-
-        const eventDate =
-          new Date(
-            event.start_date
-          );
-
-
-        const time =
-          eventDate.toLocaleTimeString(
-            "fr-FR",
-            {
-              hour: "2-digit",
-              minute: "2-digit"
-            }
-          );
-
-
-        let endTime = "";
-
-
-        if (event.end_date) {
-
-
-          const endDate =
-            new Date(
-              event.end_date
-            );
-
-
-          endTime =
-            endDate.toLocaleTimeString(
-              "fr-FR",
-              {
-                hour: "2-digit",
-                minute: "2-digit"
-              }
-            );
-
-        }
-
-
-        eventBox.innerHTML =
-
-          "<div class='calendar-event-time'>" +
-
-          time +
-
-          (
-
-            endTime
-
-              ? " - " + endTime
-
-              : ""
-
-          ) +
-
-          "</div>" +
-
-
-          "<div class='calendar-event-title'>" +
-
-          escapeHtml(
-            event.title
-          ) +
-
-          "</div>" +
-
-
-          "<button " +
-
-          "class='calendar-delete' " +
-
-          "onclick='deleteEvent(" +
-
-          event.id +
-
-          ")'" +
-
-          ">" +
-
-          "🗑️" +
-
-          "</button>";
-
-
-        dayColumn.appendChild(
-          eventBox
-        );
-
-
-      });
-
-
-    }
-
-
-    list.appendChild(
-      dayColumn
-    );
-
-
-  });
-
-
-}
-
-
-
-/* =====================================================
-   OUVRIR LA FENETRE AJOUT
-===================================================== */
-
-function openEventModal() {
-
-
-  const modal =
-    document.getElementById(
-      "eventModal"
-    );
-
-
-  if (modal) {
-
-    modal.classList.add(
-      "active"
-    );
-
-  }
-
-
-}
-
-
-
-/* =====================================================
-   FERMER LA FENETRE AJOUT
-===================================================== */
-
-function closeEventModal() {
-
-
-  const modal =
-    document.getElementById(
-      "eventModal"
-    );
-
-
-  if (modal) {
-
-    modal.classList.remove(
-      "active"
-    );
-
-  }
-
-
-}
-
-
-
-/* =====================================================
-   AJOUTER EVENEMENT
-===================================================== */
-
-async function addEvent() {
-
-
-  const titleInput =
-    document.getElementById(
-      "eventTitle"
-    );
-
-
-  const startInput =
-    document.getElementById(
-      "eventStart"
-    );
-
-
-  const endInput =
-    document.getElementById(
-      "eventEnd"
-    );
-
-
-  const title =
-    titleInput.value.trim();
-
-
-  const startDate =
-    startInput.value;
-
-
-  const endDate =
-    endInput.value;
-
-
-  if (
-    !title ||
-    !startDate
-  ) {
-
-
-    alert(
-      "Indique au minimum un nom et une date de début."
-    );
-
-
-    return;
-
-
-  }
-
-
-  if (
-
-    endDate &&
-
-    new Date(endDate) <=
-    new Date(startDate)
-
-  ) {
-
-
-    alert(
-      "La date de fin doit être après la date de début."
-    );
-
-
-    return;
-
-
-  }
-
-
-  const eventData = {
-
-
-    title:
-      title,
-
-
-    start_date:
-      new Date(
-        startDate
-      ).toISOString(),
-
-
-    end_date:
-
-      endDate
-
-        ? new Date(
-            endDate
-          ).toISOString()
-
-        : null
-
-
-  };
-
-
-  const { error } =
-    await supabaseClient
-      .from("events")
-      .insert(
-        eventData
-      );
-
-
-  if (error) {
-
-
-    console.error(
-      "Erreur ajout événement :",
-      error
-    );
-
-
-    alert(
-      "Impossible d'ajouter l'événement."
-    );
-
-
-    return;
-
-
-  }
-
-
-  titleInput.value = "";
-
-  startInput.value = "";
-
-  endInput.value = "";
-
-
-  closeEventModal();
-
-
-  await loadEvents();
-
-
-}
-
-
-
-/* =====================================================
-   SUPPRIMER EVENEMENT
-===================================================== */
-
-async function deleteEvent(id) {
-
-
-  if (
-
-    !confirm(
-      "Supprimer cet événement ?"
-    )
-
-  ) {
-
-
-    return;
-
-
-  }
-
-
-  const { error } =
-    await supabaseClient
-      .from("events")
-      .delete()
-      .eq(
-        "id",
-        id
-      );
-
-
-  if (error) {
-
-
-    console.error(
-      "Erreur suppression événement :",
-      error
-    );
-
-
-    alert(
-      "Impossible de supprimer l'événement."
-    );
-
-
-    return;
-
-
-  }
-
-
-  await loadEvents();
-
-
-}
-/* =====================================================
-   DEMARRAGE
-===================================================== */
-
-loadShopping();
-
-loadTodos();
-
-loadEvents();
-
-loadBudgets();
-
-loadTransactions();
-
-loadLycee();
-
-loadPortfolio();
-
-loadWeather();
-
-
-getGmailSession()
-  .then(
-
-    session => {
-
-      updateGmailInterface(
-        session
-      );
-
-    }
-
-  );
-
-
-/* =====================================================
-   TOUCHE ENTREE POUR ENVOYER A L'IA
-===================================================== */
-
-
-document
-  .getElementById(
-    "assistantInput"
-  )
-  .addEventListener(
-    "keydown",
-
-    function(event) {
-
-      if (
-        event.key ===
-        "Enter"
-      ) {
-
-        askAssistant();
-
-      }
-
-    }
-
-  );
-
-
-</script>
+<script src="script.js"></script>
 
 
 </body>
