@@ -1,5 +1,5 @@
 /* =====================================================
-   CONFIGURATION SUPABASE
+   SUPABASE
 ===================================================== */
 
 const SUPABASE_URL =
@@ -15,6 +15,7 @@ const supabaseClient =
     SUPABASE_URL,
     SUPABASE_KEY
   );
+
 
 
 /* =====================================================
@@ -38,6 +39,7 @@ function escapeHtml(text) {
 }
 
 
+
 /* =====================================================
    METEO
 ===================================================== */
@@ -48,13 +50,10 @@ async function loadWeather() {
     document.getElementById("weather");
 
 
-  if (!weatherElement) return;
-
-
   if (!navigator.geolocation) {
 
     weatherElement.textContent =
-      "📍 Géolocalisation indisponible";
+      "📍 Localisation indisponible";
 
     return;
 
@@ -65,15 +64,15 @@ async function loadWeather() {
 
     async position => {
 
-      const latitude =
-        position.coords.latitude;
-
-
-      const longitude =
-        position.coords.longitude;
-
-
       try {
+
+        const latitude =
+          position.coords.latitude;
+
+
+        const longitude =
+          position.coords.longitude;
+
 
         const response =
           await fetch(
@@ -108,26 +107,35 @@ async function loadWeather() {
         let icon = "🌤️";
 
 
-        if (code === 0)
+        if (code === 0) {
+
           icon = "☀️";
 
-        else if (code <= 3)
+        }
+
+        else if (code <= 2) {
+
           icon = "🌤️";
 
-        else if (code <= 48)
-          icon = "🌫️";
+        }
 
-        else if (code <= 67)
+        else if (code === 3) {
+
+          icon = "☁️";
+
+        }
+
+        else if (code >= 51 && code <= 82) {
+
           icon = "🌧️";
 
-        else if (code <= 77)
-          icon = "❄️";
+        }
 
-        else if (code <= 82)
-          icon = "🌦️";
+        else if (code >= 95) {
 
-        else
           icon = "⛈️";
+
+        }
 
 
         weatherElement.innerHTML =
@@ -140,14 +148,13 @@ async function loadWeather() {
 
           "°C</strong>";
 
+
       }
 
       catch (error) {
 
-        console.error(
-          "Erreur météo :",
-          error
-        );
+        weatherElement.textContent =
+          "❌ Météo indisponible";
 
       }
 
@@ -156,13 +163,14 @@ async function loadWeather() {
     () => {
 
       weatherElement.textContent =
-        "📍 Localisation non autorisée";
+        "📍 Autorise la localisation";
 
     }
 
   );
 
 }
+
 
 
 /* =====================================================
@@ -177,20 +185,21 @@ async function loadShopping() {
     );
 
 
-  if (!list) return;
-
-
   const { data, error } =
     await supabaseClient
       .from("course")
       .select("*")
-      .order("id");
+      .order("id", {
+        ascending: true
+      });
 
 
   if (error) {
 
+    console.error(error);
+
     list.textContent =
-      "❌ Impossible de charger.";
+      "❌ Erreur de chargement.";
 
     return;
 
@@ -201,6 +210,7 @@ async function loadShopping() {
 
 
   data.forEach(item => {
+
 
     const div =
       document.createElement("div");
@@ -215,25 +225,15 @@ async function loadShopping() {
 
     checkbox.type = "checkbox";
 
-
-    checkbox.checked =
-      item.done;
+    checkbox.checked = item.done;
 
 
     checkbox.onchange =
-      async () => {
-
-        await supabaseClient
-          .from("course")
-          .update({
-            done: checkbox.checked
-          })
-          .eq("id", item.id);
-
-
-        loadShopping();
-
-      };
+      () =>
+        toggleShopping(
+          item.id,
+          item.done
+        );
 
 
     const span =
@@ -249,8 +249,7 @@ async function loadShopping() {
       span.style.textDecoration =
         "line-through";
 
-      span.style.opacity =
-        ".5";
+      span.style.opacity = "0.5";
 
     }
 
@@ -259,64 +258,33 @@ async function loadShopping() {
       document.createElement("button");
 
 
+    edit.className = "edit";
+
     edit.textContent = "✏️";
 
 
-    edit.className = "edit";
-
-
     edit.onclick =
-      async () => {
-
-        const name =
-          prompt(
-            "Modifier :",
-            item.name
-          );
-
-
-        if (!name) return;
-
-
-        await supabaseClient
-          .from("course")
-          .update({
-            name: name
-          })
-          .eq("id", item.id);
-
-
-        loadShopping();
-
-      };
+      () =>
+        editShopping(
+          item.id,
+          item.name
+        );
 
 
     const del =
       document.createElement("button");
 
 
+    del.className = "delete";
+
     del.textContent = "🗑️";
 
 
-    del.className = "delete";
-
-
     del.onclick =
-      async () => {
-
-        if (!confirm("Supprimer ?"))
-          return;
-
-
-        await supabaseClient
-          .from("course")
-          .delete()
-          .eq("id", item.id);
-
-
-        loadShopping();
-
-      };
+      () =>
+        deleteShopping(
+          item.id
+        );
 
 
     div.append(
@@ -328,6 +296,7 @@ async function loadShopping() {
 
 
     list.appendChild(div);
+
 
   });
 
@@ -349,38 +318,104 @@ async function addShopping() {
   if (!name) return;
 
 
-  await supabaseClient
-    .from("course")
-    .insert({
-      name: name,
-      done: false
-    });
+  await addShoppingFromAssistant(name);
 
 
   input.value = "";
-
-
-  loadShopping();
 
 }
 
 
 async function addShoppingFromAssistant(name) {
 
-  if (!name) return;
+  const { error } =
+    await supabaseClient
+      .from("course")
+      .insert({
+        name: name,
+        done: false
+      });
+
+
+  if (error) {
+
+    console.error(error);
+
+    return;
+
+  }
+
+
+  await loadShopping();
+
+}
+
+
+async function toggleShopping(
+  id,
+  oldValue
+) {
+
+  await supabaseClient
+    .from("course")
+    .update({
+      done: !oldValue
+    })
+    .eq("id", id);
+
+
+  await loadShopping();
+
+}
+
+
+async function editShopping(
+  id,
+  oldName
+) {
+
+  const newName =
+    prompt(
+      "Modifier la course :",
+      oldName
+    );
+
+
+  if (!newName) return;
 
 
   await supabaseClient
     .from("course")
-    .insert({
-      name: name,
-      done: false
-    });
+    .update({
+      name: newName.trim()
+    })
+    .eq("id", id);
 
 
-  loadShopping();
+  await loadShopping();
 
 }
+
+
+async function deleteShopping(id) {
+
+  if (
+    !confirm(
+      "Supprimer cette course ?"
+    )
+  ) return;
+
+
+  await supabaseClient
+    .from("course")
+    .delete()
+    .eq("id", id);
+
+
+  await loadShopping();
+
+}
+
 
 
 /* =====================================================
@@ -390,25 +425,24 @@ async function addShoppingFromAssistant(name) {
 async function loadTodos() {
 
   const list =
-    document.getElementById(
-      "todoList"
-    );
-
-
-  if (!list) return;
+    document.getElementById("todoList");
 
 
   const { data, error } =
     await supabaseClient
       .from("tasks")
       .select("*")
-      .order("id");
+      .order("id", {
+        ascending: true
+      });
 
 
   if (error) {
 
+    console.error(error);
+
     list.textContent =
-      "❌ Impossible de charger.";
+      "❌ Erreur de chargement.";
 
     return;
 
@@ -419,6 +453,7 @@ async function loadTodos() {
 
 
   data.forEach(item => {
+
 
     const div =
       document.createElement("div");
@@ -433,33 +468,22 @@ async function loadTodos() {
 
     checkbox.type = "checkbox";
 
-
-    checkbox.checked =
-      item.done;
+    checkbox.checked = item.done;
 
 
     checkbox.onchange =
-      async () => {
-
-        await supabaseClient
-          .from("tasks")
-          .update({
-            done: checkbox.checked
-          })
-          .eq("id", item.id);
-
-
-        loadTodos();
-
-      };
+      () =>
+        toggleTodo(
+          item.id,
+          item.done
+        );
 
 
     const span =
       document.createElement("span");
 
 
-    span.textContent =
-      item.name;
+    span.textContent = item.name;
 
 
     if (item.done) {
@@ -467,8 +491,7 @@ async function loadTodos() {
       span.style.textDecoration =
         "line-through";
 
-      span.style.opacity =
-        ".5";
+      span.style.opacity = "0.5";
 
     }
 
@@ -477,64 +500,31 @@ async function loadTodos() {
       document.createElement("button");
 
 
+    edit.className = "edit";
+
     edit.textContent = "✏️";
 
 
-    edit.className = "edit";
-
-
     edit.onclick =
-      async () => {
-
-        const name =
-          prompt(
-            "Modifier :",
-            item.name
-          );
-
-
-        if (!name) return;
-
-
-        await supabaseClient
-          .from("tasks")
-          .update({
-            name: name
-          })
-          .eq("id", item.id);
-
-
-        loadTodos();
-
-      };
+      () =>
+        editTodo(
+          item.id,
+          item.name
+        );
 
 
     const del =
       document.createElement("button");
 
 
+    del.className = "delete";
+
     del.textContent = "🗑️";
 
 
-    del.className = "delete";
-
-
     del.onclick =
-      async () => {
-
-        if (!confirm("Supprimer ?"))
-          return;
-
-
-        await supabaseClient
-          .from("tasks")
-          .delete()
-          .eq("id", item.id);
-
-
-        loadTodos();
-
-      };
+      () =>
+        deleteTodo(item.id);
 
 
     div.append(
@@ -547,6 +537,7 @@ async function loadTodos() {
 
     list.appendChild(div);
 
+
   });
 
 }
@@ -555,9 +546,7 @@ async function loadTodos() {
 async function addTodo() {
 
   const input =
-    document.getElementById(
-      "todoInput"
-    );
+    document.getElementById("todoInput");
 
 
   const name =
@@ -577,9 +566,6 @@ async function addTodo() {
 
 async function addTodoFromAssistant(name) {
 
-  if (!name) return;
-
-
   await supabaseClient
     .from("tasks")
     .insert({
@@ -588,9 +574,76 @@ async function addTodoFromAssistant(name) {
     });
 
 
-  loadTodos();
+  await loadTodos();
 
 }
+
+
+async function toggleTodo(
+  id,
+  oldValue
+) {
+
+  await supabaseClient
+    .from("tasks")
+    .update({
+      done: !oldValue
+    })
+    .eq("id", id);
+
+
+  await loadTodos();
+
+}
+
+
+async function editTodo(
+  id,
+  oldName
+) {
+
+  const newName =
+    prompt(
+      "Modifier la tâche :",
+      oldName
+    );
+
+
+  if (!newName) return;
+
+
+  await supabaseClient
+    .from("tasks")
+    .update({
+      name: newName.trim()
+    })
+    .eq("id", id);
+
+
+  await loadTodos();
+
+}
+
+
+async function deleteTodo(id) {
+
+  if (
+    !confirm(
+      "Supprimer cette tâche ?"
+    )
+  ) return;
+
+
+  await supabaseClient
+    .from("tasks")
+    .delete()
+    .eq("id", id);
+
+
+  await loadTodos();
+
+}
+
 
 
 /* =====================================================
@@ -600,12 +653,7 @@ async function addTodoFromAssistant(name) {
 async function loadLycee() {
 
   const list =
-    document.getElementById(
-      "lyceeList"
-    );
-
-
-  if (!list) return;
+    document.getElementById("lyceeList");
 
 
   const { data, error } =
@@ -631,11 +679,12 @@ async function loadLycee() {
 
   data.forEach(item => {
 
-    const div =
-      document.createElement("div");
+
+    const li =
+      document.createElement("li");
 
 
-    div.className = "item";
+    li.className = "item";
 
 
     const checkbox =
@@ -643,7 +692,6 @@ async function loadLycee() {
 
 
     checkbox.type = "checkbox";
-
 
     checkbox.checked =
       item.completed;
@@ -660,7 +708,7 @@ async function loadLycee() {
           .eq("id", item.id);
 
 
-        loadLycee();
+        await loadLycee();
 
       };
 
@@ -669,8 +717,7 @@ async function loadLycee() {
       document.createElement("span");
 
 
-    span.textContent =
-      item.name;
+    span.textContent = item.name;
 
 
     if (item.completed) {
@@ -678,7 +725,7 @@ async function loadLycee() {
       span.style.textDecoration =
         "line-through";
 
-      span.style.opacity = ".5";
+      span.style.opacity = "0.5";
 
     }
 
@@ -687,14 +734,20 @@ async function loadLycee() {
       document.createElement("button");
 
 
-    del.textContent = "🗑️";
-
-
     del.className = "delete";
+
+    del.textContent = "🗑️";
 
 
     del.onclick =
       async () => {
+
+        if (
+          !confirm(
+            "Supprimer cet élément ?"
+          )
+        ) return;
+
 
         await supabaseClient
           .from("lycee")
@@ -702,19 +755,20 @@ async function loadLycee() {
           .eq("id", item.id);
 
 
-        loadLycee();
+        await loadLycee();
 
       };
 
 
-    div.append(
+    li.append(
       checkbox,
       span,
       del
     );
 
 
-    list.appendChild(div);
+    list.appendChild(li);
+
 
   });
 
@@ -724,9 +778,7 @@ async function loadLycee() {
 async function addLycee() {
 
   const input =
-    document.getElementById(
-      "lyceeInput"
-    );
+    document.getElementById("lyceeInput");
 
 
   const name =
@@ -736,27 +788,16 @@ async function addLycee() {
   if (!name) return;
 
 
-  await supabaseClient
-    .from("lycee")
-    .insert({
-      name: name,
-      completed: false
-    });
+  await addLyceeFromAssistant(name);
 
 
   input.value = "";
-
-
-  loadLycee();
 
 }
 
 
 async function addLyceeFromAssistant(name) {
 
-  if (!name) return;
-
-
   await supabaseClient
     .from("lycee")
     .insert({
@@ -765,9 +806,10 @@ async function addLyceeFromAssistant(name) {
     });
 
 
-  loadLycee();
+  await loadLycee();
 
 }
+
 
 
 /* =====================================================
@@ -782,9 +824,6 @@ async function loadPortfolio() {
     );
 
 
-  if (!list) return;
-
-
   const { data, error } =
     await supabaseClient
       .from("portfolio")
@@ -794,7 +833,13 @@ async function loadPortfolio() {
       });
 
 
-  if (error) return;
+  if (error) {
+
+    console.error(error);
+
+    return;
+
+  }
 
 
   list.innerHTML = "";
@@ -802,11 +847,12 @@ async function loadPortfolio() {
 
   data.forEach(item => {
 
-    const div =
-      document.createElement("div");
+
+    const li =
+      document.createElement("li");
 
 
-    div.className = "item";
+    li.className = "item";
 
 
     const checkbox =
@@ -814,7 +860,6 @@ async function loadPortfolio() {
 
 
     checkbox.type = "checkbox";
-
 
     checkbox.checked =
       item.completed;
@@ -831,7 +876,7 @@ async function loadPortfolio() {
           .eq("id", item.id);
 
 
-        loadPortfolio();
+        await loadPortfolio();
 
       };
 
@@ -840,8 +885,7 @@ async function loadPortfolio() {
       document.createElement("span");
 
 
-    span.textContent =
-      item.name;
+    span.textContent = item.name;
 
 
     if (item.completed) {
@@ -849,7 +893,7 @@ async function loadPortfolio() {
       span.style.textDecoration =
         "line-through";
 
-      span.style.opacity = ".5";
+      span.style.opacity = "0.5";
 
     }
 
@@ -858,14 +902,20 @@ async function loadPortfolio() {
       document.createElement("button");
 
 
-    del.textContent = "🗑️";
-
-
     del.className = "delete";
+
+    del.textContent = "🗑️";
 
 
     del.onclick =
       async () => {
+
+        if (
+          !confirm(
+            "Supprimer cet élément ?"
+          )
+        ) return;
+
 
         await supabaseClient
           .from("portfolio")
@@ -873,19 +923,20 @@ async function loadPortfolio() {
           .eq("id", item.id);
 
 
-        loadPortfolio();
+        await loadPortfolio();
 
       };
 
 
-    div.append(
+    li.append(
       checkbox,
       span,
       del
     );
 
 
-    list.appendChild(div);
+    list.appendChild(li);
+
 
   });
 
@@ -907,6 +958,16 @@ async function addPortfolio() {
   if (!name) return;
 
 
+  await addPortfolioFromAssistant(name);
+
+
+  input.value = "";
+
+}
+
+
+async function addPortfolioFromAssistant(name) {
+
   await supabaseClient
     .from("portfolio")
     .insert({
@@ -915,12 +976,10 @@ async function addPortfolio() {
     });
 
 
-  input.value = "";
-
-
-  loadPortfolio();
+  await loadPortfolio();
 
 }
+
 
 
 /* =====================================================
@@ -935,14 +994,13 @@ async function loadEvents() {
     );
 
 
-  if (!list) return;
-
-
   const { data, error } =
     await supabaseClient
       .from("events")
       .select("*")
-      .order("start_date");
+      .order("start_date", {
+        ascending: true
+      });
 
 
   if (error) {
@@ -950,14 +1008,11 @@ async function loadEvents() {
     console.error(error);
 
     list.textContent =
-      "❌ Impossible de charger.";
+      "❌ Impossible de charger le calendrier.";
 
     return;
 
   }
-
-
-  list.innerHTML = "";
 
 
   const today =
@@ -972,11 +1027,15 @@ async function loadEvents() {
   );
 
 
+  list.innerHTML = "";
+
+
   for (
     let i = 0;
     i < 7;
     i++
   ) {
+
 
     const day =
       new Date(today);
@@ -1004,7 +1063,7 @@ async function loadEvents() {
       );
 
 
-    const date =
+    const dateText =
       day.toLocaleDateString(
         "fr-FR",
         {
@@ -1027,7 +1086,7 @@ async function loadEvents() {
 
       "<br>" +
 
-      date +
+      dateText +
 
       "</div>";
 
@@ -1035,10 +1094,9 @@ async function loadEvents() {
     const events =
       data.filter(event => {
 
+
         const eventDate =
-          new Date(
-            event.start_date
-          );
+          new Date(event.start_date);
 
 
         return (
@@ -1072,7 +1130,7 @@ async function loadEvents() {
 
 
       empty.textContent =
-        "Aucun rendez-vous";
+        "Aucun événement";
 
 
       column.appendChild(empty);
@@ -1081,6 +1139,7 @@ async function loadEvents() {
 
 
     events.forEach(event => {
+
 
       const box =
         document.createElement("div");
@@ -1091,9 +1150,7 @@ async function loadEvents() {
 
 
       const start =
-        new Date(
-          event.start_date
-        );
+        new Date(event.start_date);
 
 
       const time =
@@ -1106,68 +1163,49 @@ async function loadEvents() {
         );
 
 
-      let endTime = "";
-
-
-      if (event.end_date) {
-
-        endTime =
-          new Date(
-            event.end_date
-          ).toLocaleTimeString(
-            "fr-FR",
-            {
-              hour: "2-digit",
-              minute: "2-digit"
-            }
-          );
-
-      }
-
-
       box.innerHTML =
 
         "<div class='calendar-event-time'>" +
 
         time +
 
-        (
-
-          endTime
-            ? " - " + endTime
-            : ""
-
-        ) +
-
         "</div>" +
-
 
         "<div class='calendar-event-title'>" +
 
         escapeHtml(event.title) +
 
-        "</div>" +
+        "</div>";
 
 
-        "<button class='calendar-delete'>" +
-
-        "🗑️" +
-
-        "</button>";
+      const deleteButton =
+        document.createElement("button");
 
 
-      box
-        .querySelector(".calendar-delete")
-        .onclick =
-          () => deleteEvent(event.id);
+      deleteButton.className =
+        "calendar-delete";
+
+
+      deleteButton.textContent =
+        "🗑️";
+
+
+      deleteButton.onclick =
+        () =>
+          deleteEvent(event.id);
+
+
+      box.appendChild(deleteButton);
 
 
       column.appendChild(box);
+
 
     });
 
 
     list.appendChild(column);
+
 
   }
 
@@ -1226,20 +1264,6 @@ async function addEvent() {
   }
 
 
-  if (
-    end &&
-    new Date(end) <= new Date(start)
-  ) {
-
-    alert(
-      "La fin doit être après le début."
-    );
-
-    return;
-
-  }
-
-
   const { error } =
     await supabaseClient
       .from("events")
@@ -1248,15 +1272,13 @@ async function addEvent() {
         title: title,
 
         start_date:
-          new Date(start)
-            .toISOString(),
+          new Date(start).toISOString(),
 
         end_date:
 
           end
 
-            ? new Date(end)
-                .toISOString()
+            ? new Date(end).toISOString()
 
             : null
 
@@ -1268,7 +1290,7 @@ async function addEvent() {
     console.error(error);
 
     alert(
-      "Impossible d'ajouter."
+      "Impossible d'ajouter l'événement."
     );
 
     return;
@@ -1276,33 +1298,36 @@ async function addEvent() {
   }
 
 
-  document
-    .getElementById("eventTitle")
-    .value = "";
+  document.getElementById(
+    "eventTitle"
+  ).value = "";
 
 
-  document
-    .getElementById("eventStart")
-    .value = "";
+  document.getElementById(
+    "eventStart"
+  ).value = "";
 
 
-  document
-    .getElementById("eventEnd")
-    .value = "";
+  document.getElementById(
+    "eventEnd"
+  ).value = "";
 
 
   closeEventModal();
 
 
-  loadEvents();
+  await loadEvents();
 
 }
 
 
 async function deleteEvent(id) {
 
-  if (!confirm("Supprimer ce rendez-vous ?"))
-    return;
+  if (
+    !confirm(
+      "Supprimer cet événement ?"
+    )
+  ) return;
 
 
   await supabaseClient
@@ -1311,9 +1336,10 @@ async function deleteEvent(id) {
     .eq("id", id);
 
 
-  loadEvents();
+  await loadEvents();
 
 }
+
 
 
 /* =====================================================
@@ -1352,7 +1378,9 @@ async function loadBudgets() {
     await supabaseClient
       .from("budget_transactions")
       .select("*")
-      .order("created_at");
+      .order("created_at", {
+        ascending: true
+      });
 
 
   if (error) {
@@ -1372,6 +1400,7 @@ async function loadBudgets() {
 
   data.forEach(transaction => {
 
+
     const account =
       transaction.account;
 
@@ -1385,72 +1414,101 @@ async function loadBudgets() {
 
 
     if (
-      !budgets[account] ||
-      budgets[account][category] === undefined
+      !budgets[account]
     ) return;
 
 
     if (
-      transaction.type === "expense" ||
-      transaction.type === "withdrawal"
-    ) {
-
-      budgets[account][category] -= amount;
-
-    }
+      budgets[account][category] ===
+      undefined
+    ) return;
 
 
     if (
+
+      transaction.type === "expense" ||
+
+      transaction.type === "withdrawal"
+
+    ) {
+
+      budgets[account][category] -=
+        amount;
+
+    }
+
+
+    else if (
       transaction.type === "deposit"
     ) {
 
-      budgets[account][category] += amount;
+      budgets[account][category] +=
+        amount;
 
     }
+
 
   });
 
 
-  document
-    .getElementById("courantNourriture")
-    .textContent =
-      budgets.courant.nourriture.toFixed(2) +
-      " €";
+  document.getElementById(
+    "courantNourriture"
+  ).textContent =
+
+    budgets.courant.nourriture
+      .toFixed(2) +
+
+    " €";
 
 
-  document
-    .getElementById("courantLoisirs")
-    .textContent =
-      budgets.courant.loisirs.toFixed(2) +
-      " €";
+  document.getElementById(
+    "courantLoisirs"
+  ).textContent =
+
+    budgets.courant.loisirs
+      .toFixed(2) +
+
+    " €";
 
 
-  document
-    .getElementById("courantAutre")
-    .textContent =
-      budgets.courant.autre.toFixed(2) +
-      " €";
+  document.getElementById(
+    "courantAutre"
+  ).textContent =
+
+    budgets.courant.autre
+      .toFixed(2) +
+
+    " €";
 
 
-  document
-    .getElementById("livretPermis")
-    .textContent =
-      budgets.livret_a.permis_code.toFixed(2) +
-      " €";
+  document.getElementById(
+    "livretPermis"
+  ).textContent =
+
+    budgets.livret_a.permis_code
+      .toFixed(2) +
+
+    " €";
 
 
-  document
-    .getElementById("livretVoiture")
-    .textContent =
-      budgets.livret_a.voiture.toFixed(2) +
-      " €";
+  document.getElementById(
+    "livretVoiture"
+  ).textContent =
+
+    budgets.livret_a.voiture
+      .toFixed(2) +
+
+    " €";
 
 
-  document
-    .getElementById("livretReste")
-    .textContent =
-      budgets.livret_a.reste.toFixed(2) +
-      " €";
+  document.getElementById(
+    "livretReste"
+  ).textContent =
+
+    budgets.livret_a.reste
+      .toFixed(2) +
+
+    " €";
 
 
   const total =
@@ -1462,12 +1520,13 @@ async function loadBudgets() {
     budgets.livret_a.reste;
 
 
-  document
-    .getElementById("livretTotal")
-    .textContent =
-      total.toFixed(2);
+  document.getElementById(
+    "livretTotal"
+  ).textContent =
+    total.toFixed(2);
 
 }
+
 
 
 /* =====================================================
@@ -1476,7 +1535,7 @@ async function loadBudgets() {
 
 async function loadTransactions() {
 
-  const list =
+  const container =
     document.getElementById(
       "transactionsList"
     );
@@ -1492,12 +1551,19 @@ async function loadTransactions() {
       .limit(10);
 
 
-  if (error) return;
+  if (error) {
+
+    container.textContent =
+      "Impossible de charger les transactions.";
+
+    return;
+
+  }
 
 
   if (!data.length) {
 
-    list.textContent =
+    container.textContent =
       "Aucune transaction.";
 
     return;
@@ -1505,10 +1571,11 @@ async function loadTransactions() {
   }
 
 
-  list.innerHTML = "";
+  container.innerHTML = "";
 
 
   data.forEach(transaction => {
+
 
     const div =
       document.createElement("div");
@@ -1518,15 +1585,17 @@ async function loadTransactions() {
       "transaction";
 
 
-    const expense =
+    const isExpense =
 
       transaction.type === "expense" ||
 
       transaction.type === "withdrawal";
 
 
-    const sign =
-      expense ? "−" : "+";
+    const date =
+      new Date(
+        transaction.created_at
+      ).toLocaleDateString("fr-FR");
 
 
     div.innerHTML =
@@ -1548,9 +1617,7 @@ async function loadTransactions() {
 
       "<small>" +
 
-      new Date(
-        transaction.created_at
-      ).toLocaleDateString("fr-FR") +
+      date +
 
       "</small>" +
 
@@ -1558,18 +1625,21 @@ async function loadTransactions() {
 
       "</div>" +
 
-
       "<strong class='" +
 
       (
-        expense
+        isExpense
           ? "expense"
           : "income"
       ) +
 
       "'>" +
 
-      sign +
+      (
+        isExpense
+          ? "−"
+          : "+"
+      ) +
 
       Number(
         transaction.amount
@@ -1578,11 +1648,13 @@ async function loadTransactions() {
       " €</strong>";
 
 
-    list.appendChild(div);
+    container.appendChild(div);
+
 
   });
 
 }
+
 
 
 /* =====================================================
@@ -1603,21 +1675,22 @@ async function askAssistant() {
     );
 
 
-  const message =
+  const userMessage =
     input.value.trim();
 
 
-  if (!message) return;
-
-
-  input.value = "";
+  if (!userMessage) return;
 
 
   messageBox.textContent =
     "🤔 Je réfléchis...";
 
 
+  input.value = "";
+
+
   try {
+
 
     const response =
       await fetch(
@@ -1634,9 +1707,11 @@ async function askAssistant() {
           },
 
           body:
+
             JSON.stringify({
 
-              message: message
+              message:
+                userMessage
 
             })
 
@@ -1648,12 +1723,23 @@ async function askAssistant() {
       await response.json();
 
 
+    if (!response.ok) {
+
+      throw new Error(
+        data.error ||
+        "Erreur serveur"
+      );
+
+    }
+
+
     messageBox.textContent =
       "🤖 " +
       (
         data.answer ||
-        "Je n'ai pas compris."
+        "D'accord."
       );
+
 
   }
 
@@ -1661,13 +1747,14 @@ async function askAssistant() {
 
     console.error(error);
 
-
     messageBox.textContent =
-      "❌ Erreur avec l'assistant.";
+      "❌ " +
+      error.message;
 
   }
 
 }
+
 
 
 /* =====================================================
@@ -1696,8 +1783,11 @@ async function connectGmail() {
       });
 
 
-  if (error)
+  if (error) {
+
     console.error(error);
+
+  }
 
 }
 
@@ -1729,19 +1819,19 @@ async function getGmailSession() {
 
 function updateGmailInterface(session) {
 
-  const connect =
+  const connectButton =
     document.getElementById(
       "gmailConnectButton"
     );
 
 
-  const refresh =
+  const refreshButton =
     document.getElementById(
       "gmailRefreshButton"
     );
 
 
-  const logout =
+  const logoutButton =
     document.getElementById(
       "gmailLogoutButton"
     );
@@ -1755,13 +1845,13 @@ function updateGmailInterface(session) {
 
   if (!session) {
 
-    connect.style.display =
+    connectButton.style.display =
       "inline-block";
 
-    refresh.style.display =
+    refreshButton.style.display =
       "none";
 
-    logout.style.display =
+    logoutButton.style.display =
       "none";
 
     status.textContent =
@@ -1772,20 +1862,20 @@ function updateGmailInterface(session) {
   }
 
 
-  connect.style.display =
+  connectButton.style.display =
     "none";
 
-
-  refresh.style.display =
+  refreshButton.style.display =
     "inline-block";
 
-
-  logout.style.display =
+  logoutButton.style.display =
     "inline-block";
-
 
   status.textContent =
     "✅ Gmail connecté";
+
+
+  loadGmailMessages();
 
 }
 
@@ -1804,15 +1894,13 @@ async function loadGmailMessages() {
 
   if (!session?.provider_token) {
 
-    container.textContent =
-      "Reconnecte Gmail.";
-
     return;
 
   }
 
 
   try {
+
 
     const response =
       await fetch(
@@ -1838,20 +1926,69 @@ async function loadGmailMessages() {
       await response.json();
 
 
-    container.innerHTML = "";
-
-
     if (!data.messages) {
 
-      container.textContent =
-        "Aucun mail.";
+      container.innerHTML =
+        "<p>Aucun mail trouvé.</p>";
 
       return;
 
     }
 
 
-    data.messages.forEach(message => {
+    container.innerHTML = "";
+
+
+    for (
+      const message of data.messages
+    ) {
+
+
+      const mailResponse =
+        await fetch(
+
+          "https://gmail.googleapis.com/gmail/v1/users/me/messages/" +
+
+          message.id +
+
+          "?format=metadata&metadataHeaders=Subject&metadataHeaders=From",
+
+          {
+
+            headers: {
+
+              Authorization:
+                "Bearer " +
+                session.provider_token
+
+            }
+
+          }
+
+        );
+
+
+      const mail =
+        await mailResponse.json();
+
+
+      const headers =
+        mail.payload.headers || [];
+
+
+      const subject =
+        headers.find(
+          h =>
+            h.name === "Subject"
+        );
+
+
+      const from =
+        headers.find(
+          h =>
+            h.name === "From"
+        );
+
 
       const div =
         document.createElement("div");
@@ -1861,13 +1998,41 @@ async function loadGmailMessages() {
         "gmail-message";
 
 
-      div.textContent =
-        "📧 Nouveau message";
+      div.innerHTML =
+
+        "<div class='gmail-subject'>" +
+
+        escapeHtml(
+          subject?.value ||
+          "(Sans objet)"
+        ) +
+
+        "</div>" +
+
+        "<div class='gmail-from'>" +
+
+        escapeHtml(
+          from?.value ||
+          ""
+        ) +
+
+        "</div>" +
+
+        "<div class='gmail-snippet'>" +
+
+        escapeHtml(
+          mail.snippet ||
+          ""
+        ) +
+
+        "</div>";
 
 
       container.appendChild(div);
 
-    });
+
+    }
+
 
   }
 
@@ -1880,17 +2045,59 @@ async function loadGmailMessages() {
 }
 
 
+
+/* =====================================================
+   AUTH
+===================================================== */
+
+supabaseClient
+  .auth
+  .onAuthStateChange(
+    (
+      event,
+      session
+    ) => {
+
+      updateGmailInterface(session);
+
+    }
+  );
+
+
+
+/* =====================================================
+   TOUCHE ENTREE IA
+===================================================== */
+
+document
+  .getElementById(
+    "assistantInput"
+  )
+  .addEventListener(
+    "keydown",
+    event => {
+
+      if (
+        event.key === "Enter"
+      ) {
+
+        askAssistant();
+
+      }
+
+    }
+  );
+
+
+
 /* =====================================================
    DEMARRAGE
 ===================================================== */
 
 document.addEventListener(
-
   "DOMContentLoaded",
-
   async () => {
 
-    loadWeather();
 
     loadShopping();
 
@@ -1906,6 +2113,8 @@ document.addEventListener(
 
     loadTransactions();
 
+    loadWeather();
+
 
     const session =
       await getGmailSession();
@@ -1914,24 +2123,5 @@ document.addEventListener(
     updateGmailInterface(session);
 
 
-    document
-      .getElementById("assistantInput")
-      .addEventListener(
-
-        "keydown",
-
-        event => {
-
-          if (event.key === "Enter") {
-
-            askAssistant();
-
-          }
-
-        }
-
-      );
-
   }
-
 );
