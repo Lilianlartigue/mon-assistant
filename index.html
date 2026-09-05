@@ -700,7 +700,58 @@
 </div>
     
 
+<!-- ================= CALENDRIER ================= -->
 
+<div class="card">
+
+  <h2>📅 Calendrier</h2>
+
+  <div class="add">
+
+    <input
+      id="eventTitle"
+      type="text"
+      placeholder="Nom de l'événement..."
+    >
+
+  </div>
+
+
+  <p>Début :</p>
+
+  <div class="add">
+
+    <input
+      id="eventStart"
+      type="datetime-local"
+    >
+
+  </div>
+
+
+  <p>Fin :</p>
+
+  <div class="add">
+
+    <input
+      id="eventEnd"
+      type="datetime-local"
+    >
+
+    <button onclick="addEvent()">
+      Ajouter
+    </button>
+
+  </div>
+
+
+  <div id="eventsList">
+
+    Chargement du calendrier...
+
+  </div>
+
+</div>
     <!-- ================= BUDGET MAISON ================= -->
 
     <!-- COMPTE COURANT -->
