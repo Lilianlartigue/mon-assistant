@@ -4051,6 +4051,247 @@ async function completePortfolioByName(name) {
 
 }
 
+  /* =====================================================
+   CALENDRIER
+===================================================== */
+
+async function loadEvents() {
+
+  const list =
+    document.getElementById("eventsList");
+
+
+  const { data, error } =
+    await supabaseClient
+      .from("events")
+      .select("*")
+      .order("start_date", {
+        ascending: true
+      });
+
+
+  if (error) {
+
+    console.error(
+      "Erreur calendrier :",
+      error
+    );
+
+
+    list.innerHTML =
+      "❌ Impossible de charger le calendrier.";
+
+    return;
+
+  }
+
+
+  if (!data || data.length === 0) {
+
+    list.innerHTML =
+      "<p>Aucun événement prévu.</p>";
+
+    return;
+
+  }
+
+
+  list.innerHTML = "";
+
+
+  data.forEach(event => {
+
+
+    const div =
+      document.createElement("div");
+
+
+    div.className =
+      "item";
+
+
+    const eventDate =
+      new Date(
+        event.start_date
+      );
+
+
+    const dateText =
+      eventDate.toLocaleString(
+        "fr-FR",
+        {
+
+          weekday: "long",
+
+          day: "numeric",
+
+          month: "long",
+
+          hour: "2-digit",
+
+          minute: "2-digit"
+
+        }
+      );
+
+
+    const span =
+      document.createElement("span");
+
+
+    span.innerHTML =
+      "<strong>" +
+      escapeHtml(event.title) +
+      "</strong><br>" +
+      dateText;
+
+
+    const deleteButton =
+      document.createElement("button");
+
+
+    deleteButton.className =
+      "delete";
+
+
+    deleteButton.textContent =
+      "🗑️";
+
+
+    deleteButton.onclick =
+      () => deleteEvent(event.id);
+
+
+    div.appendChild(span);
+
+    div.appendChild(deleteButton);
+
+    list.appendChild(div);
+
+
+  });
+
+
+}
+
+
+
+async function addEvent() {
+
+
+  const titleInput =
+    document.getElementById(
+      "eventTitle"
+    );
+
+
+  const startInput =
+    document.getElementById(
+      "eventStart"
+    );
+
+
+  const title =
+    titleInput.value.trim();
+
+
+  const startDate =
+    startInput.value;
+
+
+  if (!title || !startDate) {
+
+    alert(
+      "Indique un nom et une date."
+    );
+
+    return;
+
+  }
+
+
+  const { error } =
+    await supabaseClient
+      .from("events")
+      .insert({
+
+        title:
+          title,
+
+        start_date:
+          new Date(
+            startDate
+          ).toISOString()
+
+      });
+
+
+  if (error) {
+
+    console.error(
+      "Erreur ajout événement :",
+      error
+    );
+
+
+    alert(
+      "Impossible d'ajouter l'événement."
+    );
+
+    return;
+
+  }
+
+
+  titleInput.value = "";
+
+  startInput.value = "";
+
+
+  await loadEvents();
+
+
+}
+
+
+
+async function deleteEvent(id) {
+
+
+  if (
+    !confirm(
+      "Supprimer cet événement ?"
+    )
+  ) {
+
+    return;
+
+  }
+
+
+  const { error } =
+    await supabaseClient
+      .from("events")
+      .delete()
+      .eq("id", id);
+
+
+  if (error) {
+
+    console.error(
+      "Erreur suppression événement :",
+      error
+    );
+
+    return;
+
+  }
+
+
+  await loadEvents();
+
+
+}
 /* =====================================================
    DEMARRAGE
 ===================================================== */
@@ -4058,6 +4299,8 @@ async function completePortfolioByName(name) {
 loadShopping();
 
 loadTodos();
+
+loadEvents();
 
 loadBudgets();
 
