@@ -3151,6 +3151,9 @@ async function loadLycee() {
 
     console.error("Erreur lycée :", error);
 
+    list.innerHTML =
+      "<li>❌ Impossible de charger la liste.</li>";
+
     return;
 
   }
@@ -3162,28 +3165,37 @@ async function loadLycee() {
     const li =
       document.createElement("li");
 
+    li.className = "item";
+
 
     const checkbox =
       document.createElement("input");
 
     checkbox.type = "checkbox";
-
-    checkbox.checked =
-      item.completed;
+    checkbox.checked = item.completed;
 
 
     checkbox.onchange =
       async () => {
 
-        await supabaseClient
-          .from("lycee")
-          .update({
-            completed: checkbox.checked
-          })
-          .eq("id", item.id);
+        const { error } =
+          await supabaseClient
+            .from("lycee")
+            .update({
+              completed: checkbox.checked
+            })
+            .eq("id", item.id);
 
+        if (error) {
 
-        loadLycee();
+          console.error(
+            "Erreur modification lycée :",
+            error
+          );
+
+        }
+
+        await loadLycee();
 
       };
 
@@ -3191,8 +3203,7 @@ async function loadLycee() {
     const span =
       document.createElement("span");
 
-    span.textContent =
-      item.name;
+    span.textContent = item.name;
 
 
     if (item.completed) {
@@ -3200,8 +3211,7 @@ async function loadLycee() {
       span.style.textDecoration =
         "line-through";
 
-      span.style.opacity =
-        "0.5";
+      span.style.opacity = "0.5";
 
     }
 
@@ -3209,67 +3219,38 @@ async function loadLycee() {
     const deleteButton =
       document.createElement("button");
 
+    deleteButton.className = "delete";
     deleteButton.textContent = "🗑️";
 
 
     deleteButton.onclick =
       async () => {
 
-        await supabaseClient
-          .from("lycee")
-          .delete()
-          .eq("id", item.id);
+        const { error } =
+          await supabaseClient
+            .from("lycee")
+            .delete()
+            .eq("id", item.id);
 
+        if (error) {
 
-        loadLycee();
+          console.error(
+            "Erreur suppression lycée :",
+            error
+          );
+
+          return;
+
+        }
+
+        await loadLycee();
 
       };
 
 
     li.appendChild(checkbox);
-
     li.appendChild(span);
-
     li.appendChild(deleteButton);
-
-
-    list.appendChild(li);
-
-  });
-
-}
-
-  const list =
-    document.getElementById("lyceeList");
-
-  const { data, error } =
-    await supabaseClient
-      .from("lycee")
-      .select("*")
-      .order("created_at", {
-        ascending: false
-      });
-
-  if (error) {
-
-    console.error("Erreur lycée :", error);
-
-    return;
-
-  }
-
-  list.innerHTML = "";
-
-  data.forEach(item => {
-
-    const li =
-      document.createElement("li");
-
-    li.innerHTML = `
-      <span>
-        ${escapeHtml(item.name)}
-      </span>
-    `;
 
     list.appendChild(li);
 
@@ -3293,7 +3274,8 @@ async function addLycee() {
     await supabaseClient
       .from("lycee")
       .insert({
-        name: name
+        name: name,
+        completed: false
       });
 
 
@@ -3304,6 +3286,10 @@ async function addLycee() {
       error
     );
 
+    alert(
+      "Impossible d'ajouter cet élément."
+    );
+
     return;
 
   }
@@ -3311,7 +3297,7 @@ async function addLycee() {
 
   input.value = "";
 
-  loadLycee();
+  await loadLycee();
 
 }
 
@@ -3340,6 +3326,9 @@ async function loadPortfolio() {
       error
     );
 
+    list.innerHTML =
+      "<li>❌ Impossible de charger la liste.</li>";
+
     return;
 
   }
@@ -3351,28 +3340,37 @@ async function loadPortfolio() {
     const li =
       document.createElement("li");
 
+    li.className = "item";
+
 
     const checkbox =
       document.createElement("input");
 
     checkbox.type = "checkbox";
-
-    checkbox.checked =
-      item.completed;
+    checkbox.checked = item.completed;
 
 
     checkbox.onchange =
       async () => {
 
-        await supabaseClient
-          .from("portfolio")
-          .update({
-            completed: checkbox.checked
-          })
-          .eq("id", item.id);
+        const { error } =
+          await supabaseClient
+            .from("portfolio")
+            .update({
+              completed: checkbox.checked
+            })
+            .eq("id", item.id);
 
+        if (error) {
 
-        loadPortfolio();
+          console.error(
+            "Erreur modification portfolio :",
+            error
+          );
+
+        }
+
+        await loadPortfolio();
 
       };
 
@@ -3380,8 +3378,7 @@ async function loadPortfolio() {
     const span =
       document.createElement("span");
 
-    span.textContent =
-      item.name;
+    span.textContent = item.name;
 
 
     if (item.completed) {
@@ -3389,8 +3386,7 @@ async function loadPortfolio() {
       span.style.textDecoration =
         "line-through";
 
-      span.style.opacity =
-        "0.5";
+      span.style.opacity = "0.5";
 
     }
 
@@ -3398,70 +3394,38 @@ async function loadPortfolio() {
     const deleteButton =
       document.createElement("button");
 
+    deleteButton.className = "delete";
     deleteButton.textContent = "🗑️";
 
 
     deleteButton.onclick =
       async () => {
 
-        await supabaseClient
-          .from("portfolio")
-          .delete()
-          .eq("id", item.id);
+        const { error } =
+          await supabaseClient
+            .from("portfolio")
+            .delete()
+            .eq("id", item.id);
 
+        if (error) {
 
-        loadPortfolio();
+          console.error(
+            "Erreur suppression portfolio :",
+            error
+          );
+
+          return;
+
+        }
+
+        await loadPortfolio();
 
       };
 
 
     li.appendChild(checkbox);
-
     li.appendChild(span);
-
     li.appendChild(deleteButton);
-
-
-    list.appendChild(li);
-
-  });
-
-}
-
-  const list =
-    document.getElementById("portfolioList");
-
-  const { data, error } =
-    await supabaseClient
-      .from("portfolio")
-      .select("*")
-      .order("created_at", {
-        ascending: false
-      });
-
-  if (error) {
-
-    console.error(
-      "Erreur portfolio :",
-      error
-    );
-
-    return;
-
-  }
-
-  list.innerHTML = "";
-
-  data.forEach(item => {
-
-    const li =
-      document.createElement("li");
-
-    li.innerHTML = `
-      <span>
-        ${escapeHtml(item.name)}
-      </span>
-    `;
 
     list.appendChild(li);
 
@@ -3473,9 +3437,7 @@ async function loadPortfolio() {
 async function addPortfolio() {
 
   const input =
-    document.getElementById(
-      "portfolioInput"
-    );
+    document.getElementById("portfolioInput");
 
   const name =
     input.value.trim();
@@ -3487,7 +3449,8 @@ async function addPortfolio() {
     await supabaseClient
       .from("portfolio")
       .insert({
-        name: name
+        name: name,
+        completed: false
       });
 
 
@@ -3498,6 +3461,10 @@ async function addPortfolio() {
       error
     );
 
+    alert(
+      "Impossible d'ajouter cet élément."
+    );
+
     return;
 
   }
@@ -3505,7 +3472,7 @@ async function addPortfolio() {
 
   input.value = "";
 
-  loadPortfolio();
+  await loadPortfolio();
 
 }
 
