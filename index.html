@@ -700,54 +700,60 @@
 </div>
     
 
-<!-- ================= CALENDRIER ================= -->
+<!-- ================= CALENDRIER 7 JOURS ================= -->
 
-<div class="card">
+<div class="card calendar-card">
 
-  <h2>📅 Calendrier</h2>
+  <div class="calendar-header">
 
-  <div class="add">
+    <h2>📅 Les 7 prochains jours</h2>
 
-    <input
-      id="eventTitle"
-      type="text"
-      placeholder="Nom de l'événement..."
-    >
-
-  </div>
-
-
-  <p>Début :</p>
-
-  <div class="add">
-
-    <input
-      id="eventStart"
-      type="datetime-local"
-    >
-
-  </div>
-
-
-  <p>Fin :</p>
-
-  <div class="add">
-
-    <input
-      id="eventEnd"
-      type="datetime-local"
-    >
-
-    <button onclick="addEvent()">
-      Ajouter
+    <button onclick="showAddEventForm()">
+      + Ajouter
     </button>
 
   </div>
 
 
-  <div id="eventsList">
+  <div id="addEventForm" style="display:none;">
 
-    Chargement du calendrier...
+    <div class="add">
+
+      <input
+        id="eventTitle"
+        type="text"
+        placeholder="Nom de l'événement..."
+      >
+
+      <input
+        id="eventStart"
+        type="datetime-local"
+      >
+
+      <input
+        id="eventEnd"
+        type="datetime-local"
+      >
+
+      <button onclick="addEvent()">
+        Ajouter
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <div class="calendar-wrapper">
+
+    <div
+      id="sevenDaysCalendar"
+      class="seven-days-calendar"
+    >
+
+      Chargement du calendrier...
+
+    </div>
 
   </div>
 
