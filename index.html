@@ -1819,7 +1819,159 @@ function addHouseExpense() {
 
 
 }
+/* =====================================================
+   BUDGETS SUPABASE
+   ===================================================== */
 
+const budgetInitial = {
+
+  courant: {
+    nourriture: 50,
+    loisirs: 50,
+    autre: 30
+  },
+
+  livret_a: {
+    permis_code: 1896.34,
+    voiture: 3000,
+    reste: 1000
+  }
+
+};
+
+
+async function loadBudgets() {
+
+  const { data, error } =
+    await supabaseClient
+      .from("budget_transactions")
+      .select("*")
+      .order("created_at", {
+        ascending: true
+      });
+
+
+  if (error) {
+
+    console.error(
+      "Erreur budget :",
+      error
+    );
+
+    return;
+  }
+
+
+  const budgets =
+    JSON.parse(
+      JSON.stringify(budgetInitial)
+    );
+
+
+  data.forEach(transaction => {
+
+    const account =
+      transaction.account;
+
+    const category =
+      transaction.category;
+
+    const amount =
+      Number(transaction.amount);
+
+
+    if (
+      !budgets[account] ||
+      budgets[account][category] === undefined
+    ) {
+      return;
+    }
+
+
+    if (
+      transaction.type === "expense" ||
+      transaction.type === "withdrawal"
+    ) {
+
+      budgets[account][category] -=
+        amount;
+
+    }
+
+
+    if (
+      transaction.type === "deposit"
+    ) {
+
+      budgets[account][category] +=
+        amount;
+
+    }
+
+  });
+
+
+  /* COMPTE COURANT */
+
+  document.getElementById(
+    "courantNourriture"
+  ).textContent =
+    budgets.courant.nourriture.toFixed(2) +
+    " €";
+
+
+  document.getElementById(
+    "courantLoisirs"
+  ).textContent =
+    budgets.courant.loisirs.toFixed(2) +
+    " €";
+
+
+  document.getElementById(
+    "courantAutre"
+  ).textContent =
+    budgets.courant.autre.toFixed(2) +
+    " €";
+
+
+  /* LIVRET A */
+
+  document.getElementById(
+    "livretPermis"
+  ).textContent =
+    budgets.livret_a.permis_code.toFixed(2) +
+    " €";
+
+
+  document.getElementById(
+    "livretVoiture"
+  ).textContent =
+    budgets.livret_a.voiture.toFixed(2) +
+    " €";
+
+
+  document.getElementById(
+    "livretReste"
+  ).textContent =
+    budgets.livret_a.reste.toFixed(2) +
+    " €";
+
+
+  const totalLivret =
+
+    budgets.livret_a.permis_code +
+
+    budgets.livret_a.voiture +
+
+    budgets.livret_a.reste;
+
+
+  document.getElementById(
+    "livretTotal"
+  ).textContent =
+    totalLivret.toFixed(2);
+
+}
 
 
 /* =====================================================
