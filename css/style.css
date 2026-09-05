@@ -841,15 +841,17 @@ body {
   .section-title {
 
     align-items: flex-start;
+}
 
-  }
 /* =====================================================
-   CALENDRIER 7 JOURS
+   CALENDRIER
 ===================================================== */
 
 .calendar-card {
 
   grid-column: 1 / -1;
+
+  width: 100%;
 
 }
 
@@ -867,23 +869,29 @@ body {
 }
 
 
-.calendar-wrapper {
+.calendar-header h2 {
 
-  width: 100%;
+  margin: 0;
 
 }
 
 
-.seven-days-calendar {
+.add-event-button {
+
+  background: #4f46e5;
+
+}
+
+
+.calendar-days {
 
   display: grid;
 
   grid-template-columns: repeat(7, minmax(0, 1fr));
 
-  gap: 10px;
+  gap: 12px;
 
   width: 100%;
-
 
 }
 
@@ -903,7 +911,7 @@ body {
 }
 
 
-.calendar-day-header {
+.calendar-day-title {
 
   font-weight: bold;
 
@@ -911,78 +919,197 @@ body {
 
   padding-bottom: 10px;
 
-  border-bottom: 1px solid #e5e7eb;
-
   margin-bottom: 10px;
 
-}
+  border-bottom: 1px solid #e5e7eb;
 
-
-.calendar-today {
-
-  border: 2px solid #4f46e5;
-
-  background: #eef2ff;
+  text-transform: capitalize;
 
 }
 
 
 .calendar-event {
 
-  background: #4f46e5;
+  background: #eef2ff;
 
-  color: white;
+  border-left: 4px solid #4f46e5;
 
   padding: 8px;
 
-  border-radius: 8px;
+  border-radius: 6px;
 
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 
   font-size: 13px;
-
-  cursor: pointer;
 
 }
 
 
-.calendar-event:hover {
+.calendar-event-title {
 
-  opacity: 0.85;
+  font-weight: bold;
+
+  display: block;
 
 }
 
 
 .calendar-event-time {
 
+  font-size: 12px;
+
+  color: #6b7280;
+
+  margin-top: 4px;
+
+}
+
+
+.calendar-event-delete {
+
+  background: #ef4444;
+
   font-size: 11px;
 
-  opacity: 0.85;
+  padding: 4px 6px;
+
+  margin-top: 7px;
+
+}
+
+
+/* =====================================================
+   FENETRE AJOUT RENDEZ-VOUS
+===================================================== */
+
+.modal {
+
+  display: none;
+
+  position: fixed;
+
+  z-index: 1000;
+
+  inset: 0;
+
+  background: rgba(0, 0, 0, 0.45);
+
+  justify-content: center;
+
+  align-items: center;
+
+}
+
+
+.modal.active {
+
+  display: flex;
+
+}
+
+
+.modal-content {
+
+  background: white;
+
+  width: 90%;
+
+  max-width: 500px;
+
+  padding: 25px;
+
+  border-radius: 18px;
+
+  box-shadow: 0 20px 60px rgba(0,0,0,.25);
+
+}
+
+
+.modal-header {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-bottom: 20px;
+
+}
+
+
+.modal-header h2 {
+
+  margin: 0;
+
+}
+
+
+.modal-close {
+
+  background: #ef4444;
+
+  font-size: 22px;
+
+  padding: 4px 12px;
+
+}
+
+
+.modal-content label {
 
   display: block;
 
-  margin-top: 3px;
+  font-weight: bold;
+
+  margin-top: 15px;
+
+  margin-bottom: 6px;
 
 }
 
 
-/* MOBILE */
+.modal-content input {
 
-@media (max-width: 800px) {
+  width: 100%;
 
-  .seven-days-calendar {
+  padding: 12px;
 
-    min-width: 700px;
+  border: 1px solid #d1d5db;
 
-  }
-
-
-  .calendar-day {
-
-    min-height: 200px;
-
-  }
+  border-radius: 10px;
 
 }
+
+
+.event-save-button {
+
+  width: 100%;
+
+  margin-top: 25px;
+
+  padding: 14px;
+
+}
+
+
+/* TELEPHONE */
+
+@media (max-width: 900px) {
+
+  .calendar-days {
+
+    grid-template-columns: repeat(7, 180px);
+
+    overflow-x: auto;
+
+  }
+
+
+  .calendar-card {
+
+    overflow-x: auto;
+
+  }
 
 }
