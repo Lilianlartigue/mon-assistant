@@ -864,22 +864,32 @@
 
 
 <script>
-/* =====================================================
-   CALENDRIER
-===================================================== */
-<!-- ================= CALENDRIER ================= -->
+/<!-- ================= CALENDRIER ================= -->
 
 <div class="card calendar-card">
 
   <div class="calendar-header">
 
-    <h2>📅 Les 7 prochains jours</h2>
+    <div>
+
+      <h2>
+        📅 Les 7 prochains jours
+      </h2>
+
+      <p>
+        Tes rendez-vous et événements à venir
+      </p>
+
+    </div>
+
 
     <button
       class="add-event-button"
       onclick="openEventModal()"
     >
+
       + Ajouter
+
     </button>
 
   </div>
@@ -894,7 +904,9 @@
 
   </div>
 
+
 </div>
+
 
 
 <!-- ================= FENETRE AJOUT EVENEMENT ================= -->
@@ -904,25 +916,44 @@
   class="modal"
 >
 
+
   <div class="modal-content">
+
+
+    <!-- EN-TETE -->
+
 
     <div class="modal-header">
 
-      <h2>📅 Ajouter un rendez-vous</h2>
+
+      <h2>
+        📅 Ajouter un rendez-vous
+      </h2>
+
 
       <button
         class="modal-close"
         onclick="closeEventModal()"
       >
+
         ×
+
       </button>
+
 
     </div>
 
 
-    <label>
+
+    <!-- NOM -->
+
+
+    <label for="eventTitle">
+
       Nom du rendez-vous
+
     </label>
+
 
     <input
       id="eventTitle"
@@ -931,9 +962,16 @@
     >
 
 
-    <label>
+
+    <!-- DATE DEBUT -->
+
+
+    <label for="eventStart">
+
       Début
+
     </label>
+
 
     <input
       id="eventStart"
@@ -941,9 +979,16 @@
     >
 
 
-    <label>
-      Fin
+
+    <!-- DATE FIN -->
+
+
+    <label for="eventEnd">
+
+      Fin (facultatif)
+
     </label>
+
 
     <input
       id="eventEnd"
@@ -951,17 +996,24 @@
     >
 
 
+
+    <!-- BOUTON -->
+
+
     <button
       class="event-save-button"
       onclick="addEvent()"
     >
+
       Ajouter le rendez-vous
+
     </button>
+
 
   </div>
 
-</div>
 
+</div>
   /* =====================================================
    METEO EN TEMPS REEL
 ===================================================== */
@@ -4168,103 +4220,387 @@ async function completePortfolioByName(name) {
 }
 
 /* =====================================================
-   CHARGER LE CALENDRIER 7 JOURS
+   CALENDRIER - 7 PROCHAINS JOURS
 ===================================================== */
 
-<!-- ================= CALENDRIER ================= -->
+async function loadEvents() {
 
-<div class="card calendar-card">
-
-  <div class="calendar-header">
-
-    <h2>📅 Les 7 prochains jours</h2>
-
-    <button
-      class="add-event-button"
-      onclick="openEventModal()"
-    >
-      + Ajouter
-    </button>
-
-  </div>
+  const list =
+    document.getElementById("eventsList");
 
 
-  <div
-    id="eventsList"
-    class="calendar-days"
-  >
+  if (!list) {
 
-    Chargement du calendrier...
+    console.error(
+      "Calendrier introuvable : eventsList"
+    );
 
-  </div>
+    return;
 
-</div>
-
-
-<!-- ================= FENETRE AJOUT EVENEMENT ================= -->
-
-<div
-  id="eventModal"
-  class="modal"
->
-
-  <div class="modal-content">
-
-    <div class="modal-header">
-
-      <h2>📅 Ajouter un rendez-vous</h2>
-
-      <button
-        class="modal-close"
-        onclick="closeEventModal()"
-      >
-        ×
-      </button>
-
-    </div>
+  }
 
 
-    <label>
-      Nom du rendez-vous
-    </label>
-
-    <input
-      id="eventTitle"
-      type="text"
-      placeholder="Ex : Rendez-vous médecin"
-    >
+  list.innerHTML =
+    "Chargement du calendrier...";
 
 
-    <label>
-      Début
-    </label>
-
-    <input
-      id="eventStart"
-      type="datetime-local"
-    >
-
-
-    <label>
-      Fin
-    </label>
-
-    <input
-      id="eventEnd"
-      type="datetime-local"
-    >
+  const { data, error } =
+    await supabaseClient
+      .from("events")
+      .select("*")
+      .order("start_date", {
+        ascending: true
+      });
 
 
-    <button
-      class="event-save-button"
-      onclick="addEvent()"
-    >
-      Ajouter le rendez-vous
-    </button>
+  if (error) {
 
-  </div>
+    console.error(
+      "Erreur calendrier :",
+      error
+    );
 
-</div>
+
+    list.innerHTML =
+      "❌ Impossible de charger le calendrier.";
+
+    return;
+
+  }
+
+
+  /* ===============================
+     CREATION DES 7 JOURS
+  =============================== */
+
+  const today =
+    new Date();
+
+
+  today.setHours(
+    0,
+    0,
+    0,
+    0
+  );
+
+
+  const days = [];
+
+
+  for (
+    let i = 0;
+    i < 7;
+    i++
+  ) {
+
+    const date =
+      new Date(today);
+
+
+    date.setDate(
+      today.getDate() + i
+    );
+
+
+    days.push(date);
+
+  }
+
+
+  list.innerHTML = "";
+
+
+  days.forEach(day => {
+
+
+    const dayColumn =
+      document.createElement("div");
+
+
+    dayColumn.className =
+      "calendar-day";
+
+
+    /* NOM DU JOUR */
+
+    const dayName =
+      day.toLocaleDateString(
+        "fr-FR",
+        {
+          weekday: "long"
+        }
+      );
+
+
+    /* DATE */
+
+    const dayNumber =
+      day.getDate();
+
+
+    const month =
+      day.toLocaleDateString(
+        "fr-FR",
+        {
+          month: "short"
+        }
+      );
+
+
+    dayColumn.innerHTML =
+
+      "<div class='calendar-day-title'>" +
+
+      "<strong>" +
+
+      dayName.charAt(0).toUpperCase() +
+      dayName.slice(1) +
+
+      "</strong>" +
+
+      "<br>" +
+
+      dayNumber +
+      " " +
+      month +
+
+      "</div>";
+
+
+    /* ===============================
+       EVENEMENTS DU JOUR
+    =============================== */
+
+
+    const eventsOfDay =
+      data.filter(event => {
+
+
+        const eventDate =
+          new Date(
+            event.start_date
+          );
+
+
+        return (
+
+          eventDate.getFullYear() ===
+          day.getFullYear()
+
+          &&
+
+          eventDate.getMonth() ===
+          day.getMonth()
+
+          &&
+
+          eventDate.getDate() ===
+          day.getDate()
+
+        );
+
+      });
+
+
+    if (
+      eventsOfDay.length === 0
+    ) {
+
+
+      const empty =
+        document.createElement("div");
+
+
+      empty.className =
+        "calendar-empty";
+
+
+      empty.textContent =
+        "Aucun rendez-vous";
+
+
+      dayColumn.appendChild(
+        empty
+      );
+
+
+    }
+
+
+    else {
+
+
+      eventsOfDay.forEach(event => {
+
+
+        const eventBox =
+          document.createElement("div");
+
+
+        eventBox.className =
+          "calendar-event";
+
+
+        const eventDate =
+          new Date(
+            event.start_date
+          );
+
+
+        const time =
+          eventDate.toLocaleTimeString(
+            "fr-FR",
+            {
+              hour: "2-digit",
+              minute: "2-digit"
+            }
+          );
+
+
+        let endTime = "";
+
+
+        if (event.end_date) {
+
+
+          const endDate =
+            new Date(
+              event.end_date
+            );
+
+
+          endTime =
+            endDate.toLocaleTimeString(
+              "fr-FR",
+              {
+                hour: "2-digit",
+                minute: "2-digit"
+              }
+            );
+
+        }
+
+
+        eventBox.innerHTML =
+
+          "<div class='calendar-event-time'>" +
+
+          time +
+
+          (
+
+            endTime
+
+              ? " - " + endTime
+
+              : ""
+
+          ) +
+
+          "</div>" +
+
+
+          "<div class='calendar-event-title'>" +
+
+          escapeHtml(
+            event.title
+          ) +
+
+          "</div>" +
+
+
+          "<button " +
+
+          "class='calendar-delete' " +
+
+          "onclick='deleteEvent(" +
+
+          event.id +
+
+          ")'" +
+
+          ">" +
+
+          "🗑️" +
+
+          "</button>";
+
+
+        dayColumn.appendChild(
+          eventBox
+        );
+
+
+      });
+
+
+    }
+
+
+    list.appendChild(
+      dayColumn
+    );
+
+
+  });
+
+
+}
+
+
+
+/* =====================================================
+   OUVRIR LA FENETRE AJOUT
+===================================================== */
+
+function openEventModal() {
+
+
+  const modal =
+    document.getElementById(
+      "eventModal"
+    );
+
+
+  if (modal) {
+
+    modal.classList.add(
+      "active"
+    );
+
+  }
+
+
+}
+
+
+
+/* =====================================================
+   FERMER LA FENETRE AJOUT
+===================================================== */
+
+function closeEventModal() {
+
+
+  const modal =
+    document.getElementById(
+      "eventModal"
+    );
+
+
+  if (modal) {
+
+    modal.classList.remove(
+      "active"
+    );
+
+  }
+
+
+}
+
+
 
 /* =====================================================
    AJOUTER EVENEMENT
@@ -4303,13 +4639,19 @@ async function addEvent() {
     endInput.value;
 
 
-  if (!title || !startDate) {
+  if (
+    !title ||
+    !startDate
+  ) {
+
 
     alert(
       "Indique au minimum un nom et une date de début."
     );
 
+
     return;
+
 
   }
 
@@ -4323,16 +4665,20 @@ async function addEvent() {
 
   ) {
 
+
     alert(
       "La date de fin doit être après la date de début."
     );
 
+
     return;
+
 
   }
 
 
   const eventData = {
+
 
     title:
       title,
@@ -4354,6 +4700,7 @@ async function addEvent() {
 
         : null
 
+
   };
 
 
@@ -4367,6 +4714,7 @@ async function addEvent() {
 
   if (error) {
 
+
     console.error(
       "Erreur ajout événement :",
       error
@@ -4377,7 +4725,9 @@ async function addEvent() {
       "Impossible d'ajouter l'événement."
     );
 
+
     return;
+
 
   }
 
@@ -4387,6 +4737,9 @@ async function addEvent() {
   startInput.value = "";
 
   endInput.value = "";
+
+
+  closeEventModal();
 
 
   await loadEvents();
@@ -4411,7 +4764,9 @@ async function deleteEvent(id) {
 
   ) {
 
+
     return;
+
 
   }
 
@@ -4428,6 +4783,7 @@ async function deleteEvent(id) {
 
   if (error) {
 
+
     console.error(
       "Erreur suppression événement :",
       error
@@ -4438,7 +4794,9 @@ async function deleteEvent(id) {
       "Impossible de supprimer l'événement."
     );
 
+
     return;
+
 
   }
 
