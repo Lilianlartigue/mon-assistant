@@ -4418,23 +4418,43 @@ async function completePortfolioByName(name) {
 
 }
 
- /* =====================================================
-   CALENDRIER
+/* =====================================================
+   CHARGER LE CALENDRIER 7 JOURS
 ===================================================== */
 
 async function loadEvents() {
 
-  const list =
-    document.getElementById("eventsList");
+  const calendar =
+    document.getElementById(
+      "sevenDaysCalendar"
+    );
+
+
+  if (!calendar) {
+
+    console.error(
+      "Calendrier introuvable"
+    );
+
+    return;
+
+  }
+
+
+  calendar.innerHTML =
+    "Chargement...";
 
 
   const { data, error } =
     await supabaseClient
       .from("events")
       .select("*")
-      .order("start_date", {
-        ascending: true
-      });
+      .order(
+        "start_date",
+        {
+          ascending: true
+        }
+      );
 
 
   if (error) {
@@ -4445,7 +4465,7 @@ async function loadEvents() {
     );
 
 
-    list.innerHTML =
+    calendar.innerHTML =
       "❌ Impossible de charger le calendrier.";
 
     return;
@@ -4453,136 +4473,245 @@ async function loadEvents() {
   }
 
 
-  if (!data || data.length === 0) {
-
-    list.innerHTML =
-      "<p>Aucun événement prévu.</p>";
-
-    return;
-
-  }
+  calendar.innerHTML = "";
 
 
-  list.innerHTML = "";
+  /* DATE D'AUJOURD'HUI */
+
+  const today =
+    new Date();
 
 
-  data.forEach(event => {
+  today.setHours(
+    0,
+    0,
+    0,
+    0
+  );
 
 
-    const div =
+  /* CREATION DES 7 JOURS */
+
+  for (
+    let i = 0;
+    i < 7;
+    i++
+  ) {
+
+
+    const currentDay =
+      new Date(today);
+
+
+    currentDay.setDate(
+      today.getDate() + i
+    );
+
+
+    const day =
       document.createElement("div");
 
 
-    div.className =
-      "item";
+    day.className =
+      "calendar-day";
 
 
-    const startDate =
-      new Date(event.start_date);
+    /* METTRE EN EVIDENCE AUJOURD'HUI */
 
+    if (i === 0) {
 
-    const startText =
-      startDate.toLocaleString(
-        "fr-FR",
-        {
-
-          weekday: "long",
-
-          day: "numeric",
-
-          month: "long",
-
-          hour: "2-digit",
-
-          minute: "2-digit"
-
-        }
+      day.classList.add(
+        "calendar-today"
       );
-
-
-    let endText = "";
-
-
-    if (event.end_date) {
-
-      const endDate =
-        new Date(event.end_date);
-
-
-      endText =
-        endDate.toLocaleString(
-          "fr-FR",
-          {
-
-            weekday: "long",
-
-            day: "numeric",
-
-            month: "long",
-
-            hour: "2-digit",
-
-            minute: "2-digit"
-
-          }
-        );
 
     }
 
 
-    const span =
-      document.createElement("span");
+    /* TITRE DU JOUR */
+
+    const header =
+      document.createElement("div");
 
 
-    span.innerHTML =
-      "<strong>" +
-      escapeHtml(event.title) +
-      "</strong><br>" +
-
-      "Début : " +
-      startText +
+    header.className =
+      "calendar-day-header";
 
 
-      (
-
-        endText
-
-          ? "<br>Fin : " +
-            endText
-
-          : ""
-
+    const dayName =
+      currentDay.toLocaleDateString(
+        "fr-FR",
+        {
+          weekday: "short",
+          day: "numeric",
+          month: "short"
+        }
       );
 
 
-    const deleteButton =
-      document.createElement("button");
+    header.textContent =
+      dayName;
 
 
-    deleteButton.className =
-      "delete";
+    day.appendChild(
+      header
+    );
 
 
-    deleteButton.textContent =
-      "🗑️";
+    /* EVENEMENTS DU JOUR */
+
+    const eventsForDay =
+      (data || []).filter(event => {
 
 
-    deleteButton.onclick =
-      () => deleteEvent(event.id);
+        const eventDate =
+          new Date(
+            event.start_date
+          );
 
 
-    div.appendChild(span);
+        return (
 
-    div.appendChild(deleteButton);
+          eventDate.getFullYear() ===
+          currentDay.getFullYear()
 
-    list.appendChild(div);
+          &&
+
+          eventDate.getMonth() ===
+          currentDay.getMonth()
+
+          &&
+
+          eventDate.getDate() ===
+          currentDay.getDate()
+
+        );
 
 
-  });
+      });
+
+
+    /* AFFICHAGE DES EVENEMENTS */
+
+    eventsForDay.forEach(event => {
+
+
+      const eventDiv =
+        document.createElement("div");
+
+
+      eventDiv.className =
+        "calendar-event";
+
+
+      const eventDate =
+        new Date(
+          event.start_date
+        );
+
+
+      const time =
+        eventDate.toLocaleTimeString(
+          "fr-FR",
+          {
+            hour:
+              "2-digit",
+
+            minute:
+              "2-digit"
+          }
+        );
+
+
+      eventDiv.innerHTML =
+
+        "<strong>" +
+
+        escapeHtml(
+          event.title
+        ) +
+
+        "</strong>" +
+
+
+        "<span class='calendar-event-time'>" +
+
+        time +
+
+        "</span>";
+
+
+      /* CLIQUER POUR SUPPRIMER */
+
+      eventDiv.onclick =
+        () => {
+
+          if (
+
+            confirm(
+              "Supprimer l'événement : " +
+              event.title +
+              " ?"
+            )
+
+          ) {
+
+            deleteEvent(
+              event.id
+            );
+
+          }
+
+        };
+
+
+      day.appendChild(
+        eventDiv
+      );
+
+
+    });
+
+
+    /* MESSAGE SI AUCUN EVENEMENT */
+
+    if (
+      eventsForDay.length === 0
+    ) {
+
+
+      const empty =
+        document.createElement("div");
+
+
+      empty.style.fontSize =
+        "13px";
+
+
+      empty.style.color =
+        "#9ca3af";
+
+
+      empty.textContent =
+        "Aucun événement";
+
+
+      day.appendChild(
+        empty
+      );
+
+
+    }
+
+
+    calendar.appendChild(
+      day
+    );
+
+
+  }
 
 
 }
-
 
 
 /* =====================================================
