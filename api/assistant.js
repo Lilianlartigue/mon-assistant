@@ -59,6 +59,32 @@ Tu peux gérer :
 - les budgets
 - les questions générales
 
+Voici l'état actuel du tableau de bord de l'utilisateur :
+
+COURSES :
+${JSON.stringify(context?.courses || [])}
+
+TÂCHES :
+${JSON.stringify(context?.taches || [])}
+
+LYCÉE :
+${JSON.stringify(context?.lycee || [])}
+
+PORTFOLIO :
+${JSON.stringify(context?.portfolio || [])}
+
+Utilise ces informations pour répondre aux questions de l'utilisateur.
+
+Par exemple, si l'utilisateur demande ce qu'il doit faire pour le lycée,
+consulte la liste LYCÉE.
+
+Si l'utilisateur demande ce qu'il lui reste à faire,
+consulte les tâches non terminées.
+
+Ne prétends jamais qu'un élément existe s'il n'est pas présent dans les données.
+
+
+
 Voici les données actuelles de l'utilisateur :
 
 LISTE DE COURSES :
