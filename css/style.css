@@ -1077,3 +1077,97 @@ input[type="datetime-local"] {
   }
 
 }
+/* =====================================================
+   CORRECTION DEFINITIVE LARGEUR DES TEXTES DES LISTES
+===================================================== */
+
+/* Les cartes ne doivent jamais écraser leur contenu */
+
+.card {
+  min-width: 0 !important;
+}
+
+
+/* Listes générales */
+
+#shoppingList,
+#todoList,
+#lyceeList,
+#portfolioList {
+  width: 100% !important;
+}
+
+
+/* Chaque ligne */
+
+.item {
+  width: 100% !important;
+
+  display: flex !important;
+
+  flex-direction: row !important;
+
+  align-items: center !important;
+
+  gap: 10px !important;
+}
+
+
+/* LE TEXTE */
+
+.item span {
+  display: block !important;
+
+  flex: 1 1 auto !important;
+
+  width: auto !important;
+
+  min-width: 0 !important;
+
+  max-width: none !important;
+
+  white-space: normal !important;
+
+  word-break: normal !important;
+
+  overflow-wrap: break-word !important;
+
+  text-align: left !important;
+
+  line-height: 1.5 !important;
+}
+
+
+/* Les boutons ne doivent pas prendre toute la largeur */
+
+.item button {
+  flex: 0 0 auto !important;
+
+  width: auto !important;
+
+}
+
+
+/* Cases à cocher */
+
+.item input[type="checkbox"] {
+  flex: 0 0 auto !important;
+}
+
+
+/* Supprime le retrait naturel des listes */
+
+#lyceeList,
+#portfolioList {
+  padding-left: 0 !important;
+  margin-left: 0 !important;
+}
+
+
+/* Les éléments lycée et portfolio */
+
+#lyceeList li,
+#portfolioList li {
+  width: 100% !important;
+}
+
