@@ -400,15 +400,12 @@
     </div>
 
 
-    <div>
+    <div id="weather">
 
-      🌤️ <strong>23°C</strong>
+  📍 Localisation...
 
-      <br>
-
-      Temps agréable
-
-    </div>
+</div>
+  
 
   </header>
 
@@ -811,6 +808,221 @@
 
 <script>
 
+  /* =====================================================
+   METEO EN TEMPS REEL
+===================================================== */
+
+async function loadWeather() {
+
+  const weatherElement =
+    document.getElementById("weather");
+
+
+  if (!navigator.geolocation) {
+
+    weatherElement.innerHTML =
+      "📍 Géolocalisation indisponible";
+
+    return;
+
+  }
+
+
+  weatherElement.innerHTML =
+    "📍 Recherche de ta position...";
+
+
+  navigator.geolocation.getCurrentPosition(
+
+    async function(position) {
+
+
+      const latitude =
+        position.coords.latitude;
+
+
+      const longitude =
+        position.coords.longitude;
+
+
+      try {
+
+
+        const response =
+          await fetch(
+
+            "https://api.open-meteo.com/v1/forecast" +
+
+            "?latitude=" + latitude +
+
+            "&longitude=" + longitude +
+
+            "&current=temperature_2m,apparent_temperature,weather_code" +
+
+            "&timezone=auto"
+
+          );
+
+
+        const data =
+          await response.json();
+
+
+        const temperature =
+          Math.round(
+            data.current.temperature_2m
+          );
+
+
+        const weatherCode =
+          data.current.weather_code;
+
+
+        let icon = "🌤️";
+
+        let description =
+          "Temps variable";
+
+
+        if (weatherCode === 0) {
+
+          icon = "☀️";
+          description = "Ciel dégagé";
+
+        }
+
+        else if (
+          weatherCode === 1 ||
+          weatherCode === 2
+        ) {
+
+          icon = "🌤️";
+          description = "Partiellement nuageux";
+
+        }
+
+        else if (
+          weatherCode === 3
+        ) {
+
+          icon = "☁️";
+          description = "Couvert";
+
+        }
+
+        else if (
+          weatherCode === 45 ||
+          weatherCode === 48
+        ) {
+
+          icon = "🌫️";
+          description = "Brouillard";
+
+        }
+
+        else if (
+          weatherCode >= 51 &&
+          weatherCode <= 67
+        ) {
+
+          icon = "🌧️";
+          description = "Pluie";
+
+        }
+
+        else if (
+          weatherCode >= 71 &&
+          weatherCode <= 77
+        ) {
+
+          icon = "❄️";
+          description = "Neige";
+
+        }
+
+        else if (
+          weatherCode >= 80 &&
+          weatherCode <= 82
+        ) {
+
+          icon = "🌦️";
+          description = "Averses";
+
+        }
+
+        else if (
+          weatherCode >= 95
+        ) {
+
+          icon = "⛈️";
+          description = "Orage";
+
+        }
+
+
+        weatherElement.innerHTML =
+
+          icon +
+
+          " <strong>" +
+
+          temperature +
+
+          "°C</strong>" +
+
+          "<br>" +
+
+          description;
+
+
+      } catch (error) {
+
+
+        console.error(
+          "Erreur météo :",
+          error
+        );
+
+
+        weatherElement.innerHTML =
+          "❌ Impossible de charger la météo";
+
+
+      }
+
+
+    },
+
+
+    function(error) {
+
+
+      console.error(
+        "Erreur géolocalisation :",
+        error
+      );
+
+
+      weatherElement.innerHTML =
+        "📍 Autorise la localisation pour voir la météo";
+
+
+    },
+
+
+    {
+
+      enableHighAccuracy: true,
+
+      timeout: 10000,
+
+      maximumAge: 300000
+
+    }
+
+  );
+
+}
 
 /* =====================================================
    SUPABASE
@@ -3816,6 +4028,8 @@ loadTransactions();
 loadLycee();
 
 loadPortfolio();
+
+loadWeather();
 
 
 getGmailSession()
