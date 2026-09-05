@@ -1,12 +1,24 @@
 /* =====================================================
-   MON ASSISTANT - STYLE GENERAL
+   MON ASSISTANT
+   STYLE COMPLET
 ===================================================== */
 
 
-/* ================= RESET ================= */
+/* =====================================================
+   RESET
+===================================================== */
 
 * {
+
   box-sizing: border-box;
+
+}
+
+
+html {
+
+  width: 100%;
+
 }
 
 
@@ -16,27 +28,34 @@ body {
 
   padding: 20px;
 
+  width: 100%;
+
+  min-height: 100vh;
+
   font-family:
     Arial,
     Helvetica,
     sans-serif;
 
+  color: #374151;
+
   background:
     linear-gradient(
       135deg,
-      #fdf6ff,
-      #f4f7ff,
-      #fff9f2
+      #f8f7ff,
+      #fdf6f8
     );
-
-  color: #4b4453;
 
 }
 
 
-/* ================= CONTENEUR ================= */
+/* =====================================================
+   CONTENEUR PRINCIPAL
+===================================================== */
 
 .container {
+
+  width: 100%;
 
   max-width: 1500px;
 
@@ -51,18 +70,11 @@ body {
 
 header {
 
-  background:
-    linear-gradient(
-      135deg,
-      #cdb4db,
-      #bde0fe
-    );
+  width: 100%;
 
-  color: #4b4453;
+  min-height: 130px;
 
-  padding: 25px 30px;
-
-  border-radius: 24px;
+  padding: 28px 35px;
 
   margin-bottom: 25px;
 
@@ -72,43 +84,54 @@ header {
 
   align-items: center;
 
+  border-radius: 24px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #dcd8ff,
+      #eadcff
+    );
+
   box-shadow:
     0 8px 25px
-    rgba(120, 100, 140, 0.12);
+    rgba(100, 90, 150, 0.12);
 
 }
 
 
 header h1 {
 
-  margin: 0;
+  margin: 0 0 8px 0;
 
   font-size: 28px;
+
+  color: #3f3b5c;
 
 }
 
 
 header p {
 
-  margin-bottom: 0;
+  margin: 0;
 
-  opacity: 0.8;
+  color: #625d7c;
 
 }
 
 
 #weather {
 
-  text-align: right;
+  min-width: 150px;
 
-  background:
-    rgba(255, 255, 255, 0.45);
+  padding: 15px;
 
-  padding: 12px 18px;
+  text-align: center;
 
   border-radius: 16px;
 
-  min-width: 150px;
+  background:
+    rgba(255, 255, 255, 0.45);
 
 }
 
@@ -128,9 +151,9 @@ h3 {
 
 h2 {
 
-  font-size: 20px;
+  font-size: 21px;
 
-  margin-bottom: 15px;
+  color: #3f4654;
 
 }
 
@@ -141,127 +164,58 @@ h2 {
 
 .grid {
 
+  width: 100%;
+
   display: grid;
 
   grid-template-columns:
     repeat(
-      auto-fit,
-      minmax(360px, 1fr)
+      2,
+      minmax(0, 1fr)
     );
 
   gap: 20px;
 
-  align-items: start;
-
 }
 
 
 /* =====================================================
-   CARTES
+   CARTES GENERALES
 ===================================================== */
 
 .card {
 
-  background:
-    rgba(255, 255, 255, 0.82);
+  width: 100%;
+
+  min-width: 0;
 
   padding: 22px;
 
-  border-radius: 22px;
+  border-radius: 24px;
 
   box-shadow:
     0 8px 25px
-    rgba(120, 100, 140, 0.08);
+    rgba(70, 70, 100, 0.08);
 
-  transition:
-    transform 0.2s,
-    box-shadow 0.2s;
-
-}
-
-
-.card:hover {
-
-  transform:
-    translateY(-2px);
-
-  box-shadow:
-    0 12px 30px
-    rgba(120, 100, 140, 0.12);
+  overflow: hidden;
 
 }
 
 
 /* =====================================================
-   COULEURS PASTEL DES CARTES
+   COULEURS DES CARTES
 ===================================================== */
 
 
-/* Assistant IA */
+/* Assistant */
 
-.assistant {
-
-  background:
-    linear-gradient(
-      135deg,
-      #e8ddff,
-      #f4edff
-    );
-
-}
-
-
-/* Courses */
-
-.shopping-card {
+.card.assistant {
 
   background:
     linear-gradient(
       135deg,
-      #d9f5e5,
-      #effcf4
-    );
-
-}
-
-
-/* Tâches */
-
-.todo-card {
-
-  background:
-    linear-gradient(
-      135deg,
-      #fff1c9,
-      #fff9e8
-    );
-
-}
-
-
-/* Lycée */
-
-.lycee-card {
-
-  background:
-    linear-gradient(
-      135deg,
-      #dceeff,
-      #f1f8ff
-    );
-
-}
-
-
-/* Portfolio */
-
-.portfolio-card {
-
-  background:
-    linear-gradient(
-      135deg,
-      #ffe0eb,
-      #fff1f6
+      #dedcff,
+      #ece6ff
     );
 
 }
@@ -269,27 +223,127 @@ h2 {
 
 /* Mails */
 
-.mail-card {
+.card:has(#gmailStatus) {
 
   background:
     linear-gradient(
       135deg,
-      #ffe9d6,
-      #fff6ee
+      #ffdfe4,
+      #ffe9ed
     );
 
 }
 
 
-/* Budget */
+/* Courses */
 
-.budget-card {
+.card:has(#shoppingList) {
 
   background:
     linear-gradient(
       135deg,
-      #dff7f2,
-      #f1fffc
+      #fff1c9,
+      #fff7df
+    );
+
+}
+
+
+/* À faire */
+
+.card:has(#todoList) {
+
+  background:
+    linear-gradient(
+      135deg,
+      #d9f0df,
+      #e7f7ea
+    );
+
+}
+
+
+/* Lycée */
+
+.card:has(#lyceeList) {
+
+  background:
+    linear-gradient(
+      135deg,
+      #d9e9f8,
+      #e7f2fc
+    );
+
+}
+
+
+/* Portfolio */
+
+.card:has(#portfolioList) {
+
+  background:
+    linear-gradient(
+      135deg,
+      #eadcf5,
+      #f3e9fa
+    );
+
+}
+
+
+/* Calendrier */
+
+.calendar-card {
+
+  grid-column: 1 / -1;
+
+  background:
+    linear-gradient(
+      135deg,
+      #dceef5,
+      #eaf7f4
+    );
+
+}
+
+
+/* Compte courant */
+
+.card:has(#courantNourriture) {
+
+  background:
+    linear-gradient(
+      135deg,
+      #ffe6cf,
+      #fff1e5
+    );
+
+}
+
+
+/* Livret A */
+
+.card:has(#livretPermis) {
+
+  background:
+    linear-gradient(
+      135deg,
+      #d9f1ed,
+      #e8f8f5
+    );
+
+}
+
+
+/* Transactions */
+
+.card:has(#transactionsList) {
+
+  background:
+    linear-gradient(
+      135deg,
+      #e8e2fa,
+      #f2effc
     );
 
 }
@@ -305,34 +359,36 @@ input[type="datetime-local"] {
 
   width: 100%;
 
-  padding: 12px 14px;
+  min-width: 0;
+
+  padding: 14px 16px;
 
   border:
 
     1px solid
-    rgba(100, 100, 120, 0.15);
+    rgba(120, 120, 140, 0.2);
 
-  border-radius: 12px;
+  border-radius: 14px;
 
   font-size: 15px;
 
   background:
-    rgba(255, 255, 255, 0.75);
+    rgba(255, 255, 255, 0.65);
 
-  color: #4b4453;
+  color: #374151;
+
+  outline: none;
 
 }
 
 
 input:focus {
 
-  outline: none;
-
-  border-color: #b8a4d4;
+  border-color: #8b82d8;
 
   box-shadow:
     0 0 0 3px
-    rgba(184, 164, 212, 0.15);
+    rgba(139, 130, 216, 0.15);
 
 }
 
@@ -345,20 +401,29 @@ button {
 
   border: none;
 
-  background: #a98cc5;
-
-  color: white;
-
   padding: 11px 16px;
 
-  border-radius: 12px;
+  border-radius: 13px;
 
   cursor: pointer;
 
+  font-size: 14px;
+
   font-weight: bold;
 
+  color: white;
+
+  background:
+    linear-gradient(
+      135deg,
+      #8077cf,
+      #7066bd
+    );
+
   transition:
+
     transform 0.15s,
+
     opacity 0.15s;
 
 }
@@ -374,27 +439,21 @@ button:hover {
 }
 
 
-button:active {
-
-  transform:
-    scale(0.97);
-
-}
-
-
 /* =====================================================
    ZONE AJOUT
 ===================================================== */
 
 .add {
 
+  width: 100%;
+
   display: flex;
+
+  align-items: stretch;
 
   gap: 10px;
 
-  margin-top: 18px;
-
-  align-items: center;
+  margin-top: 15px;
 
 }
 
@@ -403,84 +462,91 @@ button:active {
 
   flex: 1;
 
+  min-width: 0;
+
+}
+
+
+.add button {
+
+  flex-shrink: 0;
+
+  min-width: 88px;
+
 }
 
 
 /* =====================================================
-   ELEMENTS DES LISTES
+   LISTES
 ===================================================== */
+
+#shoppingList,
+#todoList {
+
+  width: 100%;
+
+}
+
+
+#lyceeList,
+#portfolioList {
+
+  width: 100%;
+
+  margin: 0;
+
+  padding: 0;
+
+  list-style: none;
+
+}
+
+
 /* =====================================================
-   ELEMENTS DES LISTES
+   ELEMENT D'UNE LISTE
 ===================================================== */
 
 .item {
 
-  display: grid;
-
-  grid-template-columns:
-    auto
-    minmax(0, 1fr)
-    auto
-    auto;
-
-  align-items: center;
-
-  gap: 10px;
-
-  padding: 12px 14px;
-
-  margin-bottom: 9px;
-
   width: 100%;
-
-  border-radius: 14px;
-
-  background:
-    rgba(255, 255, 255, 0.5);
-
-  border:
-    1px solid
-    rgba(255, 255, 255, 0.6);
-
-}
-
-
-.item:hover {
-
-  background:
-    rgba(255, 255, 255, 0.75);
-
-}
-
-
-/* TEXTE DES LISTES */
-
-.item span {
 
   min-width: 0;
 
-  width: 100%;
+  display: flex;
 
-  white-space: nowrap;
+  flex-direction: row;
 
-  overflow: hidden;
+  align-items: center;
 
-  text-overflow: ellipsis;
+  justify-content: flex-start;
 
-  line-height: 1.4;
+  gap: 12px;
 
-  padding: 3px 0;
+  padding: 11px 8px;
+
+  margin-bottom: 5px;
+
+  border-bottom:
+
+    1px solid
+    rgba(100, 100, 120, 0.12);
 
 }
 
 
-/* CASE A COCHER */
+/* =====================================================
+   CASE A COCHER
+===================================================== */
 
 .item input[type="checkbox"] {
 
   width: 18px;
 
   height: 18px;
+
+  min-width: 18px;
+
+  flex: 0 0 18px;
 
   margin: 0;
 
@@ -489,66 +555,23 @@ button:active {
 }
 
 
-/* BOUTONS */
-
-.item button {
-
-  flex-shrink: 0;
-
-  white-space: nowrap;
-
-}
 /* =====================================================
-   ELEMENTS DES LISTES
+   TEXTE DES LISTES
 ===================================================== */
-
-.item {
-
-  display: grid;
-
-  grid-template-columns:
-    auto
-    minmax(0, 1fr)
-    auto
-    auto;
-
-  align-items: center;
-
-  gap: 10px;
-
-  padding: 12px 14px;
-
-  margin-bottom: 9px;
-
-  width: 100%;
-
-  border-radius: 14px;
-
-  background:
-    rgba(255, 255, 255, 0.5);
-
-  border:
-    1px solid
-    rgba(255, 255, 255, 0.6);
-
-}
-
-
-.item:hover {
-
-  background:
-    rgba(255, 255, 255, 0.75);
-
-}
-
-
-/* TEXTE DES LISTES */
 
 .item span {
 
+  flex: 1 1 auto;
+
   min-width: 0;
 
-  width: 100%;
+  width: auto;
+
+  margin: 0;
+
+  padding: 0;
+
+  text-align: left;
 
   white-space: nowrap;
 
@@ -556,72 +579,46 @@ button:active {
 
   text-overflow: ellipsis;
 
-  line-height: 1.4;
+  line-height: 1.5;
 
-  padding: 3px 0;
+  word-break: normal;
 
-}
-
-
-/* CASE A COCHER */
-
-.item input[type="checkbox"] {
-
-  width: 18px;
-
-  height: 18px;
-
-  margin: 0;
-
-  cursor: pointer;
+  overflow-wrap: normal;
 
 }
 
 
-/* BOUTONS */
+/* =====================================================
+   BOUTONS DES LISTES
+===================================================== */
 
 .item button {
 
-  flex-shrink: 0;
+  flex: 0 0 auto;
+
+  min-width: auto;
+
+  padding: 8px 11px;
+
+  margin: 0;
 
   white-space: nowrap;
 
 }
 
-/* =====================================================
-   BOUTONS LISTES
-===================================================== */
 
 .delete {
 
-  background: #f29ba5;
-
-  padding: 8px 10px;
+  background:
+    #e58b94;
 
 }
 
 
 .edit {
 
-  background: #f5c979;
-
-  padding: 8px 10px;
-
-}
-
-
-/* =====================================================
-   LISTES LYCEE ET PORTFOLIO
-===================================================== */
-
-#lyceeList,
-#portfolioList {
-
-  list-style: none;
-
-  padding: 0;
-
-  margin: 18px 0 0 0;
+  background:
+    #efb95e;
 
 }
 
@@ -632,27 +629,27 @@ button:active {
 
 .status {
 
-  margin-top: 12px;
+  margin-top: 10px;
 
   font-size: 14px;
 
-  color: #5c9b75;
+  color: #47855d;
 
 }
 
 
 /* =====================================================
-   MAILS
+   GMAIL
 ===================================================== */
 
 .mail {
 
-  padding: 15px 0;
+  padding: 14px 0;
 
   border-bottom:
 
     1px solid
-    rgba(100, 100, 120, 0.1);
+    rgba(100, 100, 120, 0.12);
 
 }
 
@@ -668,25 +665,11 @@ button:active {
 
   display: flex;
 
-  gap: 8px;
-
   flex-wrap: wrap;
 
-  margin-top: 14px;
+  gap: 8px;
 
-}
-
-
-.gmail-refresh {
-
-  background: #8faadc;
-
-}
-
-
-.gmail-logout {
-
-  background: #ef9a9a;
+  margin-top: 12px;
 
 }
 
@@ -700,7 +683,12 @@ button:active {
   border-radius: 14px;
 
   background:
-    rgba(255, 255, 255, 0.6);
+    rgba(255, 255, 255, 0.55);
+
+  border:
+
+    1px solid
+    rgba(255, 255, 255, 0.7);
 
 }
 
@@ -708,7 +696,7 @@ button:active {
 .gmail-message:hover {
 
   background:
-    rgba(255, 255, 255, 0.85);
+    rgba(255, 255, 255, 0.8);
 
 }
 
@@ -726,9 +714,9 @@ button:active {
 
   font-size: 13px;
 
-  color: #7a7280;
+  color: #6b7280;
 
-  margin-bottom: 6px;
+  margin-bottom: 5px;
 
 }
 
@@ -737,16 +725,16 @@ button:active {
 
   font-size: 14px;
 
-  color: #625b68;
+  color: #4b5563;
 
 }
 
 
 .gmail-error {
 
-  color: #d46b74;
+  margin-top: 10px;
 
-  margin-top: 12px;
+  color: #c85d67;
 
 }
 
@@ -754,24 +742,6 @@ button:active {
 /* =====================================================
    CALENDRIER
 ===================================================== */
-
-.calendar-card {
-
-  grid-column: 1 / -1;
-
-  width: 100%;
-
-  background:
-
-    linear-gradient(
-      135deg,
-      #e4ddff,
-      #dff1ff,
-      #e9f9ed
-    );
-
-}
-
 
 .calendar-header {
 
@@ -790,52 +760,37 @@ button:active {
 
 .calendar-header h2 {
 
-  margin-bottom: 5px;
-
-}
-
-
-.calendar-header p {
-
   margin: 0;
 
-  font-size: 14px;
+}
 
-  opacity: 0.7;
+
+.calendar-wrapper {
+
+  width: 100%;
+
+  overflow-x: auto;
 
 }
 
 
-.add-event-button {
+.seven-days-calendar,
+.calendar-days,
+#eventsList {
 
-  background: #8c7bb8;
+  width: 100%;
 
-  white-space: nowrap;
-
-}
-
-
-/* ================= GRILLE 7 JOURS ================= */
-
-.calendar-days {
+  min-width: 900px;
 
   display: grid;
 
   grid-template-columns:
-
-    repeat(
-      7,
-      minmax(0, 1fr)
-    );
+    repeat(7, 1fr);
 
   gap: 12px;
 
-  width: 100%;
-
 }
 
-
-/* ================= JOUR ================= */
 
 .calendar-day {
 
@@ -846,75 +801,52 @@ button:active {
   border-radius: 16px;
 
   background:
-    rgba(255, 255, 255, 0.6);
-
-  display: flex;
-
-  flex-direction: column;
-
-  gap: 10px;
+    rgba(255, 255, 255, 0.5);
 
 }
 
 
-/* ================= TITRE JOUR ================= */
-
 .calendar-day-title {
 
-  text-align: center;
-
   padding-bottom: 10px;
+
+  margin-bottom: 10px;
+
+  text-align: center;
 
   border-bottom:
 
     1px solid
     rgba(100, 100, 120, 0.12);
 
-  font-size: 14px;
-
 }
 
-
-.calendar-day-title strong {
-
-  font-size: 15px;
-
-}
-
-
-/* ================= JOUR VIDE ================= */
 
 .calendar-empty {
+
+  padding: 20px 5px;
 
   text-align: center;
 
   font-size: 13px;
 
-  color: #999;
-
-  padding-top: 20px;
+  color: #7b8794;
 
 }
 
-
-/* ================= EVENEMENT ================= */
 
 .calendar-event {
 
   position: relative;
 
-  padding: 10px;
+  padding: 9px;
 
-  padding-bottom: 35px;
+  margin-bottom: 8px;
 
-  border-radius: 12px;
+  border-radius: 10px;
 
   background:
-    #ffffff;
-
-  box-shadow:
-    0 3px 10px
-    rgba(100, 100, 120, 0.08);
+    rgba(255, 255, 255, 0.8);
 
 }
 
@@ -923,52 +855,48 @@ button:active {
 
   font-size: 12px;
 
-  color: #8b7ca3;
-
   font-weight: bold;
 
-  margin-bottom: 5px;
+  color: #7066bd;
 
 }
 
 
 .calendar-event-title {
 
-  font-size: 14px;
+  margin-top: 4px;
 
-  font-weight: bold;
+  padding-right: 25px;
 
-  line-height: 1.3;
+  font-size: 13px;
+
+  word-break: break-word;
 
 }
 
-
-/* Bouton suppression */
 
 .calendar-delete {
 
   position: absolute;
 
-  bottom: 7px;
+  top: 5px;
 
-  right: 7px;
+  right: 5px;
 
-  padding: 5px 7px;
+  padding: 4px 7px;
 
-  font-size: 12px;
+  font-size: 11px;
 
-  background: #f5b1b9;
+  background: #e58b94;
 
 }
 
 
 /* =====================================================
-   MODALE AJOUT RENDEZ-VOUS
+   FENETRE AJOUT EVENEMENT
 ===================================================== */
 
 .modal {
-
-  display: none;
 
   position: fixed;
 
@@ -976,14 +904,16 @@ button:active {
 
   z-index: 1000;
 
-  background:
-    rgba(50, 45, 60, 0.35);
+  display: none;
 
   justify-content: center;
 
   align-items: center;
 
   padding: 20px;
+
+  background:
+    rgba(50, 50, 70, 0.35);
 
 }
 
@@ -1001,14 +931,14 @@ button:active {
 
   max-width: 500px;
 
-  background: #fff;
-
   padding: 25px;
 
   border-radius: 24px;
 
+  background: #fffafc;
+
   box-shadow:
-    0 20px 60px
+    0 15px 50px
     rgba(0, 0, 0, 0.2);
 
 }
@@ -1036,13 +966,11 @@ button:active {
 
 .modal-close {
 
-  background: transparent;
+  padding: 5px 12px;
 
-  color: #777;
+  font-size: 24px;
 
-  font-size: 28px;
-
-  padding: 0 8px;
+  background: #e58b94;
 
 }
 
@@ -1051,20 +979,19 @@ button:active {
 
   display: block;
 
-  margin-top: 15px;
+  margin:
 
-  margin-bottom: 7px;
+    15px 0
+    7px;
 
   font-weight: bold;
-
-  font-size: 14px;
 
 }
 
 
 .modal-content input {
 
-  margin-bottom: 5px;
+  width: 100%;
 
 }
 
@@ -1073,9 +1000,7 @@ button:active {
 
   width: 100%;
 
-  margin-top: 22px;
-
-  background: #9d8bc4;
+  margin-top: 20px;
 
 }
 
@@ -1084,44 +1009,44 @@ button:active {
    BUDGET
 ===================================================== */
 
+.budget-number {
+
+  margin-top: 20px;
+
+  font-size: 25px;
+
+  font-weight: bold;
+
+  color: #4d8070;
+
+}
+
+
 .budget-line {
 
   display: flex;
 
   justify-content: space-between;
 
-  align-items: center;
+  gap: 15px;
 
   margin: 14px 0;
 
 }
 
 
-.budget-number {
-
-  font-size: 28px;
-
-  font-weight: bold;
-
-  color: #5c9b75;
-
-  margin-top: 20px;
-
-}
-
-
 .progress {
+
+  width: 100%;
 
   height: 12px;
 
-  background:
-    rgba(100, 100, 120, 0.1);
+  overflow: hidden;
 
   border-radius: 20px;
 
-  overflow: hidden;
-
-  margin-bottom: 18px;
+  background:
+    rgba(255, 255, 255, 0.5);
 
 }
 
@@ -1130,16 +1055,17 @@ button:active {
 
   height: 100%;
 
+  border-radius: 20px;
+
   background:
     linear-gradient(
       90deg,
-      #a8d8b9,
-      #7fcf9a
+      #76c7a3,
+      #9dd9bd
     );
 
-  border-radius: 20px;
-
-  transition: width 0.3s;
+  transition:
+    width 0.3s;
 
 }
 
@@ -1156,12 +1082,14 @@ button:active {
 
   align-items: center;
 
+  gap: 15px;
+
   padding: 14px 0;
 
   border-bottom:
 
     1px solid
-    rgba(100, 100, 120, 0.1);
+    rgba(100, 100, 120, 0.12);
 
 }
 
@@ -1190,21 +1118,21 @@ button:active {
 
   margin-top: 4px;
 
-  color: #999;
+  color: #7b8794;
 
 }
 
 
 .expense {
 
-  color: #e6808b;
+  color: #d46b74;
 
 }
 
 
 .income {
 
-  color: #69ae84;
+  color: #4c9b73;
 
 }
 
@@ -1213,57 +1141,13 @@ button:active {
    RESPONSIVE TABLETTE
 ===================================================== */
 
-@media (max-width: 1000px) {
-
-
-  .calendar-days {
-
-    grid-template-columns:
-      repeat(4, 1fr);
-
-  }
-
-
-}
-
-
-/* =====================================================
-   RESPONSIVE MOBILE
-===================================================== */
-
-@media (max-width: 700px) {
-
-
-  body {
-
-    padding: 12px;
-
-  }
-
-
-  header {
-
-    flex-direction: column;
-
-    align-items: flex-start;
-
-    gap: 15px;
-
-  }
-
-
-  #weather {
-
-    text-align: left;
-
-    width: 100%;
-
-  }
+@media screen and (max-width: 900px) {
 
 
   .grid {
 
-    grid-template-columns: 1fr;
+    grid-template-columns:
+      1fr;
 
   }
 
@@ -1275,26 +1159,85 @@ button:active {
   }
 
 
-  .calendar-days {
+}
 
-    grid-template-columns:
-      repeat(2, 1fr);
+
+/* =====================================================
+   RESPONSIVE TELEPHONE
+===================================================== */
+
+@media screen and (max-width: 600px) {
+
+
+  body {
+
+    padding: 12px;
 
   }
 
 
-  .calendar-day {
+  header {
 
-    min-height: 180px;
+    padding: 22px;
+
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    gap: 20px;
+
+  }
+
+
+  #weather {
+
+    width: 100%;
+
+  }
+
+
+  .card {
+
+    padding: 17px;
+
+    border-radius: 20px;
 
   }
 
 
   .add {
 
-    flex-direction: column;
+    flex-wrap: wrap;
 
-    align-items: stretch;
+  }
+
+
+  .add input {
+
+    width: 100%;
+
+    flex-basis: 100%;
+
+  }
+
+
+  .add button {
+
+    width: 100%;
+
+  }
+
+
+  .item {
+
+    gap: 8px;
+
+  }
+
+
+  .item button {
+
+    padding: 7px 9px;
 
   }
 
@@ -1308,107 +1251,11 @@ button:active {
   }
 
 
-  .add-event-button {
+  .calendar-header button {
 
     width: 100%;
 
   }
 
-
-}
-
-
-/* =====================================================
-   PETITS TELEPHONES
-===================================================== */
-
-@media (max-width: 420px) {
-
-
-  .calendar-days {
-
-    grid-template-columns: 1fr;
-
-  }
-
-
-  .calendar-day {
-
-    min-height: auto;
-
-  }
-
-
-}
-/* =====================================================
-   CORRECTION AFFICHAGE DES LISTES
-===================================================== */
-
-.item {
-
-  display: flex !important;
-
-  flex-direction: row !important;
-
-  align-items: center !important;
-
-  width: 100% !important;
-
-  gap: 12px !important;
-
-}
-
-
-.item input[type="checkbox"] {
-
-  flex: 0 0 auto !important;
-
-  margin: 0 !important;
-
-}
-
-
-.item span {
-
-  flex: 1 1 auto !important;
-
-  width: auto !important;
-
-  min-width: 0 !important;
-
-  white-space: nowrap !important;
-
-  overflow: hidden !important;
-
-  text-overflow: ellipsis !important;
-
-}
-
-
-.item button {
-
-  flex: 0 0 auto !important;
-
-}
-
-
-/* Listes Lycée et Portfolio */
-
-#lyceeList,
-#portfolioList {
-
-  width: 100% !important;
-
-  padding: 0 !important;
-
-}
-
-
-/* Conteneurs des listes */
-
-#shoppingList,
-#todoList {
-
-  width: 100% !important;
 
 }
