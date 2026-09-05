@@ -2272,7 +2272,100 @@ async function askAssistant() {
 
       }
 
+/* AJOUT LYCEE */
 
+else if (
+  action.type === "add_lycee"
+) {
+
+  await addLyceeFromAssistant(
+    action.name
+  );
+
+  messageBox.innerHTML +=
+    "<br><br>🎓 Ajouté à ta liste Lycée.";
+
+}
+
+
+/* SUPPRESSION LYCEE */
+
+else if (
+  action.type === "delete_lycee"
+) {
+
+  await deleteLyceeByName(
+    action.name
+  );
+
+  messageBox.innerHTML +=
+    "<br><br>🗑️ Élément supprimé du Lycée.";
+
+}
+
+
+/* TERMINER LYCEE */
+
+else if (
+  action.type === "complete_lycee"
+) {
+
+  await completeLyceeByName(
+    action.name
+  );
+
+  messageBox.innerHTML +=
+    "<br><br>✅ Élément terminé.";
+
+}
+
+
+/* AJOUT PORTFOLIO */
+
+else if (
+  action.type === "add_portfolio"
+) {
+
+  await addPortfolioFromAssistant(
+    action.name
+  );
+
+  messageBox.innerHTML +=
+    "<br><br>📁 Ajouté au Portfolio.";
+
+}
+
+
+/* SUPPRESSION PORTFOLIO */
+
+else if (
+  action.type === "delete_portfolio"
+) {
+
+  await deletePortfolioByName(
+    action.name
+  );
+
+  messageBox.innerHTML +=
+    "<br><br>🗑️ Élément supprimé du Portfolio.";
+
+}
+
+
+/* TERMINER PORTFOLIO */
+
+else if (
+  action.type === "complete_portfolio"
+) {
+
+  await completePortfolioByName(
+    action.name
+  );
+
+  messageBox.innerHTML +=
+    "<br><br>✅ Élément terminé.";
+
+}
       /* =========================
          AJOUT DEPENSE / BUDGET
          ========================= */
