@@ -11,7 +11,10 @@ export default async function handler(req, res) {
 
   try {
 
-    const { message } = req.body || {};
+    const {
+  message,
+  context
+} = req.body || {};
 
 
     if (!message || !message.trim()) {
@@ -56,6 +59,27 @@ Tu peux gérer :
 - les budgets
 - les questions générales
 
+Voici les données actuelles de l'utilisateur :
+
+LISTE DE COURSES :
+${JSON.stringify(context?.courses || [])}
+
+LISTE DES TÂCHES :
+${JSON.stringify(context?.taches || [])}
+
+LISTE LYCEE :
+${JSON.stringify(context?.lycee || [])}
+
+LISTE PORTFOLIO :
+${JSON.stringify(context?.portfolio || [])}
+
+Tu peux utiliser ces informations pour répondre aux questions concernant les listes de l'utilisateur.
+
+Par exemple, si l'utilisateur demande ce qu'il doit faire pour le lycée, analyse la LISTE LYCEE et réponds uniquement avec les éléments qui ne sont pas terminés.
+
+Si l'utilisateur demande ce qu'il reste à faire dans son portfolio, analyse la LISTE PORTFOLIO.
+
+Si l'utilisateur demande ce qu'il a à faire en général, tu peux analyser toutes les listes.
 IMPORTANT :
 
 L'utilisateur possède deux comptes :
