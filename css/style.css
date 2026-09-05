@@ -409,7 +409,95 @@ button:active {
 /* =====================================================
    ELEMENTS DES LISTES
 ===================================================== */
+/* =====================================================
+   ELEMENTS DES LISTES
+===================================================== */
 
+.item {
+
+  display: grid;
+
+  grid-template-columns:
+    auto
+    minmax(0, 1fr)
+    auto
+    auto;
+
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 12px 14px;
+
+  margin-bottom: 9px;
+
+  width: 100%;
+
+  border-radius: 14px;
+
+  background:
+    rgba(255, 255, 255, 0.5);
+
+  border:
+    1px solid
+    rgba(255, 255, 255, 0.6);
+
+}
+
+
+.item:hover {
+
+  background:
+    rgba(255, 255, 255, 0.75);
+
+}
+
+
+/* TEXTE DES LISTES */
+
+.item span {
+
+  min-width: 0;
+
+  width: 100%;
+
+  white-space: nowrap;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  line-height: 1.4;
+
+  padding: 3px 0;
+
+}
+
+
+/* CASE A COCHER */
+
+.item input[type="checkbox"] {
+
+  width: 18px;
+
+  height: 18px;
+
+  margin: 0;
+
+  cursor: pointer;
+
+}
+
+
+/* BOUTONS */
+
+.item button {
+
+  flex-shrink: 0;
+
+  white-space: nowrap;
+
+}
 /* =====================================================
    ELEMENTS DES LISTES
 ===================================================== */
