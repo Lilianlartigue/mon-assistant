@@ -833,101 +833,92 @@
 
     <!-- ================= BUDGET MAISON ================= -->
 
-    <div class="card">
+    <!-- COMPTE COURANT -->
+
+<div class="card">
+
+  <h2>💳 Compte courant</h2>
+
+  <div class="budget-line">
+    <span>🍔 Nourriture</span>
+    <strong id="courantNourriture">50.00 €</strong>
+  </div>
+
+  <div class="progress">
+    <div
+      id="courantNourritureProgress"
+      class="progress-bar"
+      style="width:100%"
+    ></div>
+  </div>
 
 
-      <h2>
-        🏠 Budget maison
-      </h2>
+  <div class="budget-line">
+    <span>🎮 Loisirs</span>
+    <strong id="courantLoisirs">50.00 €</strong>
+  </div>
+
+  <div class="progress">
+    <div
+      id="courantLoisirsProgress"
+      class="progress-bar"
+      style="width:100%"
+    ></div>
+  </div>
 
 
-      <div class="budget-number">
+  <div class="budget-line">
+    <span>📦 Autre</span>
+    <strong id="courantAutre">30.00 €</strong>
+  </div>
+
+  <div class="progress">
+    <div
+      id="courantAutreProgress"
+      class="progress-bar"
+      style="width:100%"
+    ></div>
+  </div>
+
+</div>
 
 
-        <span id="houseRemaining">
+<!-- LIVRET A -->
 
-          850.00
+<div class="card">
 
-        </span>
+  <h2>🏦 Livret A</h2>
 
-
-        €
-
-      </div>
-
-
-      <div class="budget-line">
-
-        <span>
-          Revenus
-        </span>
+  <div class="budget-line">
+    <span>🚗 Permis + Code</span>
+    <strong id="livretPermis">1896.34 €</strong>
+  </div>
 
 
-        <strong>
-          1400 €
-        </strong>
-
-      </div>
-
-
-      <div class="budget-line">
-
-        <span>
-          Dépenses
-        </span>
+  <div class="budget-line">
+    <span>🚙 Voiture</span>
+    <strong id="livretVoiture">3000.00 €</strong>
+  </div>
 
 
-        <strong id="houseExpenses">
-
-          550 €
-
-        </strong>
-
-      </div>
+  <div class="budget-line">
+    <span>💰 Reste</span>
+    <strong id="livretReste">1000.00 €</strong>
+  </div>
 
 
-      <div class="progress">
+  <div class="budget-number">
 
+    Total :
+    <span id="livretTotal">
+      5896.34
+    </span>
 
-        <div
+    €
 
-          id="houseProgress"
+  </div>
 
-          class="progress-bar"
-
-          style="width:39%"
-
-        ></div>
-
-
-      </div>
-
-
-      <div class="add">
-
-
-        <input
-
-          id="houseExpense"
-
-          type="number"
-
-          placeholder="Montant"
-
-        >
-
-
-        <button onclick="addHouseExpense()">
-
-          + Dépense
-
-        </button>
-
-
-      </div>
-
-
-    </div>
+</div>
 
 
 
