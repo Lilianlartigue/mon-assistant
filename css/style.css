@@ -1340,3 +1340,75 @@ button:active {
 
 
 }
+/* =====================================================
+   CORRECTION AFFICHAGE DES LISTES
+===================================================== */
+
+.item {
+
+  display: flex !important;
+
+  flex-direction: row !important;
+
+  align-items: center !important;
+
+  width: 100% !important;
+
+  gap: 12px !important;
+
+}
+
+
+.item input[type="checkbox"] {
+
+  flex: 0 0 auto !important;
+
+  margin: 0 !important;
+
+}
+
+
+.item span {
+
+  flex: 1 1 auto !important;
+
+  width: auto !important;
+
+  min-width: 0 !important;
+
+  white-space: nowrap !important;
+
+  overflow: hidden !important;
+
+  text-overflow: ellipsis !important;
+
+}
+
+
+.item button {
+
+  flex: 0 0 auto !important;
+
+}
+
+
+/* Listes Lycée et Portfolio */
+
+#lyceeList,
+#portfolioList {
+
+  width: 100% !important;
+
+  padding: 0 !important;
+
+}
+
+
+/* Conteneurs des listes */
+
+#shoppingList,
+#todoList {
+
+  width: 100% !important;
+
+}
