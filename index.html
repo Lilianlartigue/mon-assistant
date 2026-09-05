@@ -2120,7 +2120,51 @@ async function askAssistant() {
 
 
   try {
+/* =====================================================
+   CONTEXTE DES LISTES POUR L'IA
+===================================================== */
 
+const [
+  shoppingResult,
+  todosResult,
+  lyceeResult,
+  portfolioResult
+] = await Promise.all([
+
+  supabaseClient
+    .from("shopping")
+    .select("*"),
+
+  supabaseClient
+    .from("tasks")
+    .select("*"),
+
+  supabaseClient
+    .from("lycee")
+    .select("*"),
+
+  supabaseClient
+    .from("portfolio")
+    .select("*")
+
+]);
+
+
+const assistantContext = {
+
+  courses:
+    shoppingResult.data || [],
+
+  taches:
+    todosResult.data || [],
+
+  lycee:
+    lyceeResult.data || [],
+
+  portfolio:
+    portfolioResult.data || []
+
+};
 
     const response =
       await fetch(
@@ -2134,9 +2178,15 @@ async function askAssistant() {
           },
 
           body:
-            JSON.stringify({
-              message: userMessage
-            })
+  JSON.stringify({
+
+    message:
+      userMessage,
+
+    context:
+      assistantContext
+
+  })
 
         }
       );
