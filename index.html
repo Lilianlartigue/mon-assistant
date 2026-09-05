@@ -18,922 +18,12 @@
 
   <title>Mon Assistant</title>
 
-
-  <!-- SUPABASE -->
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-
-  <style>
-
-    /* =====================================================
-       GENERAL
-    ===================================================== */
-
-    * {
-
-      box-sizing: border-box;
-
-    }
-
-
-    body {
-
-      margin: 0;
-
-      padding: 20px;
-
-      font-family:
-        Arial,
-        sans-serif;
-
-      background:
-        linear-gradient(
-          135deg,
-          #f8f7ff,
-          #fff7fb,
-          #f5fbff
-        );
-
-      color: #374151;
-
-    }
-
-
-    .container {
-
-      max-width: 1500px;
-
-      margin: auto;
-
-    }
-
-
-    /* =====================================================
-       HEADER
-    ===================================================== */
-
-    header {
-
-      background:
-        linear-gradient(
-          135deg,
-          #c9c4ff,
-          #e0c8ff
-        );
-
-      padding: 28px;
-
-      border-radius: 25px;
-
-      margin-bottom: 25px;
-
-      display: flex;
-
-      justify-content: space-between;
-
-      align-items: center;
-
-      box-shadow:
-        0 8px 25px
-        rgba(120,100,180,.12);
-
-    }
-
-
-    header h1 {
-
-      margin: 0;
-
-      font-size: 30px;
-
-    }
-
-
-    header p {
-
-      margin-bottom: 0;
-
-      opacity: .8;
-
-    }
-
-
-    #weather {
-
-      background:
-        rgba(255,255,255,.5);
-
-      padding: 12px 18px;
-
-      border-radius: 15px;
-
-      text-align: center;
-
-    }
-
-
-    /* =====================================================
-       TITRES
-    ===================================================== */
-
-    h1,
-    h2,
-    h3 {
-
-      margin-top: 0;
-
-    }
-
-
-    h2 {
-
-      font-size: 21px;
-
-    }
-
-
-    /* =====================================================
-       GRILLE
-    ===================================================== */
-
-    .grid {
-
-      display: grid;
-
-      grid-template-columns:
-        repeat(
-          2,
-          minmax(0,1fr)
-        );
-
-      gap: 20px;
-
-    }
-
-
-    /* =====================================================
-       CARTES
-    ===================================================== */
-
-    .card {
-
-      padding: 22px;
-
-      border-radius: 22px;
-
-      box-shadow:
-        0 6px 20px
-        rgba(0,0,0,.05);
-
-    }
-
-
-    /* COULEURS PASTEL */
-
-    .assistant {
-
-      background: #e8e4ff;
-
-    }
-
-
-    .mail-card {
-
-      background: #ffe7ef;
-
-    }
-
-
-    .shopping-card {
-
-      background: #fff3d6;
-
-    }
-
-
-    .todo-card {
-
-      background: #e2f7e8;
-
-    }
-
-
-    .lycee-card {
-
-      background: #e1f0ff;
-
-    }
-
-
-    .portfolio-card {
-
-      background: #f3e4ff;
-
-    }
-
-
-    .budget-card {
-
-      background: #e5f7f4;
-
-    }
-
-
-    .livret-card {
-
-      background: #fff0dc;
-
-    }
-
-
-    .transaction-card {
-
-      background: #f5f1ff;
-
-    }
-
-
-    /* =====================================================
-       INPUTS
-    ===================================================== */
-
-    input {
-
-      width: 100%;
-
-      padding: 12px;
-
-      border:
-
-        1px solid
-        rgba(0,0,0,.1);
-
-      border-radius: 12px;
-
-      font-size: 14px;
-
-      background:
-        rgba(255,255,255,.75);
-
-    }
-
-
-    input:focus {
-
-      outline: none;
-
-      border-color: #8b7cf6;
-
-    }
-
-
-    /* =====================================================
-       BOUTONS
-    ===================================================== */
-
-    button {
-
-      border: none;
-
-      background: #8276e8;
-
-      color: white;
-
-      padding: 11px 16px;
-
-      border-radius: 12px;
-
-      cursor: pointer;
-
-      font-weight: bold;
-
-      transition: .2s;
-
-    }
-
-
-    button:hover {
-
-      transform:
-        translateY(-1px);
-
-      opacity: .9;
-
-    }
-
-
-    /* =====================================================
-       AJOUT
-    ===================================================== */
-
-    .add {
-
-      display: flex;
-
-      gap: 8px;
-
-      margin-top: 15px;
-
-    }
-
-
-    /* =====================================================
-       LISTES
-    ===================================================== */
-
-    .item {
-
-      display: flex;
-
-      align-items: center;
-
-      gap: 10px;
-
-      padding: 10px 0;
-
-      border-bottom:
-
-        1px solid
-        rgba(0,0,0,.06);
-
-    }
-
-
-    .item span {
-
-      flex: 1;
-
-    }
-
-
-    .delete {
-
-      background: #f28b8b;
-
-      padding: 7px 10px;
-
-    }
-
-
-    .edit {
-
-      background: #f5c978;
-
-      padding: 7px 10px;
-
-    }
-
-
-    /* =====================================================
-       STATUT
-    ===================================================== */
-
-    .status {
-
-      margin-top: 10px;
-
-      font-size: 14px;
-
-      color: #3f8f62;
-
-    }
-
-
-    /* =====================================================
-       MAIL
-    ===================================================== */
-
-    .mail {
-
-      padding: 12px 0;
-
-      border-bottom:
-
-        1px solid
-        rgba(0,0,0,.08);
-
-    }
-
-
-    .gmail-actions {
-
-      display: flex;
-
-      gap: 8px;
-
-      margin-top: 12px;
-
-      flex-wrap: wrap;
-
-    }
-
-
-    .gmail-refresh {
-
-      background: #8ba9e8;
-
-    }
-
-
-    .gmail-logout {
-
-      background: #e88989;
-
-    }
-
-
-    .gmail-message {
-
-      background:
-        rgba(255,255,255,.55);
-
-      padding: 12px;
-
-      margin-top: 10px;
-
-      border-radius: 12px;
-
-    }
-
-
-    .gmail-subject {
-
-      font-weight: bold;
-
-    }
-
-
-    .gmail-from {
-
-      font-size: 13px;
-
-      color: #6b7280;
-
-      margin-top: 4px;
-
-    }
-
-
-    .gmail-snippet {
-
-      font-size: 13px;
-
-      margin-top: 6px;
-
-      color: #4b5563;
-
-    }
-
-
-    /* =====================================================
-       CALENDRIER
-    ===================================================== */
-
-    .calendar-card {
-
-      grid-column: 1 / -1;
-
-      background:
-        linear-gradient(
-          135deg,
-          #dceeff,
-          #eee4ff,
-          #ffe5f0
-        );
-
-      width: 100%;
-
-    }
-
-
-    .calendar-header {
-
-      display: flex;
-
-      justify-content: space-between;
-
-      align-items: center;
-
-      margin-bottom: 20px;
-
-    }
-
-
-    .calendar-header p {
-
-      margin: 5px 0 0 0;
-
-      color: #6b7280;
-
-    }
-
-
-    .calendar-days {
-
-      display: grid;
-
-      grid-template-columns:
-        repeat(7, 1fr);
-
-      gap: 10px;
-
-      width: 100%;
-
-    }
-
-
-    .calendar-day {
-
-      background:
-        rgba(255,255,255,.7);
-
-      border-radius: 16px;
-
-      padding: 12px;
-
-      min-height: 200px;
-
-    }
-
-
-    .calendar-day-title {
-
-      text-align: center;
-
-      padding-bottom: 10px;
-
-      border-bottom:
-
-        1px solid
-        rgba(0,0,0,.08);
-
-      margin-bottom: 10px;
-
-    }
-
-
-    .calendar-empty {
-
-      text-align: center;
-
-      color: #9ca3af;
-
-      font-size: 13px;
-
-      margin-top: 25px;
-
-    }
-
-
-    .calendar-event {
-
-      background: #ffffff;
-
-      border-radius: 10px;
-
-      padding: 8px;
-
-      margin-bottom: 8px;
-
-      font-size: 13px;
-
-      position: relative;
-
-      box-shadow:
-        0 3px 8px
-        rgba(0,0,0,.05);
-
-    }
-
-
-    .calendar-event-time {
-
-      font-size: 11px;
-
-      color: #7c6fd8;
-
-      font-weight: bold;
-
-    }
-
-
-    .calendar-event-title {
-
-      margin-top: 4px;
-
-      padding-right: 25px;
-
-    }
-
-
-    .calendar-delete {
-
-      position: absolute;
-
-      top: 5px;
-
-      right: 5px;
-
-      padding: 4px 6px;
-
-      font-size: 11px;
-
-      background: #f3a0a0;
-
-    }
-
-
-    /* =====================================================
-       MODAL CALENDRIER
-    ===================================================== */
-
-    .modal {
-
-      display: none;
-
-      position: fixed;
-
-      z-index: 1000;
-
-      inset: 0;
-
-      background:
-        rgba(0,0,0,.25);
-
-      align-items: center;
-
-      justify-content: center;
-
-      padding: 20px;
-
-    }
-
-
-    .modal.active {
-
-      display: flex;
-
-    }
-
-
-    .modal-content {
-
-      width: 100%;
-
-      max-width: 500px;
-
-      background: #fff7fc;
-
-      padding: 25px;
-
-      border-radius: 22px;
-
-      box-shadow:
-        0 15px 40px
-        rgba(0,0,0,.15);
-
-    }
-
-
-    .modal-header {
-
-      display: flex;
-
-      justify-content: space-between;
-
-      align-items: center;
-
-      margin-bottom: 20px;
-
-    }
-
-
-    .modal-close {
-
-      background: #f3a0a0;
-
-      font-size: 20px;
-
-      padding: 4px 11px;
-
-    }
-
-
-    .modal-content label {
-
-      display: block;
-
-      margin-top: 15px;
-
-      margin-bottom: 6px;
-
-      font-weight: bold;
-
-    }
-
-
-    .event-save-button {
-
-      width: 100%;
-
-      margin-top: 22px;
-
-      background: #8b7ee8;
-
-    }
-
-
-    /* =====================================================
-       BUDGET
-    ===================================================== */
-
-    .budget-line {
-
-      display: flex;
-
-      justify-content: space-between;
-
-      margin: 12px 0;
-
-    }
-
-
-    .progress {
-
-      height: 10px;
-
-      background:
-        rgba(255,255,255,.7);
-
-      border-radius: 20px;
-
-      overflow: hidden;
-
-      margin-bottom: 15px;
-
-    }
-
-
-    .progress-bar {
-
-      height: 100%;
-
-      background: #76c7a1;
-
-    }
-
-
-    .budget-number {
-
-      font-size: 22px;
-
-      font-weight: bold;
-
-      margin-top: 20px;
-
-    }
-
-
-    /* =====================================================
-       TRANSACTIONS
-    ===================================================== */
-
-    .transaction {
-
-      display: flex;
-
-      justify-content: space-between;
-
-      align-items: center;
-
-      padding: 12px 0;
-
-      border-bottom:
-
-        1px solid
-        rgba(0,0,0,.08);
-
-    }
-
-
-    .transaction-info {
-
-      display: flex;
-
-      align-items: center;
-
-      gap: 12px;
-
-    }
-
-
-    .transaction-icon {
-
-      font-size: 24px;
-
-    }
-
-
-    .transaction small {
-
-      display: block;
-
-      color: #888;
-
-      margin-top: 4px;
-
-    }
-
-
-    .expense {
-
-      color: #d45b5b;
-
-    }
-
-
-    .income {
-
-      color: #4a9b70;
-
-    }
-
-
-    /* =====================================================
-       RESPONSIVE TELEPHONE
-    ===================================================== */
-
-    @media (max-width: 900px) {
-
-      .grid {
-
-        grid-template-columns: 1fr;
-
-      }
-
-
-      .calendar-card {
-
-        grid-column: auto;
-
-      }
-
-
-      .calendar-days {
-
-        grid-template-columns:
-          repeat(2, 1fr);
-
-      }
-
-
-      header {
-
-        flex-direction: column;
-
-        align-items: flex-start;
-
-        gap: 15px;
-
-      }
-
-    }
-
-
-    @media (max-width: 600px) {
-
-      body {
-
-        padding: 10px;
-
-      }
-
-
-      .calendar-days {
-
-        grid-template-columns: 1fr;
-
-      }
-
-
-      .add {
-
-        flex-direction: column;
-
-      }
-
-
-      header h1 {
-
-        font-size: 24px;
-
-      }
-
-    }
-
-
-  </style>
 
 </head>
 
@@ -941,647 +31,643 @@
 <body>
 
 
-<div class="container">
+  <div class="container">
 
 
-  <!-- =====================================================
-       HEADER
-  ===================================================== -->
+    <!-- ================= HEADER ================= -->
 
-  <header>
+    <header>
 
-    <div>
+      <div class="header-title">
 
-      <h1>
-        🏠 Mon Assistant
-      </h1>
-
-      <p>
-        Ton tableau de bord personnel
-      </p>
-
-    </div>
-
-
-    <div id="weather">
-
-      📍 Localisation...
-
-    </div>
-
-  </header>
-
-
-
-  <div class="grid">
-
-
-    <!-- =====================================================
-         ASSISTANT IA
-    ===================================================== -->
-
-    <div class="card assistant">
-
-      <h2>
-        🤖 Assistant IA
-      </h2>
-
-
-      <p id="assistantMessage">
-
-        Bonjour 👋 Que puis-je faire pour toi ?
-
-      </p>
-
-
-      <div class="add">
-
-        <input
-          id="assistantInput"
-          type="text"
-          placeholder="Écris ta demande..."
-        >
-
-
-        <button onclick="askAssistant()">
-
-          Envoyer
-
-        </button>
-
-      </div>
-
-    </div>
-
-
-
-    <!-- =====================================================
-         MAILS
-    ===================================================== -->
-
-    <div class="card mail-card">
-
-      <h2>
-        📧 Mes mails
-      </h2>
-
-
-      <div class="mail">
-
-        <strong>
-          Gmail
-        </strong>
-
-
-        <div
-          id="gmailStatus"
-          style="margin-top:8px;"
-        >
-
-          Non connecté
-
-        </div>
-
-
-        <div class="gmail-actions">
-
-
-          <button
-            id="gmailConnectButton"
-            onclick="connectGmail()"
-          >
-
-            🔐 Connecter Gmail
-
-          </button>
-
-
-          <button
-            id="gmailRefreshButton"
-            class="gmail-refresh"
-            onclick="loadGmailMessages()"
-            style="display:none;"
-          >
-
-            🔄 Actualiser
-
-          </button>
-
-
-          <button
-            id="gmailLogoutButton"
-            class="gmail-logout"
-            onclick="logoutGmail()"
-            style="display:none;"
-          >
-
-            Déconnecter
-
-          </button>
-
-
-        </div>
-
-
-        <div id="gmailMessages"></div>
-
-      </div>
-
-
-      <div class="mail">
-
-        <strong>
-          iCloud
-        </strong>
+        <h1>
+          🏠 Mon Assistant
+        </h1>
 
         <p>
-          Connexion à venir
+          Ton tableau de bord personnel
         </p>
 
       </div>
 
-    </div>
 
+      <div id="weather">
 
-
-    <!-- =====================================================
-         COURSES
-    ===================================================== -->
-
-    <div class="card shopping-card">
-
-      <h2>
-        🛒 Liste de courses
-      </h2>
-
-
-      <div id="shoppingList">
-
-        Chargement...
+        📍 Chargement...
 
       </div>
 
 
-      <div class="add">
+    </header>
 
-        <input
-          id="shoppingInput"
-          type="text"
-          placeholder="Ex : lait"
-        >
 
 
-        <button onclick="addShopping()">
+    <!-- ================= GRILLE ================= -->
 
-          + Ajouter
+    <main class="grid">
 
-        </button>
 
-      </div>
 
+      <!-- ================= ASSISTANT IA ================= -->
 
-      <div
-        id="shoppingStatus"
-        class="status"
-      ></div>
+      <section class="card assistant-card">
 
-    </div>
+        <h2>
+          🤖 Assistant IA
+        </h2>
 
 
+        <p id="assistantMessage">
 
-    <!-- =====================================================
-         TACHES
-    ===================================================== -->
+          Bonjour 👋 Que puis-je faire pour toi ?
 
-    <div class="card todo-card">
+        </p>
 
-      <h2>
-        ✅ À faire
-      </h2>
 
+        <div class="add">
 
-      <div id="todoList">
+          <input
+            id="assistantInput"
+            type="text"
+            placeholder="Écris ta demande..."
+          >
 
-        Chargement...
 
-      </div>
+          <button onclick="askAssistant()">
 
+            Envoyer
 
-      <div class="add">
+          </button>
 
-        <input
-          id="todoInput"
-          type="text"
-          placeholder="Ex : appeler quelqu'un"
-        >
+        </div>
 
 
-        <button onclick="addTodo()">
+      </section>
 
-          + Ajouter
 
-        </button>
 
-      </div>
+      <!-- ================= MAILS ================= -->
 
+      <section class="card mail-card">
 
-      <div
-        id="todoStatus"
-        class="status"
-      ></div>
+        <h2>
+          📧 Mes mails
+        </h2>
 
-    </div>
 
+        <div class="mail">
 
+          <strong>
+            Gmail
+          </strong>
 
-    <!-- =====================================================
-         LYCEE
-    ===================================================== -->
 
-    <div class="card lycee-card">
+          <div
+            id="gmailStatus"
+            class="gmail-status"
+          >
 
-      <h2>
-        🎓 Lycée
-      </h2>
+            Non connecté
 
+          </div>
 
-      <div id="lyceeList"></div>
 
+          <div class="gmail-actions">
 
-      <div class="add">
 
-        <input
-          id="lyceeInput"
-          type="text"
-          placeholder="Ajouter une tâche..."
-        >
+            <button
+              id="gmailConnectButton"
+              onclick="connectGmail()"
+            >
 
+              🔐 Connecter Gmail
 
-        <button onclick="addLycee()">
+            </button>
 
-          Ajouter
 
-        </button>
+            <button
+              id="gmailRefreshButton"
+              onclick="loadGmailMessages()"
+              style="display:none;"
+            >
 
-      </div>
+              🔄 Actualiser
 
-    </div>
+            </button>
 
 
+            <button
+              id="gmailLogoutButton"
+              class="delete"
+              onclick="logoutGmail()"
+              style="display:none;"
+            >
 
-    <!-- =====================================================
-         PORTFOLIO
-    ===================================================== -->
+              Déconnecter
 
-    <div class="card portfolio-card">
+            </button>
 
-      <h2>
-        📁 Portfolio Lycée
-      </h2>
 
+          </div>
 
-      <div id="portfolioList"></div>
 
+          <div id="gmailMessages"></div>
 
-      <div class="add">
 
-        <input
-          id="portfolioInput"
-          type="text"
-          placeholder="Ajouter au portfolio..."
-        >
+        </div>
 
 
-        <button onclick="addPortfolio()">
+        <div class="mail iCloud">
 
-          Ajouter
-
-        </button>
-
-      </div>
-
-    </div>
-
-
-
-    <!-- =====================================================
-         CALENDRIER
-    ===================================================== -->
-
-    <div class="card calendar-card">
-
-      <div class="calendar-header">
-
-        <div>
-
-          <h2>
-            📅 Les 7 prochains jours
-          </h2>
+          <strong>
+            iCloud
+          </strong>
 
           <p>
-            Tes rendez-vous et événements à venir
+            Connexion à venir
           </p>
 
         </div>
 
 
-        <button onclick="openEventModal()">
+      </section>
 
-          + Ajouter
+
+
+      <!-- ================= COURSES ================= -->
+
+      <section class="card shopping-card">
+
+        <h2>
+          🛒 Liste de courses
+        </h2>
+
+
+        <div
+          id="shoppingList"
+          class="list-container"
+        >
+
+          Chargement...
+
+        </div>
+
+
+        <div class="add">
+
+          <input
+            id="shoppingInput"
+            type="text"
+            placeholder="Ex : lait"
+          >
+
+
+          <button onclick="addShopping()">
+
+            + Ajouter
+
+          </button>
+
+
+        </div>
+
+
+        <div
+          id="shoppingStatus"
+          class="status"
+        ></div>
+
+
+      </section>
+
+
+
+      <!-- ================= TACHES ================= -->
+
+      <section class="card todo-card">
+
+        <h2>
+          ✅ À faire
+        </h2>
+
+
+        <div
+          id="todoList"
+          class="list-container"
+        >
+
+          Chargement...
+
+        </div>
+
+
+        <div class="add">
+
+          <input
+            id="todoInput"
+            type="text"
+            placeholder="Ex : appeler quelqu'un"
+          >
+
+
+          <button onclick="addTodo()">
+
+            + Ajouter
+
+          </button>
+
+
+        </div>
+
+
+        <div
+          id="todoStatus"
+          class="status"
+        ></div>
+
+
+      </section>
+
+
+
+      <!-- ================= LYCEE ================= -->
+
+      <section class="card lycee-card">
+
+        <h2>
+          🎓 Lycée
+        </h2>
+
+
+        <ul
+          id="lyceeList"
+          class="list-container"
+        ></ul>
+
+
+        <div class="add">
+
+          <input
+            id="lyceeInput"
+            type="text"
+            placeholder="Ajouter une tâche..."
+          >
+
+
+          <button onclick="addLycee()">
+
+            Ajouter
+
+          </button>
+
+
+        </div>
+
+
+      </section>
+
+
+
+      <!-- ================= PORTFOLIO ================= -->
+
+      <section class="card portfolio-card">
+
+        <h2>
+          📁 Portfolio Lycée
+        </h2>
+
+
+        <ul
+          id="portfolioList"
+          class="list-container"
+        ></ul>
+
+
+        <div class="add">
+
+          <input
+            id="portfolioInput"
+            type="text"
+            placeholder="Ajouter au portfolio..."
+          >
+
+
+          <button onclick="addPortfolio()">
+
+            Ajouter
+
+          </button>
+
+
+        </div>
+
+
+      </section>
+
+
+
+      <!-- ================= CALENDRIER ================= -->
+
+      <section class="card calendar-card full-width">
+
+
+        <div class="calendar-header">
+
+          <div>
+
+            <h2>
+              📅 Les 7 prochains jours
+            </h2>
+
+            <p>
+              Tes rendez-vous et événements à venir
+            </p>
+
+          </div>
+
+
+          <button onclick="openEventModal()">
+
+            + Ajouter
+
+          </button>
+
+
+        </div>
+
+
+        <div class="calendar-wrapper">
+
+          <div
+            id="eventsList"
+            class="calendar-days"
+          >
+
+            Chargement du calendrier...
+
+          </div>
+
+        </div>
+
+
+      </section>
+
+
+
+      <!-- ================= COMPTE COURANT ================= -->
+
+      <section class="card budget-card">
+
+        <h2>
+          💳 Compte courant
+        </h2>
+
+
+        <div class="budget-line">
+
+          <span>🍔 Nourriture</span>
+
+          <strong id="courantNourriture">
+            50.00 €
+          </strong>
+
+        </div>
+
+
+        <div class="progress">
+
+          <div
+            id="courantNourritureProgress"
+            class="progress-bar"
+          ></div>
+
+        </div>
+
+
+
+        <div class="budget-line">
+
+          <span>🎮 Loisirs</span>
+
+          <strong id="courantLoisirs">
+            50.00 €
+          </strong>
+
+        </div>
+
+
+        <div class="progress">
+
+          <div
+            id="courantLoisirsProgress"
+            class="progress-bar"
+          ></div>
+
+        </div>
+
+
+
+        <div class="budget-line">
+
+          <span>📦 Autre</span>
+
+          <strong id="courantAutre">
+            30.00 €
+          </strong>
+
+        </div>
+
+
+        <div class="progress">
+
+          <div
+            id="courantAutreProgress"
+            class="progress-bar"
+          ></div>
+
+        </div>
+
+
+      </section>
+
+
+
+      <!-- ================= LIVRET A ================= -->
+
+      <section class="card livret-card">
+
+        <h2>
+          🏦 Livret A
+        </h2>
+
+
+        <div class="budget-line">
+
+          <span>🚗 Permis + Code</span>
+
+          <strong id="livretPermis">
+            1896.34 €
+          </strong>
+
+        </div>
+
+
+        <div class="budget-line">
+
+          <span>🚙 Voiture</span>
+
+          <strong id="livretVoiture">
+            3000.00 €
+          </strong>
+
+        </div>
+
+
+        <div class="budget-line">
+
+          <span>💰 Reste</span>
+
+          <strong id="livretReste">
+            1000.00 €
+          </strong>
+
+        </div>
+
+
+        <div class="budget-total">
+
+          Total :
+          <span id="livretTotal">
+            5896.34
+          </span>
+          €
+
+        </div>
+
+
+      </section>
+
+
+
+      <!-- ================= TRANSACTIONS ================= -->
+
+      <section class="card transactions-card full-width">
+
+        <h2>
+          📜 Dernières transactions
+        </h2>
+
+
+        <div id="transactionsList">
+
+          Chargement des transactions...
+
+        </div>
+
+
+      </section>
+
+
+    </main>
+
+
+  </div>
+
+
+
+  <!-- ================= MODALE CALENDRIER ================= -->
+
+  <div
+    id="eventModal"
+    class="modal"
+  >
+
+
+    <div class="modal-content">
+
+
+      <div class="modal-header">
+
+        <h2>
+          📅 Ajouter un événement
+        </h2>
+
+
+        <button
+          class="modal-close"
+          onclick="closeEventModal()"
+        >
+
+          ×
 
         </button>
 
+
       </div>
 
 
-      <div
-        id="eventsList"
-        class="calendar-days"
+
+      <label for="eventTitle">
+
+        Nom de l'événement
+
+      </label>
+
+
+      <input
+        id="eventTitle"
+        type="text"
+        placeholder="Ex : Rendez-vous médecin"
       >
 
-        Chargement du calendrier...
 
-      </div>
 
-    </div>
+      <label for="eventStart">
 
+        Début
 
+      </label>
 
-    <!-- =====================================================
-         COMPTE COURANT
-    ===================================================== -->
 
-    <div class="card budget-card">
+      <input
+        id="eventStart"
+        type="datetime-local"
+      >
 
-      <h2>
-        💳 Compte courant
-      </h2>
 
 
-      <div class="budget-line">
+      <label for="eventEnd">
 
-        <span>
-          🍔 Nourriture
-        </span>
+        Fin (facultatif)
 
-        <strong id="courantNourriture">
-          50.00 €
-        </strong>
+      </label>
 
-      </div>
 
+      <input
+        id="eventEnd"
+        type="datetime-local"
+      >
 
-      <div class="progress">
-
-        <div
-          id="courantNourritureProgress"
-          class="progress-bar"
-        ></div>
-
-      </div>
-
-
-
-      <div class="budget-line">
-
-        <span>
-          🎮 Loisirs
-        </span>
-
-        <strong id="courantLoisirs">
-          50.00 €
-        </strong>
-
-      </div>
-
-
-      <div class="progress">
-
-        <div
-          id="courantLoisirsProgress"
-          class="progress-bar"
-        ></div>
-
-      </div>
-
-
-
-      <div class="budget-line">
-
-        <span>
-          📦 Autre
-        </span>
-
-        <strong id="courantAutre">
-          30.00 €
-        </strong>
-
-      </div>
-
-
-      <div class="progress">
-
-        <div
-          id="courantAutreProgress"
-          class="progress-bar"
-        ></div>
-
-      </div>
-
-    </div>
-
-
-
-    <!-- =====================================================
-         LIVRET A
-    ===================================================== -->
-
-    <div class="card livret-card">
-
-      <h2>
-        🏦 Livret A
-      </h2>
-
-
-      <div class="budget-line">
-
-        <span>
-          🚗 Permis + Code
-        </span>
-
-        <strong id="livretPermis">
-          1896.34 €
-        </strong>
-
-      </div>
-
-
-      <div class="budget-line">
-
-        <span>
-          🚙 Voiture
-        </span>
-
-        <strong id="livretVoiture">
-          3000.00 €
-        </strong>
-
-      </div>
-
-
-      <div class="budget-line">
-
-        <span>
-          💰 Reste
-        </span>
-
-        <strong id="livretReste">
-          1000.00 €
-        </strong>
-
-      </div>
-
-
-      <div class="budget-number">
-
-        Total :
-        <span id="livretTotal">
-          5896.34
-        </span>
-
-        €
-
-      </div>
-
-    </div>
-
-
-
-    <!-- =====================================================
-         TRANSACTIONS
-    ===================================================== -->
-
-    <div class="card transaction-card">
-
-      <h2>
-        📜 Dernières transactions
-      </h2>
-
-
-      <div id="transactionsList">
-
-        Chargement...
-
-      </div>
-
-    </div>
-
-
-  </div>
-
-
-</div>
-
-
-
-<!-- =====================================================
-     MODAL AJOUT EVENEMENT
-===================================================== -->
-
-<div
-  id="eventModal"
-  class="modal"
->
-
-
-  <div class="modal-content">
-
-
-    <div class="modal-header">
-
-      <h2>
-        📅 Ajouter un rendez-vous
-      </h2>
 
 
       <button
-        class="modal-close"
-        onclick="closeEventModal()"
+        class="event-save-button"
+        onclick="addEvent()"
       >
 
-        ×
+        Ajouter l'événement
 
       </button>
 
+
     </div>
-
-
-
-    <label>
-
-      Nom du rendez-vous
-
-    </label>
-
-
-    <input
-      id="eventTitle"
-      type="text"
-      placeholder="Ex : Rendez-vous médecin"
-    >
-
-
-
-    <label>
-
-      Début
-
-    </label>
-
-
-    <input
-      id="eventStart"
-      type="datetime-local"
-    >
-
-
-
-    <label>
-
-      Fin (facultatif)
-
-    </label>
-
-
-    <input
-      id="eventEnd"
-      type="datetime-local"
-    >
-
-
-
-    <button
-      class="event-save-button"
-      onclick="addEvent()"
-    >
-
-      Ajouter le rendez-vous
-
-    </button>
 
 
   </div>
 
 
-</div>
 
-
-
-<!-- =====================================================
-     JAVASCRIPT
-===================================================== -->
-
-<script src="script.js"></script>
+  <script src="script.js"></script>
 
 
 </body>
