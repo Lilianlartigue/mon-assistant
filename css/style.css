@@ -843,6 +843,147 @@ body {
     align-items: flex-start;
 
   }
+/* =====================================================
+   CALENDRIER 7 JOURS
+===================================================== */
 
+.calendar-card {
+
+  grid-column: 1 / -1;
+
+}
+
+
+.calendar-header {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-bottom: 20px;
+
+}
+
+
+.calendar-wrapper {
+
+  width: 100%;
+
+  overflow-x: auto;
+
+}
+
+
+.seven-days-calendar {
+
+  display: grid;
+
+  grid-template-columns: repeat(7, 1fr);
+
+  gap: 10px;
+
+  min-width: 900px;
+
+}
+
+
+.calendar-day {
+
+  min-height: 250px;
+
+  background: #f8fafc;
+
+  border: 1px solid #e5e7eb;
+
+  border-radius: 12px;
+
+  padding: 12px;
+
+}
+
+
+.calendar-day-header {
+
+  font-weight: bold;
+
+  text-align: center;
+
+  padding-bottom: 10px;
+
+  border-bottom: 1px solid #e5e7eb;
+
+  margin-bottom: 10px;
+
+}
+
+
+.calendar-today {
+
+  border: 2px solid #4f46e5;
+
+  background: #eef2ff;
+
+}
+
+
+.calendar-event {
+
+  background: #4f46e5;
+
+  color: white;
+
+  padding: 8px;
+
+  border-radius: 8px;
+
+  margin-bottom: 6px;
+
+  font-size: 13px;
+
+  cursor: pointer;
+
+}
+
+
+.calendar-event:hover {
+
+  opacity: 0.85;
+
+}
+
+
+.calendar-event-time {
+
+  font-size: 11px;
+
+  opacity: 0.85;
+
+  display: block;
+
+  margin-top: 3px;
+
+}
+
+
+/* MOBILE */
+
+@media (max-width: 800px) {
+
+  .seven-days-calendar {
+
+    min-width: 700px;
+
+  }
+
+
+  .calendar-day {
+
+    min-height: 200px;
+
+  }
+
+}
 
 }
