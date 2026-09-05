@@ -867,351 +867,100 @@
 /* =====================================================
    CALENDRIER
 ===================================================== */
+<!-- ================= CALENDRIER ================= -->
 
-async function loadEvents() {
+<div class="card calendar-card">
 
-  const list =
-    document.getElementById("eventsList");
+  <div class="calendar-header">
 
+    <h2>📅 Les 7 prochains jours</h2>
 
-  const { data, error } =
-    await supabaseClient
-      .from("events")
-      .select("*")
-      .order("start_date", {
-        ascending: true
-      });
+    <button
+      class="add-event-button"
+      onclick="openEventModal()"
+    >
+      + Ajouter
+    </button>
 
+  </div>
 
-  if (error) {
 
-    console.error(
-      "Erreur calendrier :",
-      error
-    );
+  <div
+    id="eventsList"
+    class="calendar-days"
+  >
 
+    Chargement du calendrier...
 
-    list.innerHTML =
-      "❌ Impossible de charger le calendrier.";
+  </div>
 
-    return;
+</div>
 
-  }
 
+<!-- ================= FENETRE AJOUT EVENEMENT ================= -->
 
-  if (!data || data.length === 0) {
+<div
+  id="eventModal"
+  class="modal"
+>
 
-    list.innerHTML =
-      "<p>Aucun événement prévu.</p>";
+  <div class="modal-content">
 
-    return;
+    <div class="modal-header">
 
-  }
+      <h2>📅 Ajouter un rendez-vous</h2>
 
+      <button
+        class="modal-close"
+        onclick="closeEventModal()"
+      >
+        ×
+      </button>
 
-  list.innerHTML = "";
+    </div>
 
 
-  data.forEach(event => {
+    <label>
+      Nom du rendez-vous
+    </label>
 
+    <input
+      id="eventTitle"
+      type="text"
+      placeholder="Ex : Rendez-vous médecin"
+    >
 
-    const div =
-      document.createElement("div");
 
+    <label>
+      Début
+    </label>
 
-    div.className =
-      "item";
+    <input
+      id="eventStart"
+      type="datetime-local"
+    >
 
 
-    const startDate =
-      new Date(event.start_date);
+    <label>
+      Fin
+    </label>
 
+    <input
+      id="eventEnd"
+      type="datetime-local"
+    >
 
-    const startText =
-      startDate.toLocaleString(
-        "fr-FR",
-        {
 
-          weekday: "long",
+    <button
+      class="event-save-button"
+      onclick="addEvent()"
+    >
+      Ajouter le rendez-vous
+    </button>
 
-          day: "numeric",
+  </div>
 
-          month: "long",
-
-          hour: "2-digit",
-
-          minute: "2-digit"
-
-        }
-      );
-
-
-    let endText = "";
-
-
-    if (event.end_date) {
-
-      const endDate =
-        new Date(event.end_date);
-
-
-      endText =
-        endDate.toLocaleString(
-          "fr-FR",
-          {
-
-            weekday: "long",
-
-            day: "numeric",
-
-            month: "long",
-
-            hour: "2-digit",
-
-            minute: "2-digit"
-
-          }
-        );
-
-    }
-
-
-    const span =
-      document.createElement("span");
-
-
-    span.innerHTML =
-      "<strong>" +
-      escapeHtml(event.title) +
-      "</strong><br>" +
-
-      "Début : " +
-      startText +
-
-
-      (
-
-        endText
-
-          ? "<br>Fin : " +
-            endText
-
-          : ""
-
-      );
-
-
-    const deleteButton =
-      document.createElement("button");
-
-
-    deleteButton.className =
-      "delete";
-
-
-    deleteButton.textContent =
-      "🗑️";
-
-
-    deleteButton.onclick =
-      () => deleteEvent(event.id);
-
-
-    div.appendChild(span);
-
-    div.appendChild(deleteButton);
-
-    list.appendChild(div);
-
-
-  });
-
-
-}
-
-
-
-/* =====================================================
-   AJOUTER EVENEMENT
-===================================================== */
-
-async function addEvent() {
-
-
-  const titleInput =
-    document.getElementById(
-      "eventTitle"
-    );
-
-
-  const startInput =
-    document.getElementById(
-      "eventStart"
-    );
-
-
-  const endInput =
-    document.getElementById(
-      "eventEnd"
-    );
-
-
-  const title =
-    titleInput.value.trim();
-
-
-  const startDate =
-    startInput.value;
-
-
-  const endDate =
-    endInput.value;
-
-
-  if (!title || !startDate) {
-
-    alert(
-      "Indique au minimum un nom et une date de début."
-    );
-
-    return;
-
-  }
-
-
-  if (
-
-    endDate &&
-
-    new Date(endDate) <=
-    new Date(startDate)
-
-  ) {
-
-    alert(
-      "La date de fin doit être après la date de début."
-    );
-
-    return;
-
-  }
-
-
-  const eventData = {
-
-    title:
-      title,
-
-
-    start_date:
-      new Date(
-        startDate
-      ).toISOString(),
-
-
-    end_date:
-
-      endDate
-
-        ? new Date(
-            endDate
-          ).toISOString()
-
-        : null
-
-  };
-
-
-  const { error } =
-    await supabaseClient
-      .from("events")
-      .insert(
-        eventData
-      );
-
-
-  if (error) {
-
-    console.error(
-      "Erreur ajout événement :",
-      error
-    );
-
-
-    alert(
-      "Impossible d'ajouter l'événement."
-    );
-
-    return;
-
-  }
-
-
-  titleInput.value = "";
-
-  startInput.value = "";
-
-  endInput.value = "";
-
-
-  await loadEvents();
-
-
-}
-
-
-
-/* =====================================================
-   SUPPRIMER EVENEMENT
-===================================================== */
-
-async function deleteEvent(id) {
-
-
-  if (
-
-    !confirm(
-      "Supprimer cet événement ?"
-    )
-
-  ) {
-
-    return;
-
-  }
-
-
-  const { error } =
-    await supabaseClient
-      .from("events")
-      .delete()
-      .eq(
-        "id",
-        id
-      );
-
-
-  if (error) {
-
-    console.error(
-      "Erreur suppression événement :",
-      error
-    );
-
-
-    alert(
-      "Impossible de supprimer l'événement."
-    );
-
-    return;
-
-  }
-
-
-  await loadEvents();
-
-
-}
+</div>
 
   /* =====================================================
    METEO EN TEMPS REEL
