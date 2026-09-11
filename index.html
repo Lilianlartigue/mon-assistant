@@ -4,45 +4,31 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#635bff" />
+    <meta name="description" content="Mon assistant personnel : tâches, budget, calendrier et notes." />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="icon.svg" type="image/svg+xml" />
     <title>Mon assistant</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <div class="app-shell">
       <aside class="sidebar" id="sidebar" aria-label="Navigation principale">
-        <div class="brand">
-          <span class="brand-mark">✦</span>
-          <span>Mon assistant</span>
-        </div>
-
+        <a class="brand" href="#/home" aria-label="Accueil de Mon assistant"><span class="brand-mark">✦</span><span>Mon assistant</span></a>
         <nav class="nav" id="sidebar-nav"></nav>
-
-        <button class="user-card" type="button" data-page="settings">
-          <span class="avatar">L</span>
-          <span>
-            <strong>Mon espace</strong>
-            <small>Paramètres</small>
-          </span>
-          <span aria-hidden="true">›</span>
-        </button>
+        <button class="user-card" type="button" data-page="settings"><span class="avatar">L</span><span><strong>Mon espace</strong><small>Réglages et confidentialité</small></span><span aria-hidden="true">›</span></button>
       </aside>
 
       <main class="main-content">
         <header class="topbar">
-          <button class="menu-button" id="menu-button" type="button" aria-label="Ouvrir la navigation" aria-expanded="false">☰</button>
-          <div class="mobile-brand">✦ <span>Mon assistant</span></div>
-          <div class="topbar-actions">
-            <button class="icon-button" type="button" aria-label="Notifications">🔔</button>
-            <button class="avatar mobile-avatar" type="button">L</button>
-          </div>
+          <button class="icon-button menu-button" id="menu-button" type="button" aria-label="Ouvrir la navigation" aria-expanded="false">☰</button>
+          <a class="mobile-brand" href="#/home">✦ <span>Mon assistant</span></a>
+          <button class="avatar" type="button" data-page="settings" aria-label="Ouvrir les paramètres">L</button>
         </header>
-
         <div id="app" class="page-container" tabindex="-1"></div>
       </main>
-
       <button class="overlay" id="overlay" aria-label="Fermer le menu"></button>
     </div>
-
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
     <script src="app.js"></script>
   </body>
 </html>
