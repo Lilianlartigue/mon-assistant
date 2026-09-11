@@ -1,1080 +1,462 @@
-/* =====================================================
-   BASE
-===================================================== */
-
-* {
-  box-sizing: border-box;
+:root {
+  --bg: #f7f7fb;
+  --surface: #fff;
+  --ink: #202036;
+  --muted: #77778b;
+  --line: #e9e9f2;
+  --accent: #635bff;
+  --accent-soft: #eeedff;
+  --shadow: 0 12px 35px rgba(45, 43, 92, .08);
 }
 
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
-  padding: 20px;
-
-  font-family:
-    Arial,
-    Helvetica,
-    sans-serif;
-
-  background:
-    linear-gradient(
-      135deg,
-      #f7f4ff,
-      #fff7f2,
-      #f3fbf8
-    );
-
-  color: #374151;
+  font: 15px/1.45 Inter, ui-sans-serif, system-ui, sans-serif;
+  color: var(--ink);
+  background: var(--bg);
 }
-
-
-.container {
-  max-width: 1500px;
-  margin: auto;
-}
-
-
-/* =====================================================
-   HEADER
-===================================================== */
-
-header {
-  display: flex;
-
-  justify-content: space-between;
-
-  align-items: center;
-
-  gap: 20px;
-
-  padding: 28px;
-
-  margin-bottom: 20px;
-
-  border-radius: 25px;
-
-  background:
-    linear-gradient(
-      135deg,
-      #d9d7f5,
-      #e9d9f3
-    );
-
-  box-shadow:
-    0 10px 30px
-    rgba(80, 70, 120, 0.08);
-}
-
-
-.header-title h1 {
-  margin: 0 0 8px 0;
-  font-size: 30px;
-}
-
-
-.header-title p {
-  margin: 0;
-  color: #5b6070;
-}
-
-
-#weather {
-  padding: 15px 20px;
-
-  text-align: center;
-
-  border-radius: 18px;
-
-  background:
-    rgba(255,255,255,.45);
-
-  min-width: 150px;
-}
-
-
-/* =====================================================
-   GRILLE PRINCIPALE
-===================================================== */
-
-.grid {
-  display: grid;
-
-  grid-template-columns:
-    repeat(2, minmax(0, 1fr));
-
-  gap: 20px;
-}
-
-
-/* =====================================================
-   CARTES
-===================================================== */
-
-.card {
-  min-width: 0;
-
-  padding: 24px;
-
-  border-radius: 25px;
-
-  box-shadow:
-    0 8px 25px
-    rgba(80, 70, 100, 0.07);
-}
-
-
-.card h2 {
-  margin-top: 0;
-
-  margin-bottom: 20px;
-
-  font-size: 22px;
-}
-
-
-/* =====================================================
-   COULEURS DES CARTES
-===================================================== */
-
-.assistant-card {
-  background:
-    linear-gradient(
-      135deg,
-      #e1e3ff,
-      #dcdcf5
-    );
-}
-
-
-.mail-card {
-  background:
-    linear-gradient(
-      135deg,
-      #f9e1e5,
-      #f5e6ea
-    );
-}
-
-
-.shopping-card {
-  background:
-    linear-gradient(
-      135deg,
-      #fff1c9,
-      #fff7df
-    );
-}
-
-
-.todo-card {
-  background:
-    linear-gradient(
-      135deg,
-      #dceee2,
-      #d8ebe3
-    );
-}
-
-
-.lycee-card {
-  background:
-    linear-gradient(
-      135deg,
-      #dce9f5,
-      #d4e3ef
-    );
-}
-
-
-.portfolio-card {
-  background:
-    linear-gradient(
-      135deg,
-      #eadff4,
-      #e4d9ef
-    );
-}
-
-
-.calendar-card {
-  background:
-    linear-gradient(
-      135deg,
-      #ffe5cf,
-      #f9e7d8
-    );
-}
-
-
-.budget-card {
-  background:
-    linear-gradient(
-      135deg,
-      #d9eee6,
-      #e2f3eb
-    );
-}
-
-
-.livret-card {
-  background:
-    linear-gradient(
-      135deg,
-      #dce5fa,
-      #e5e9f8
-    );
-}
-
-
-.transactions-card {
-  background:
-    linear-gradient(
-      135deg,
-      #f3e5d7,
-      #f8eee5
-    );
-}
-
-
-.full-width {
-  grid-column: 1 / -1;
-}
-
-
-/* =====================================================
-   INPUTS
-===================================================== */
-
-input {
-  font-family: inherit;
-}
-
-
-input[type="text"],
-input[type="number"],
-input[type="datetime-local"] {
-  width: 100%;
-
-  min-width: 0;
-
-  padding: 14px 16px;
-
-  border:
-    1px solid
-    rgba(120, 120, 140, .22);
-
-  border-radius: 14px;
-
-  background:
-    rgba(255,255,255,.70);
-
-  font-size: 15px;
-
-  color: #374151;
-
-  outline: none;
-}
-
-
-input:focus {
-  border-color: #7770c9;
-
-  box-shadow:
-    0 0 0 3px
-    rgba(119,112,201,.15);
-}
-
-
-/* =====================================================
-   BOUTONS
-===================================================== */
 
 button {
-  border: none;
-
-  padding: 12px 18px;
-
-  border-radius: 14px;
-
+  font: inherit;
+  color: inherit;
   cursor: pointer;
-
-  font-family: inherit;
-
-  font-size: 14px;
-
-  font-weight: bold;
-
-  color: white;
-
-  background:
-    linear-gradient(
-      135deg,
-      #8077d4,
-      #6d65c4
-    );
-
-  transition:
-    transform .15s,
-    opacity .15s;
 }
 
-
-button:hover {
-  transform: translateY(-1px);
-  opacity: .9;
+.app-shell {
+  min-height: 100vh;
+  display: flex;
 }
 
-
-.delete {
-  background:
-    linear-gradient(
-      135deg,
-      #ef9c9c,
-      #df7f7f
-    );
+.sidebar {
+  width: 255px;
+  flex: 0 0 255px;
+  min-height: 100vh;
+  padding: 25px 16px 18px;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-right: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  height: 100vh;
 }
 
-
-.edit {
-  background:
-    linear-gradient(
-      135deg,
-      #f6c96f,
-      #edb84f
-    );
+.brand,
+.mobile-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 17px;
+  font-weight: 750;
+  padding: 0 10px 27px;
 }
 
-
-/* =====================================================
-   BARRE AJOUT
-===================================================== */
-
-.add {
+.brand-mark {
   display: grid;
+  place-items: center;
+  width: 29px;
+  height: 29px;
+  border-radius: 10px;
+  background: var(--accent);
+  color: white;
+  font-size: 19px;
+}
 
-  grid-template-columns:
-    minmax(0, 1fr)
-    auto;
+.nav {
+  display: grid;
+  gap: 3px;
+  overflow: auto;
+}
 
-  gap: 10px;
-
+.nav-button {
+  border: 0;
+  background: transparent;
+  text-align: left;
+  min-height: 45px;
+  padding: 0 11px;
+  display: flex;
   align-items: center;
-
-  margin-top: 16px;
+  gap: 13px;
+  border-radius: 11px;
+  color: #66667a;
+  font-weight: 560;
 }
 
-
-.add button {
-  min-width: 95px;
+.nav-button:hover {
+  background: #f6f6fb;
+  color: var(--ink);
 }
 
+.nav-button.active {
+  background: var(--accent-soft);
+  color: #5148ee;
+  font-weight: 700;
+}
 
-/* =====================================================
-   LISTES
-===================================================== */
+.nav-icon {
+  width: 20px;
+  text-align: center;
+  font-size: 17px;
+}
 
-.list-container {
-  width: 100%;
+.user-card {
+  margin-top: auto;
+  border: 1px solid var(--line);
+  background: #fafaff;
+  border-radius: 14px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  text-align: left;
+}
 
-  margin: 0;
+.user-card > span:last-child {
+  margin-left: auto;
+  font-size: 24px;
+  color: var(--muted);
+}
 
+.user-card strong,
+.user-card small,
+.quick-card strong,
+.quick-card small {
+  display: block;
+}
+
+.user-card small {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.avatar {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 31px;
+  width: 31px;
+  height: 31px;
+  border: 0;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffbf7f, #fa6d8f);
+  color: white;
+  font-weight: 750;
+}
+
+.main-content {
+  min-width: 0;
+  flex: 1;
+}
+
+.topbar {
+  min-height: 64px;
+  padding: 0 5.5%;
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  border-bottom: 1px solid var(--line);
+}
+
+.menu-button,
+.icon-button {
+  border: 0;
+  background: transparent;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  font-size: 20px;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.mobile-brand {
   padding: 0;
+  font-size: 15px;
+}
 
+.mobile-avatar {
+  display: none;
+}
+
+.page-container {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 48px clamp(22px, 5.5vw, 76px) 55px;
+}
+
+.page-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 31px;
+}
+
+.eyebrow {
+  margin: 0 0 7px;
+  color: var(--accent);
+  font-weight: 750;
+  font-size: 13px;
+}
+
+.page-heading h1 {
+  margin: 0;
+  font-size: clamp(27px, 3vw, 37px);
+  line-height: 1.15;
+}
+
+.page-heading p {
+  color: var(--muted);
+  margin: 9px 0 0;
+}
+
+.primary-button {
+  border: 0;
+  border-radius: 11px;
+  padding: 11px 15px;
+  white-space: nowrap;
+  color: #fff;
+  background: var(--accent);
+  font-weight: 700;
+  box-shadow: 0 5px 13px rgba(99, 91, 255, .25);
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1.23fr .77fr;
+  gap: 21px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  min-width: 0;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 21px 22px 0;
+  gap: 10px;
+}
+
+.card-header h2 {
+  margin: 0;
+  font-size: 17px;
+}
+
+.text-button {
+  background: transparent;
+  color: var(--accent);
+  font-weight: 700;
+  border: 0;
+  padding: 5px;
+}
+
+.quick-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
+
+.quick-card {
+  padding: 19px;
+  min-height: 144px;
+  text-align: left;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  transition: transform .15s, box-shadow .15s;
+}
+
+.quick-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 34px rgba(45, 43, 92, .13);
+}
+
+.quick-icon {
+  display: grid;
+  place-items: center;
+  width: 39px;
+  height: 39px;
+  border-radius: 12px;
+  font-size: 20px;
+  margin-bottom: 21px;
+}
+
+.quick-card small {
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+.color-violet { background: #eeedff; }
+.color-green { background: #e7f8ef; }
+.color-yellow { background: #fff5d9; }
+.color-pink { background: #ffeaf0; }
+.color-blue { background: #e7f4ff; }
+.color-orange { background: #fff0e4; }
+
+.side-stack {
+  display: grid;
+  gap: 21px;
+}
+
+.list {
   list-style: none;
+  margin: 13px 0 0;
+  padding: 0 22px 14px;
 }
 
-
-/* =====================================================
-   ELEMENT D'UNE LISTE
-===================================================== */
-
-.item {
-  width: 100%;
-
-  display: grid !important;
-
-  grid-template-columns:
-    30px
-    minmax(150px, 1fr)
-    auto
-    auto;
-
+.list li {
+  padding: 13px 0;
+  border-bottom: 1px solid #f0f0f5;
+  display: flex;
   align-items: center;
-
   gap: 10px;
-
-  padding: 12px 0;
-
-  border-bottom:
-    1px solid
-    rgba(80,80,100,.12);
 }
 
+.list li:last-child { border-bottom: 0; }
 
-/* =====================================================
-   TEXTE DES LISTES
-===================================================== */
-
-.item span {
-  display: block !important;
-
-  min-width: 150px;
-
-  width: auto !important;
-
-  margin: 0 !important;
-
-  padding: 0 !important;
-
-  text-align: left !important;
-
-  white-space: normal !important;
-
-  word-break: normal !important;
-
-  overflow-wrap: break-word;
-
-  line-height: 1.5 !important;
-
-  font-size: 16px;
+.check {
+  width: 19px;
+  height: 19px;
+  border: 1.5px solid #cfcfde;
+  border-radius: 6px;
+  flex: 0 0 auto;
 }
 
-
-/* =====================================================
-   CASE A COCHER
-===================================================== */
-
-.item input[type="checkbox"] {
-  width: 16px;
-
-  height: 16px;
-
-  margin: 0;
-
-  padding: 0;
-}
-
-
-/* =====================================================
-   BOUTONS DES LISTES
-===================================================== */
-
-.item button {
-  width: auto !important;
-
-  min-width: 40px;
-
-  padding: 9px 11px;
-
+.list small {
+  margin-left: auto;
+  color: var(--muted);
   white-space: nowrap;
 }
 
-
-/* =====================================================
-   LYCEE ET PORTFOLIO
-===================================================== */
-
-/*
-   Lycée et Portfolio ont :
-
-   checkbox
-   texte
-   supprimer
-
-   Ils n'ont pas le bouton modifier.
-*/
-
-#lyceeList .item,
-#portfolioList .item {
-  grid-template-columns:
-    30px
-    minmax(150px, 1fr)
-    auto;
+.event-dot {
+  width: 9px;
+  height: 9px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: #ff8b72;
 }
 
+.event-dot.blue { background: #6c9eff; }
 
-/* =====================================================
-   STATUS
-===================================================== */
-
-.status {
-  margin-top: 10px;
-
-  color: #32855b;
-
-  font-size: 14px;
+.balance {
+  padding: 18px 22px 24px;
 }
 
-
-/* =====================================================
-   GMAIL
-===================================================== */
-
-.gmail-status {
-  margin-top: 10px;
+.balance strong {
+  font-size: 31px;
 }
 
-
-.gmail-actions {
-  display: flex;
-
-  flex-wrap: wrap;
-
-  gap: 8px;
-
-  margin-top: 12px;
+.balance p {
+  margin: 2px 0 0;
+  color: var(--muted);
 }
-
-
-.mail {
-  padding: 15px 0;
-
-  border-bottom:
-    1px solid
-    rgba(80,80,100,.12);
-}
-
-
-.mail:last-child {
-  border-bottom: none;
-}
-
-
-.iCloud p {
-  margin-bottom: 0;
-
-  color: #6b7280;
-}
-
-
-.gmail-message {
-  padding: 14px;
-
-  margin-top: 10px;
-
-  border-radius: 14px;
-
-  background:
-    rgba(255,255,255,.5);
-}
-
-
-.gmail-subject {
-  font-weight: bold;
-}
-
-
-.gmail-from {
-  margin-top: 5px;
-
-  font-size: 13px;
-
-  color: #6b7280;
-}
-
-
-.gmail-snippet {
-  margin-top: 6px;
-
-  font-size: 14px;
-
-  color: #4b5563;
-}
-
-
-/* =====================================================
-   CALENDRIER
-===================================================== */
-
-.calendar-header {
-  display: flex;
-
-  justify-content: space-between;
-
-  align-items: center;
-
-  gap: 20px;
-}
-
-
-.calendar-header h2 {
-  margin-bottom: 5px;
-}
-
-
-.calendar-header p {
-  margin: 0;
-
-  color: #6b7280;
-}
-
-
-.calendar-wrapper {
-  width: 100%;
-
-  overflow-x: auto;
-
-  margin-top: 20px;
-
-  padding-bottom: 5px;
-}
-
-
-.calendar-days {
-  display: grid;
-
-  grid-template-columns:
-    repeat(7, minmax(150px, 1fr));
-
-  gap: 12px;
-
-  min-width: 1050px;
-}
-
-
-.calendar-day {
-  min-height: 180px;
-
-  padding: 14px;
-
-  border-radius: 18px;
-
-  background:
-    rgba(255,255,255,.5);
-}
-
-
-.calendar-day-title {
-  padding-bottom: 10px;
-
-  margin-bottom: 10px;
-
-  border-bottom:
-    1px solid
-    rgba(80,80,100,.12);
-}
-
-
-.calendar-empty {
-  font-size: 13px;
-
-  color: #8a8a96;
-}
-
-
-.calendar-event {
-  position: relative;
-
-  padding: 10px;
-
-  margin-bottom: 8px;
-
-  border-radius: 12px;
-
-  background:
-    rgba(255,255,255,.85);
-}
-
-
-.calendar-event-time {
-  font-size: 12px;
-
-  color: #6b7280;
-}
-
-
-.calendar-event-title {
-  margin-top: 4px;
-
-  padding-right: 30px;
-
-  font-weight: bold;
-
-  font-size: 14px;
-
-  overflow-wrap: break-word;
-}
-
-
-.calendar-delete {
-  position: absolute;
-
-  top: 7px;
-
-  right: 7px;
-
-  padding: 4px 7px;
-
-  border-radius: 8px;
-
-  background: #ef9c9c;
-
-  font-size: 11px;
-}
-
-
-/* =====================================================
-   MODALE CALENDRIER
-===================================================== */
-
-.modal {
-  position: fixed;
-
-  inset: 0;
-
-  display: none;
-
-  justify-content: center;
-
-  align-items: center;
-
-  padding: 20px;
-
-  background:
-    rgba(40,40,60,.35);
-
-  z-index: 1000;
-}
-
-
-.modal.active {
-  display: flex;
-}
-
-
-.modal-content {
-  width: 100%;
-
-  max-width: 500px;
-
-  padding: 25px;
-
-  border-radius: 25px;
-
-  background: #fff8f5;
-
-  box-shadow:
-    0 20px 60px
-    rgba(0,0,0,.2);
-}
-
-
-.modal-header {
-  display: flex;
-
-  justify-content: space-between;
-
-  align-items: center;
-
-  margin-bottom: 20px;
-}
-
-
-.modal-header h2 {
-  margin: 0;
-}
-
-
-.modal-close {
-  padding: 5px 12px;
-
-  font-size: 24px;
-
-  background: #ef9c9c;
-}
-
-
-.modal-content label {
-  display: block;
-
-  margin:
-    15px
-    0
-    7px;
-
-  font-weight: bold;
-}
-
-
-.event-save-button {
-  width: 100%;
-
-  margin-top: 20px;
-}
-
-
-/* =====================================================
-   BUDGET
-===================================================== */
-
-.budget-line {
-  display: flex;
-
-  justify-content: space-between;
-
-  gap: 15px;
-
-  margin-top: 15px;
-}
-
 
 .progress {
-  width: 100%;
-
-  height: 10px;
-
-  margin-top: 8px;
-
+  height: 8px;
+  background: #eeeeff;
+  border-radius: 10px;
   overflow: hidden;
-
-  border-radius: 20px;
-
-  background:
-    rgba(255,255,255,.5);
+  margin-top: 17px;
 }
 
-
-.progress-bar {
-  width: 100%;
-
-  height: 100%;
-
-  border-radius: 20px;
-
-  background:
-    linear-gradient(
-      90deg,
-      #77c89b,
-      #a1dfb9
-    );
-
-  transition: width .3s;
-}
-
-
-.budget-total {
-  margin-top: 25px;
-
-  padding-top: 15px;
-
-  border-top:
-    1px solid
-    rgba(80,80,100,.12);
-
-  font-size: 22px;
-
-  font-weight: bold;
-}
-
-
-/* =====================================================
-   TRANSACTIONS
-===================================================== */
-
-.transaction {
-  display: flex;
-
-  justify-content: space-between;
-
-  align-items: center;
-
-  gap: 15px;
-
-  padding: 14px 0;
-
-  border-bottom:
-    1px solid
-    rgba(80,80,100,.12);
-}
-
-
-.transaction-info {
-  display: flex;
-
-  align-items: center;
-
-  gap: 12px;
-
-  min-width: 0;
-}
-
-
-.transaction-info div {
-  min-width: 0;
-}
-
-
-.transaction-info strong {
-  overflow-wrap: break-word;
-}
-
-
-.transaction-icon {
-  font-size: 25px;
-
-  flex-shrink: 0;
-}
-
-
-.transaction small {
+.progress span {
   display: block;
-
-  margin-top: 4px;
-
-  color: #6b7280;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--accent);
 }
 
-
-.expense {
-  color: #d66c6c;
-
-  white-space: nowrap;
+.module-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(235px, 1fr));
+  gap: 18px;
 }
 
-
-.income {
-  color: #4ca878;
-
-  white-space: nowrap;
+.module-card {
+  padding: 24px;
+  min-height: 170px;
 }
 
+.module-card .quick-icon { margin-bottom: 14px; }
 
-/* =====================================================
-   RESPONSIVE TABLETTE
-===================================================== */
-
-@media (max-width: 800px) {
-
-  body {
-    padding: 12px;
-  }
-
-
-  header {
-    flex-direction: column;
-
-    align-items: flex-start;
-  }
-
-
-  .grid {
-    grid-template-columns: 1fr;
-  }
-
-
-  .full-width {
-    grid-column: auto;
-  }
-
-
-  .calendar-header {
-    flex-direction: column;
-
-    align-items: flex-start;
-  }
-
-
-  .card {
-    width: 100%;
-  }
-
+.module-card p {
+  color: var(--muted);
+  margin: 8px 0 0;
 }
 
+.empty-state {
+  text-align: center;
+  padding: 56px 20px;
+}
 
-/* =====================================================
-   RESPONSIVE TELEPHONE
-===================================================== */
+.empty-state .quick-icon {
+  margin: 0 auto 17px;
+}
 
-@media (max-width: 500px) {
+.empty-state h2 { margin: 0; }
 
-  body {
-    padding: 10px;
+.empty-state p {
+  color: var(--muted);
+  max-width: 430px;
+  margin: 9px auto 20px;
+}
+
+.overlay { display: none; }
+
+@media (max-width: 850px) {
+  .sidebar {
+    position: fixed;
+    z-index: 10;
+    transform: translateX(-102%);
+    transition: transform .22s ease;
+    box-shadow: 15px 0 40px rgba(32, 32, 54, .15);
   }
 
+  .sidebar.open { transform: translateX(0); }
+  .topbar { display: flex; }
+  .page-container { padding-top: 32px; }
+  .dashboard-grid { grid-template-columns: 1fr; }
 
-  header {
-    padding: 20px;
+  .overlay.visible {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 9;
+    border: 0;
+    background: rgba(21, 20, 45, .36);
+  }
+}
 
-    border-radius: 20px;
+@media (max-width: 560px) {
+  .topbar { padding: 0 16px; }
+  .mobile-avatar { display: inline-grid; }
+  .icon-button { display: none; }
+  .page-container { padding: 26px 16px 36px; }
+  .page-heading { margin-bottom: 23px; }
+  .quick-grid { grid-template-columns: repeat(2, 1fr); gap: 11px; }
+
+  .quick-card {
+    min-height: 125px;
+    padding: 15px;
   }
 
-
-  .header-title h1 {
-    font-size: 24px;
-  }
-
-
-  .card {
-    padding: 18px;
-
-    border-radius: 20px;
-  }
-
-
-  .card h2 {
-    font-size: 20px;
-  }
-
-
-  .add {
-    grid-template-columns: 1fr;
-  }
-
-
-  .add button {
-    width: 100%;
-  }
-
-
-  /*
-     Sur téléphone, on garde les boutons
-     mais le texte garde toujours
-     la plus grande largeur possible.
-  */
-
-  .item {
-    grid-template-columns:
-      25px
-      minmax(100px, 1fr)
-      auto
-      auto;
-
-    gap: 6px;
-  }
-
-
-  #lyceeList .item,
-  #portfolioList .item {
-    grid-template-columns:
-      25px
-      minmax(100px, 1fr)
-      auto;
-  }
-
-
-  .item span {
-    min-width: 0;
-
-    font-size: 14px;
-
-    overflow-wrap: break-word;
-  }
-
-
-  .item button {
-    min-width: 35px;
-
-    padding: 8px 9px;
-  }
-
-
-  .budget-line {
-    font-size: 14px;
-  }
-
-
-  .transaction {
-    gap: 8px;
-  }
-
+  .quick-card .quick-icon { margin-bottom: 15px; }
+  .card-header { padding: 18px 17px 0; }
+  .list { padding-left: 17px; padding-right: 17px; }
+  .balance { padding-left: 17px; padding-right: 17px; }
+  .module-grid { grid-template-columns: 1fr; }
 }
