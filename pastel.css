@@ -1,0 +1,76 @@
+:root {
+  --bg: #f8f7fb;
+  --surface: #fffdfd;
+  --surface-alt: #fbf8ff;
+  --ink: #3f3b49;
+  --muted: #81798c;
+  --line: #ece5ef;
+  --accent: #a99adf;
+  --accent-soft: #f0ebfb;
+  --success: #79b89b;
+  --danger: #d9909f;
+  --warning: #d6b06d;
+  --shadow: 0 12px 34px rgba(111, 91, 129, .08);
+}
+
+html, body { background: linear-gradient(180deg, #faf8fc 0%, #f7f9fb 100%); }
+.sidebar, .topbar { background: #fffdfd; }
+.brand-mark { background: linear-gradient(135deg, #c7b9eb, #a9cfe6); }
+.avatar { background: linear-gradient(135deg, #f4c9ae, #e9b5c7); }
+.nav-button:hover { background: #f8f4fb; }
+.nav-button.active { color: #7566ad; background: #f0ebfb; }
+
+.primary-button {
+  color: #4d4564;
+  background: #cfc3ef;
+  box-shadow: 0 6px 16px rgba(163, 145, 210, .18);
+}
+.primary-button:hover { background: #c3b4e8; filter: none; }
+.secondary-button { color: #6f629d; background: #f0ebfb; }
+.danger-button { color: #a35f70; background: #fae9ee; }
+.text-button, .eyebrow { color: #8172b7; }
+
+.card, .quick-card, .item-row, .calendar-day, .filter-chip, .field input, .field select, .field textarea {
+  background: #fffdfd;
+  border-color: #ece5ef;
+}
+.quick-card:hover { box-shadow: 0 16px 34px rgba(111, 91, 129, .11); }
+
+.violet { background: #eee8fa; }
+.green { background: #e7f3ed; }
+.yellow { background: #fbf1d9; }
+.pink { background: #fae8ee; }
+.blue { background: #e6f0f7; }
+.orange { background: #faecdf; }
+
+.priority-urgente { color: #9d5969; background: #f9e6eb; }
+.priority-importante { color: #9b7b43; background: #faf0d7; }
+.priority-normale { color: #6079a8; background: #e8eef8; }
+.priority-faible { color: #767584; background: #efeff3; }
+.category-badge { color: #7466a5; background: #f0ebfa; }
+
+.progress { background: #eee9f5; }
+.progress > span { background: linear-gradient(90deg, #c6b9e9, #a9cfe2); }
+.check.done { border-color: #83b89d; background: #9ac8ae; }
+.transaction-in, .allocation-total { color: #67977d; background: #e8f3ed; }
+.transaction-out, .allocation-total.invalid { color: #a65f70; background: #fae9ee; }
+
+.calendar-grid { border-color: #e9e2ed; }
+.weekday { background: #faf7fc; }
+.calendar-day.muted { background: #fbfafc; }
+.today .day-number { color: #554b6c; background: #d3c7ef; }
+.calendar-event { color: #665792; background: #eee8fa; }
+.calendar-event.work { color: #5e806f; background: #e6f1eb; }
+.calendar-event.personal { color: #946674; background: #f8e8ed; }
+.event-dot { background: #e6ad9f; }
+.event-dot.blue-dot { background: #a9c8e4; }
+
+.message.user { background: #ece6f8; color: #4e4761; }
+.message.assistant { background: #f8f3f7; color: #4f4855; }
+.confirm-box { background: #fbf0de; border-color: #ead8b8; }
+
+input:focus, select:focus, textarea:focus,
+.field input:focus, .field select:focus, .field textarea:focus {
+  border-color: #bbaedf;
+  box-shadow: 0 0 0 3px #f0ebfb;
+}
