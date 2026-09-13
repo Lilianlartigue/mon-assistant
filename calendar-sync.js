@@ -5,8 +5,8 @@
 
   function currentRange() {
     const now = new Date();
-    const start = new Date(now.getFullYear() - 1, 0, 1);
-    const end = new Date(now.getFullYear() + 2, 0, 1);
+    const start = new Date(now.getFullYear() - 5, 0, 1);
+    const end = new Date(now.getFullYear() + 4, 0, 1);
     return { start, end };
   }
 
@@ -64,8 +64,12 @@
       button.textContent = 'Synchronisation…';
       try {
         const result = await syncIcloudCalendar(true);
+        const failed = Array.isArray(result.calendars) ? result.calendars.filter(item => item.error) : [];
         button.textContent = `${result.count || 0} événement(s) synchronisé(s)`;
-        setTimeout(() => location.reload(), 700);
+        if (failed.length && typeof showToast === 'function') {
+          showToast(`${failed.length} calendrier(s) iCloud en erreur`);
+        }
+        setTimeout(() => location.reload(), 900);
       } catch (error) {
         button.textContent = 'Erreur iCloud';
         console.error(error);
@@ -84,9 +88,7 @@
     setTimeout(addSyncButton, 0);
     syncIcloudCalendar(false)
       .then(result => {
-        if (result && !result.skipped && Array.isArray(result.events)) {
-          location.reload();
-        }
+        if (result && !result.skipped && Array.isArray(result.events)) location.reload();
       })
       .catch(error => console.warn('iCloud Calendar:', error.message));
   });
