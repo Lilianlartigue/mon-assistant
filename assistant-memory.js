@@ -1,6 +1,6 @@
 /* Mon Assistant - IA réelle + mémoire locale persistante */
 (function () {
-  const MAX_HISTORY = 60;
+  const MAX_HISTORY = 80;
 
   function cleanHistory(history) {
     if (!Array.isArray(history)) return [];
@@ -32,25 +32,14 @@
 
   function pendingFromAction(action) {
     if (!action || !action.type || action.type === 'none') return null;
-
     if (action.type === 'add_task') {
       const title = String(action.name || action.description || 'Nouvelle tâche').trim();
-      return {
-        type: 'task',
-        values: { title: title, priority: 'Normale', due: '', done: false },
-        summary: 'Ajouter la tâche « ' + title + ' ».'
-      };
+      return { type: 'task', values: { title: title, priority: 'Normale', due: '', done: false }, summary: 'Ajouter la tâche « ' + title + ' ».' };
     }
-
     if (action.type === 'add_shopping') {
       const name = String(action.name || action.description || 'Nouvel article').trim();
-      return {
-        type: 'shopping',
-        values: { name: name, quantity: '1', category: 'Autre', priority: 'Normale', done: false },
-        summary: 'Ajouter « ' + name + ' » à la liste de courses.'
-      };
+      return { type: 'shopping', values: { name: name, quantity: '1', category: 'Autre', priority: 'Normale', done: false }, summary: 'Ajouter « ' + name + ' » à la liste de courses.' };
     }
-
     return null;
   }
 
@@ -60,11 +49,12 @@
 
     const previousHistory = cleanHistory(ui.chat);
     ui.chat.push({ role: 'user', text: input });
+    ui.chat.push({ role: 'assistant', text: '…' });
     persistHistory();
     render();
 
     try {
-      const response = await fetch('/api/assistant', {
+      const response = await fetch('/api/assistant-v2', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -76,6 +66,7 @@
       });
 
       const result = await response.json().catch(function () { return {}; });
+      if (ui.chat[ui.chat.length - 1] && ui.chat[ui.chat.length - 1].text === '…') ui.chat.pop();
       if (!response.ok) throw new Error(result.error || 'Erreur de communication avec l’assistant.');
 
       ui.chat.push({ role: 'assistant', text: String(result.answer || 'D’accord.') });
@@ -84,17 +75,16 @@
       persistHistory();
       render();
     } catch (error) {
+      if (ui.chat[ui.chat.length - 1] && ui.chat[ui.chat.length - 1].text === '…') ui.chat.pop();
       console.error('Assistant IA :', error);
-      ui.chat.push({ role: 'assistant', text: 'Je n’arrive pas à joindre l’IA pour le moment : ' + (error.message || 'erreur inconnue') });
+      ui.chat.push({ role: 'assistant', text: 'Je n’arrive pas à répondre pour le moment. Réessaie dans un instant.' });
       persistHistory();
       render();
     }
   }
 
-  /* Remplace l’ancien assistant local défini dans app.js. */
   handleAssistant = realAssistant;
 
-  /* Recharge les anciennes discussions sauvegardées sur cet appareil. */
   if (Array.isArray(data.assistantHistory) && data.assistantHistory.length) {
     ui.chat = cleanHistory(data.assistantHistory);
   } else {
