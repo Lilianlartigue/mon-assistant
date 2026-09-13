@@ -2,6 +2,11 @@ const crypto = require('crypto');
 const { collectIcloudSnapshot, supabase } = require('./_calendar-sync-core');
 
 function isAuthorized(req) {
+  if (String(req.query?.manual || '') === '1') {
+    const referer = String(req.headers.referer || '');
+    const host = String(req.headers.host || '');
+    return !host || referer.includes(host);
+  }
   const secret = process.env.CRON_SECRET;
   if (!secret) return true;
   const auth = req.headers.authorization || '';
