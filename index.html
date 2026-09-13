@@ -8,8 +8,21 @@
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="icon" href="icon.svg" type="image/svg+xml" />
     <title>Mon assistant</title>
-    <link rel="stylesheet" href="styles.css?v=20260913-5" />
-    <link rel="stylesheet" href="pastel.css?v=20260913-5" />
+    <link rel="stylesheet" href="styles.css?v=20260913-6" />
+    <link rel="stylesheet" href="pastel.css?v=20260913-6" />
+    <style>
+      :root{--bg:#f2edf9!important;--surface:#fff9fd!important;--surface-alt:#f7f0fb!important;--accent:#a98ad8!important;--accent-soft:#eadff7!important;--line:#e2d6ee!important}
+      html,body{background:linear-gradient(135deg,#f1eafa 0%,#eef6fb 48%,#fff1f5 100%) fixed!important}
+      .sidebar{background:#f4eafb!important;border-right-color:#ddcdea!important}
+      .topbar{background:#f7effb!important}
+      .brand-mark{background:linear-gradient(135deg,#b79be1,#8fc4df)!important}
+      .nav-button.active{background:#e7d9f5!important;color:#684e91!important}
+      .primary-button{background:#c7afe7!important;color:#40334f!important}
+      .secondary-button{background:#e7daf5!important;color:#604b82!important}
+      .quick-card:nth-child(1){background:#eee5fa!important}.quick-card:nth-child(2){background:#e6f1fb!important}.quick-card:nth-child(3){background:#fff1cf!important}.quick-card:nth-child(4){background:#e2f3e9!important}.quick-card:nth-child(5){background:#f9e3eb!important}.quick-card:nth-child(6){background:#fae8d8!important}
+      .card{background:rgba(255,250,253,.96)!important;border-color:#e1d5eb!important}
+      .calendar-day{background:#fffafd!important}.weekday{background:#eee4f7!important}.today .day-number{background:#bea5df!important;color:#3f3450!important}
+    </style>
   </head>
   <body>
     <div class="app-shell">
@@ -29,9 +42,9 @@
       <button class="overlay" id="overlay" aria-label="Fermer le menu"></button>
     </div>
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
-    <script src="app.js?v=20260913-5"></script>
-    <script src="assistant-memory.js?v=20260913-5"></script>
-    <script src="calendar-sync.js?v=20260913-5"></script>
+    <script src="app.js?v=20260913-6"></script>
+    <script src="assistant-memory.js?v=20260913-6"></script>
+    <script src="calendar-sync.js?v=20260913-6"></script>
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', async () => {
