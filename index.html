@@ -8,8 +8,8 @@
     <link rel="manifest" href="manifest.webmanifest" />
     <link rel="icon" href="icon.svg" type="image/svg+xml" />
     <title>Mon assistant</title>
-    <link rel="stylesheet" href="styles.css?v=20260922-1" />
-    <link rel="stylesheet" href="pastel.css?v=20260922-1" />
+    <link rel="stylesheet" href="styles.css?v=20260913-6" />
+    <link rel="stylesheet" href="pastel.css?v=20260913-6" />
     <style>
       :root{--bg:#f2edf9!important;--surface:#fff9fd!important;--surface-alt:#f7f0fb!important;--accent:#a98ad8!important;--accent-soft:#eadff7!important;--line:#e2d6ee!important}
       html,body{background:linear-gradient(135deg,#f1eafa 0%,#eef6fb 48%,#fff1f5 100%) fixed!important}
@@ -42,14 +42,14 @@
       <button class="overlay" id="overlay" aria-label="Fermer le menu"></button>
     </div>
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
-    <script src="app.js?v=20260922-1"></script>
-    <script src="assistant-memory.js?v=20260922-1"></script>
-    <script src="calendar-sync.js?v=20260922-1"></script>\n    <script src="notification-client.js?v=20260922-1"></script>
+    <script src="app.js?v=20260913-6"></script>
+    <script src="assistant-memory.js?v=20260913-6"></script>
+    <script src="calendar-sync.js?v=20260913-6"></script>\n    <script src="notification-client.js?v=20260913-6"></script>
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', async () => {
           try {
-            const registration = await navigator.serviceWorker.register('/sw.js?v=5', { updateViaCache: 'none' });
+            const registration = await navigator.serviceWorker.register('/sw.js?v=4', { updateViaCache: 'none' });
             await registration.update();
           } catch (error) {
             console.warn('Service worker:', error);
