@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mon-assistant-v4';
+const CACHE_NAME = 'mon-assistant-v5-data-restore';
 const STATIC_ASSETS = [
   './manifest.webmanifest',
   './icon.svg'
