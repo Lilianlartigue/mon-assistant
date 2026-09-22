@@ -50,18 +50,6 @@
     {
       "path": "/api/calendar-daily-sync",
       "schedule": "0 5 * * *"
-    },
-    {
-      "path": "/api/push-dispatch",
-      "schedule": "0 7 * * *"
-    },
-    {
-      "path": "/api/push-dispatch",
-      "schedule": "0 12 * * *"
-    },
-    {
-      "path": "/api/push-dispatch",
-      "schedule": "0 18 * * *"
     }
   ]
 }
