@@ -1,4 +1,9 @@
 const STORAGE_KEY = 'mon-assistant-data-v2';
+const SUPABASE_URL = 'https://arnjwtcjesgxpdtjptmt.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_4-hMh1oMaJCu4Gz0-OlPSA_a3g3gj4N';
+
+let cloudSyncTimer = null;
+let isApplyingCloudData = false;
 
 const pages = [
   ['home', '🏠', 'Accueil'],
@@ -64,6 +69,145 @@ function loadData() {
   return defaultData();
 }
 
+function looksLikeDemoTasks(items) {
+  if (!Array.isArray(items) || items.length !== 3) return false;
+  const titles = items.map(function(item) { return item && item.title; }).sort();
+  return JSON.stringify(titles) === JSON.stringify([
+    'Faire les courses de la semaine',
+    'Planifier le week-end',
+    'Répondre aux messages importants'
+  ].sort());
+}
+
+function looksLikeDemoShopping(items) {
+  if (!Array.isArray(items) || items.length !== 2) return false;
+  const names = items.map(function(item) { return item && item.name; }).sort();
+  return JSON.stringify(names) === JSON.stringify([
+    'Fruits de saison',
+    'Lait'
+  ].sort());
+}
+
+function looksLikeDemoRecipes(items) {
+  return Array.isArray(items) &&
+    items.length === 1 &&
+    items[0] &&
+    items[0].title === 'Pâtes tomate basilic';
+}
+
+function looksLikeDemoPlaces(items) {
+  return Array.isArray(items) &&
+    items.length === 1 &&
+    items[0] &&
+    items[0].name === 'Maison';
+}
+
+function supabaseHeaders(extra) {
+  return Object.assign({
+    apikey: SUPABASE_PUBLISHABLE_KEY,
+    'Content-Type': 'application/json'
+  }, extra || {});
+}
+
+async function supabaseRequest(path, options) {
+  const response = await fetch(
+    SUPABASE_URL + '/rest/v1/' + path,
+    Object.assign({ headers: supabaseHeaders() }, options || {})
+  );
+
+  const text = await response.text();
+
+  if (!response.ok) {
+    throw new Error(text || 'Erreur Supabase ' + response.status);
+  }
+
+  return text ? JSON.parse(text) : null;
+}
+
+async function syncCloudData() {
+  if (isApplyingCloudData) return;
+
+  try {
+    await supabaseRequest('finances?on_conflict=id', {
+      method: 'POST',
+      headers: supabaseHeaders({
+        Prefer: 'resolution=merge-duplicates,return=minimal'
+      }),
+      body: JSON.stringify({
+        id: 'main',
+        data: data,
+        updated_at: new Date().toISOString()
+      })
+    });
+  } catch (error) {
+    console.error('Synchronisation Supabase :', error);
+  }
+}
+
+function scheduleCloudSync() {
+  if (isApplyingCloudData) return;
+  clearTimeout(cloudSyncTimer);
+  cloudSyncTimer = setTimeout(syncCloudData, 700);
+}
+
+async function loadCloudData() {
+  try {
+    const rows = await supabaseRequest(
+      'finances?id=eq.main&select=id,data,updated_at&limit=1'
+    );
+
+    if (!rows || !rows[0] || !rows[0].data) {
+      await syncCloudData();
+      return;
+    }
+
+    const localData = data;
+    const remoteData = rows[0].data;
+
+    isApplyingCloudData = true;
+
+    const merged = {
+      ...defaultData(),
+      ...localData,
+      ...remoteData
+    };
+
+    if (!Array.isArray(remoteData.tasks) && looksLikeDemoTasks(localData.tasks)) {
+      merged.tasks = [];
+    }
+
+    if (!Array.isArray(remoteData.shopping) && looksLikeDemoShopping(localData.shopping)) {
+      merged.shopping = [];
+    }
+
+    if (!Array.isArray(remoteData.recipes) && looksLikeDemoRecipes(localData.recipes)) {
+      merged.recipes = [];
+    }
+
+    if (!Array.isArray(remoteData.places) && looksLikeDemoPlaces(localData.places)) {
+      merged.places = [];
+    }
+
+    data = merged;
+
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(data)
+    );
+
+    isApplyingCloudData = false;
+
+    render();
+
+    await syncCloudData();
+
+  } catch (error) {
+    isApplyingCloudData = false;
+    console.error('Chargement Supabase :', error);
+    showToast('Les données en ligne n’ont pas pu être chargées.');
+  }
+}
+
 let data = loadData();
 let ui = {
   taskFilter: 'Toutes',
@@ -87,6 +231,7 @@ const toast = document.querySelector('#toast');
 
 function save() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  scheduleCloudSync();
 }
 
 function escapeHtml(value) {
@@ -634,3 +779,4 @@ overlay.addEventListener('click', closeMenu);
 window.addEventListener('hashchange', render);
 if ('serviceWorker' in navigator) window.addEventListener('load', function() { navigator.serviceWorker.register('./sw.js').catch(function() {}); });
 render();
+loadCloudData();
