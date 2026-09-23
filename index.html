@@ -29,14 +29,14 @@
       <button class="overlay" id="overlay" aria-label="Fermer le menu"></button>
     </div>
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
-    <script src="app.js?v=20260923-ai-speed-1"></script>
-    <script src="assistant-memory.js?v=20260923-ai-speed-1"></script>
+    <script src="app.js?v=20260923-lists-fix-1"></script>
+    <script src="assistant-memory.js?v=20260923-lists-fix-1"></script>
     <script src="calendar-sync.js?v=20260923-dashboard-v2"></script>\n    <script src="notification-client.js?v=20260923-dashboard-v2"></script>
     <script>
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', async () => {
           try {
-            const registration = await navigator.serviceWorker.register('/sw.js?v=11', { updateViaCache: 'none' });
+            const registration = await navigator.serviceWorker.register('/sw.js?v=12', { updateViaCache: 'none' });
             await registration.update();
           } catch (error) {
             console.warn('Service worker:', error);
