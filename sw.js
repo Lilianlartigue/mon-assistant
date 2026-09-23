@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mon-assistant-v15-direct-list-save';
+const CACHE_NAME = 'mon-assistant-v16-data-recovery';
 const STATIC_ASSETS = [
   './manifest.webmanifest',
   './icon.svg'
