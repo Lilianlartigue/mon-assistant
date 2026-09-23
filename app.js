@@ -6,6 +6,7 @@ const BACKUP_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_KhoPHymnPNer33NgO9_WxQ_v
 
 let cloudSyncTimer = null;
 let isApplyingCloudData = false;
+let cloudSyncReady = false;
 
 const pages = [
   ['home', '🏠', 'Accueil'],
@@ -353,8 +354,34 @@ function looksLikeCorruptedDemoState(remoteData) {
 }
 
 async function recoverFromBackupIfNeeded(remoteData) {
-  if (!looksLikeCorruptedDemoState(remoteData)) {
-    return remoteData;
+  const source =
+    remoteData &&
+    typeof remoteData === 'object'
+      ? remoteData
+      : {};
+
+  const settings =
+    source.settings &&
+    typeof source.settings === 'object'
+      ? source.settings
+      : {};
+
+  const emptyCoreState =
+    (!Array.isArray(source.events) || source.events.length === 0) &&
+    (!Array.isArray(source.notes) || source.notes.length === 0) &&
+    (!Array.isArray(source.transactions) || source.transactions.length === 0) &&
+    (!Array.isArray(source.goals) || source.goals.length === 0) &&
+    (!Array.isArray(source.lycee) || source.lycee.length === 0);
+
+  const shouldRecover =
+    looksLikeCorruptedDemoState(source) ||
+    (
+      emptyCoreState &&
+      settings.backupRecoveryVersion !== '2026-09-23-v2'
+    );
+
+  if (!shouldRecover) {
+    return source;
   }
 
   try {
@@ -370,26 +397,58 @@ async function recoverFromBackupIfNeeded(remoteData) {
         ? rows[0].data
         : null;
 
-    if (!backup) return remoteData;
+    if (!backup) return source;
 
     return {
-      ...remoteData,
-      transactions: Array.isArray(backup.transactions) ? backup.transactions : (remoteData.transactions || []),
-      goals: Array.isArray(backup.goals) ? backup.goals : (remoteData.goals || []),
-      events: Array.isArray(backup.events) ? backup.events : (remoteData.events || []),
-      notes: Array.isArray(backup.notes) ? backup.notes : (remoteData.notes || []),
-      places: Array.isArray(backup.places) ? backup.places : (remoteData.places || []),
-      portfolio: Array.isArray(backup.portfolio) ? backup.portfolio : (remoteData.portfolio || []),
-      lycee: Array.isArray(backup.lycee) ? backup.lycee : (remoteData.lycee || []),
+      ...source,
+
+      // Keep current accounts and balances. Only restore data collections
+      // that were accidentally wiped from the current project.
+      transactions:
+        Array.isArray(backup.transactions)
+          ? backup.transactions
+          : (source.transactions || []),
+
+      goals:
+        Array.isArray(backup.goals)
+          ? backup.goals
+          : (source.goals || []),
+
+      events:
+        Array.isArray(backup.events)
+          ? backup.events
+          : (source.events || []),
+
+      notes:
+        Array.isArray(backup.notes)
+          ? backup.notes
+          : (source.notes || []),
+
+      places:
+        Array.isArray(backup.places)
+          ? backup.places
+          : (source.places || []),
+
+      portfolio:
+        Array.isArray(backup.portfolio)
+          ? backup.portfolio
+          : (source.portfolio || []),
+
+      lycee:
+        Array.isArray(backup.lycee)
+          ? backup.lycee
+          : (source.lycee || []),
+
       settings: {
         ...(backup.settings || {}),
-        ...(remoteData.settings || {}),
-        dataRecoveryVersion: 'backup-2026-09-23-v1'
+        ...settings,
+        backupRecoveryVersion: '2026-09-23-v2'
       }
     };
+
   } catch (error) {
     console.error('Récupération sauvegarde :', error);
-    return remoteData;
+    return source;
   }
 }
 
@@ -512,7 +571,7 @@ function deleteRemoteListItem(listName, item) {
 }
 
 async function syncCloudData() {
-  if (isApplyingCloudData) return;
+  if (isApplyingCloudData || !cloudSyncReady) return;
 
   try {
     await supabaseRequest('finances?on_conflict=id', {
@@ -532,7 +591,7 @@ async function syncCloudData() {
 }
 
 function scheduleCloudSync() {
-  if (isApplyingCloudData) return;
+  if (isApplyingCloudData || !cloudSyncReady) return;
   clearTimeout(cloudSyncTimer);
   cloudSyncTimer = setTimeout(syncCloudData, 700);
 }
@@ -560,6 +619,7 @@ async function loadCloudData() {
     const shoppingRows = results[3] || [];
 
     if (!rows || !rows[0] || !rows[0].data) {
+      cloudSyncReady = true;
       await syncCloudData();
       return;
     }
@@ -630,6 +690,7 @@ async function loadCloudData() {
     );
 
     isApplyingCloudData = false;
+    cloudSyncReady = true;
 
     render();
 
@@ -647,12 +708,22 @@ async function loadCloudData() {
 
     await syncCloudData();
 
-    if (looksLikeCorruptedDemoState(originalRemoteData)) {
-      showToast('Tes données ont été restaurées depuis la sauvegarde.');
+    const recoveredFromBackup =
+      remoteData &&
+      remoteData.settings &&
+      remoteData.settings.backupRecoveryVersion === '2026-09-23-v2' &&
+      (
+        !originalRemoteData.settings ||
+        originalRemoteData.settings.backupRecoveryVersion !== '2026-09-23-v2'
+      );
+
+    if (recoveredFromBackup) {
+      showToast('Tes anciennes données ont été restaurées.');
     }
 
   } catch (error) {
     isApplyingCloudData = false;
+    cloudSyncReady = false;
     console.error('Chargement Supabase :', error);
     showToast('Les données en ligne n’ont pas pu être chargées.');
   }
