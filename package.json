@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "fast-xml-parser": "^5.2.5",
-    "node-ical": "^0.27.1"
+    "node-ical": "^0.27.1",
+    "web-push": "^3.6.7"
   }
 }
