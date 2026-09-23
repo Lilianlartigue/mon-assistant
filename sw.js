@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mon-assistant-v8-finance-menu';
+const CACHE_NAME = 'mon-assistant-v9-transfer';
 const STATIC_ASSETS = [
   './manifest.webmanifest',
   './icon.svg'
