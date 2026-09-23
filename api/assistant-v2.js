@@ -267,6 +267,492 @@ function contextLines(context) {
   return rows.join('\n');
 }
 
+
+function isWeatherQuery(message) {
+  const text = normalizeText(message);
+  return [
+    'meteo',
+    'temperature',
+    'temps demain',
+    'temps aujourd',
+    'pluie',
+    'pleuvoir',
+    'averse',
+    'orage',
+    'neige',
+    'vent'
+  ].some(function (word) {
+    return text.includes(word);
+  });
+}
+
+function extractWeatherLocation(message) {
+  const raw = String(message || '').trim();
+
+  const patterns = [
+    /(?:\bà\b|\ba\b)\s+([A-Za-zÀ-ÿŒœ' -]{2,60})(?:\?|,|\.|$)/i,
+    /(?:\bpour\b|\bsur\b)\s+([A-Za-zÀ-ÿŒœ' -]{2,60})(?:\?|,|\.|$)/i
+  ];
+
+  for (const pattern of patterns) {
+    const match = raw.match(pattern);
+    if (match && match[1]) {
+      return match[1]
+        .replace(/\b(demain|aujourd'hui|aujourdhui|ce matin|cet après-midi|cet apres-midi|ce soir|demain matin|demain après-midi|demain apres-midi|demain soir)\b/gi, '')
+        .trim();
+    }
+  }
+
+  return '';
+}
+
+function zonedDateParts(date, timeZone) {
+  const parts = new Intl.DateTimeFormat(
+    'en-CA',
+    {
+      timeZone: timeZone || 'Europe/Paris',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      weekday: 'long'
+    }
+  ).formatToParts(date);
+
+  function value(type) {
+    return parts.find(function (part) {
+      return part.type === type;
+    })?.value || '';
+  }
+
+  return {
+    date:
+      value('year') +
+      '-' +
+      value('month') +
+      '-' +
+      value('day'),
+    weekday:
+      value('weekday')
+  };
+}
+
+function weatherTarget(message, timeZone) {
+  const text = normalizeText(message);
+  const now = new Date();
+
+  let offsetDays = 0;
+
+  if (text.includes('demain')) {
+    offsetDays = 1;
+  } else if (
+    text.includes('apres-demain') ||
+    text.includes('apres demain')
+  ) {
+    offsetDays = 2;
+  }
+
+  const targetDate = new Date(
+    now.getTime() +
+    offsetDays * 24 * 60 * 60 * 1000
+  );
+
+  let startHour = 8;
+  let endHour = 20;
+  let periodLabel = 'dans la journée';
+
+  if (
+    text.includes('apres-midi') ||
+    text.includes('apres midi')
+  ) {
+    startHour = 12;
+    endHour = 18;
+    periodLabel = 'l’après-midi';
+  } else if (text.includes('matin')) {
+    startHour = 7;
+    endHour = 12;
+    periodLabel = 'le matin';
+  } else if (
+    text.includes('soir') ||
+    text.includes('soiree')
+  ) {
+    startHour = 18;
+    endHour = 23;
+    periodLabel = 'le soir';
+  } else if (text.includes('nuit')) {
+    startHour = 0;
+    endHour = 6;
+    periodLabel = 'la nuit';
+  }
+
+  return {
+    date:
+      zonedDateParts(
+        targetDate,
+        timeZone
+      ).date,
+    startHour,
+    endHour,
+    periodLabel,
+    relativeLabel:
+      offsetDays === 1
+        ? 'demain'
+        : offsetDays === 2
+          ? 'après-demain'
+          : 'aujourd’hui'
+  };
+}
+
+function weatherCodeLabel(code) {
+  const value = Number(code);
+
+  if (value === 0) return 'ciel dégagé';
+  if ([1, 2].includes(value)) return 'éclaircies';
+  if (value === 3) return 'ciel couvert';
+  if ([45, 48].includes(value)) return 'brouillard';
+  if ([51, 53, 55, 56, 57].includes(value)) return 'bruine';
+  if ([61, 63, 65, 66, 67].includes(value)) return 'pluie';
+  if ([71, 73, 75, 77].includes(value)) return 'neige';
+  if ([80, 81, 82].includes(value)) return 'averses';
+  if ([85, 86].includes(value)) return 'averses de neige';
+  if ([95, 96, 99].includes(value)) return 'orage';
+
+  return 'temps variable';
+}
+
+function mostFrequent(values) {
+  const counts = new Map();
+
+  values.forEach(function (value) {
+    counts.set(
+      value,
+      (counts.get(value) || 0) + 1
+    );
+  });
+
+  let best = null;
+  let bestCount = -1;
+
+  counts.forEach(function (count, value) {
+    if (count > bestCount) {
+      best = value;
+      bestCount = count;
+    }
+  });
+
+  return best;
+}
+
+async function getWeatherAnswer(message) {
+  if (!isWeatherQuery(message)) {
+    return null;
+  }
+
+  const locationName =
+    extractWeatherLocation(message);
+
+  if (!locationName) {
+    return {
+      answer:
+        'Pour la météo, indique-moi simplement la ville ou le village, par exemple « météo demain après-midi à Itxassou ».',
+      actions: []
+    };
+  }
+
+  const geoUrl =
+    'https://geocoding-api.open-meteo.com/v1/search?name=' +
+    encodeURIComponent(
+      locationName + ', France'
+    ) +
+    '&count=5&language=fr&format=json&countryCode=FR';
+
+  const geoResponse =
+    await fetchWithTimeout(
+      geoUrl,
+      2200
+    );
+
+  const results =
+    Array.isArray(
+      geoResponse.results
+    )
+      ? geoResponse.results
+      : [];
+
+  if (!results.length) {
+    return {
+      answer:
+        'Je n’ai pas trouvé « ' +
+        locationName +
+        ' » dans le service météo. Essaie avec le nom de la commune et, si besoin, le département.',
+      actions: []
+    };
+  }
+
+  const normalizedWanted =
+    normalizeText(locationName);
+
+  const location =
+    results.find(function (item) {
+      return normalizeText(item.name) === normalizedWanted;
+    }) ||
+    results[0];
+
+  const timeZone =
+    location.timezone ||
+    'Europe/Paris';
+
+  const target =
+    weatherTarget(
+      message,
+      timeZone
+    );
+
+  const forecastUrl =
+    'https://api.open-meteo.com/v1/forecast' +
+    '?latitude=' +
+    encodeURIComponent(location.latitude) +
+    '&longitude=' +
+    encodeURIComponent(location.longitude) +
+    '&hourly=' +
+    encodeURIComponent(
+      'temperature_2m,apparent_temperature,precipitation_probability,weather_code,wind_speed_10m'
+    ) +
+    '&timezone=' +
+    encodeURIComponent(timeZone) +
+    '&start_date=' +
+    encodeURIComponent(target.date) +
+    '&end_date=' +
+    encodeURIComponent(target.date);
+
+  const weather =
+    await fetchWithTimeout(
+      forecastUrl,
+      2600
+    );
+
+  const hourly =
+    weather.hourly || {};
+
+  const times =
+    Array.isArray(hourly.time)
+      ? hourly.time
+      : [];
+
+  const rows = times
+    .map(function (time, index) {
+      const hour =
+        Number(
+          String(time)
+            .slice(11, 13)
+        );
+
+      return {
+        time,
+        hour,
+        temperature:
+          Number(
+            hourly.temperature_2m?.[index]
+          ),
+        apparent:
+          Number(
+            hourly.apparent_temperature?.[index]
+          ),
+        rain:
+          Number(
+            hourly.precipitation_probability?.[index]
+          ),
+        code:
+          Number(
+            hourly.weather_code?.[index]
+          ),
+        wind:
+          Number(
+            hourly.wind_speed_10m?.[index]
+          )
+      };
+    })
+    .filter(function (row) {
+      return (
+        row.hour >=
+          target.startHour &&
+        row.hour <=
+          target.endHour &&
+        Number.isFinite(
+          row.temperature
+        )
+      );
+    });
+
+  if (!rows.length) {
+    return {
+      answer:
+        'La prévision météo n’est pas disponible pour cette plage horaire.',
+      actions: []
+    };
+  }
+
+  const temperatures =
+    rows.map(function (row) {
+      return row.temperature;
+    });
+
+  const apparent =
+    rows
+      .map(function (row) {
+        return row.apparent;
+      })
+      .filter(Number.isFinite);
+
+  const rainValues =
+    rows
+      .map(function (row) {
+        return row.rain;
+      })
+      .filter(Number.isFinite);
+
+  const winds =
+    rows
+      .map(function (row) {
+        return row.wind;
+      })
+      .filter(Number.isFinite);
+
+  const codes =
+    rows
+      .map(function (row) {
+        return row.code;
+      })
+      .filter(Number.isFinite);
+
+  const minTemp =
+    Math.round(
+      Math.min.apply(
+        null,
+        temperatures
+      )
+    );
+
+  const maxTemp =
+    Math.round(
+      Math.max.apply(
+        null,
+        temperatures
+      )
+    );
+
+  const maxRain =
+    rainValues.length
+      ? Math.round(
+          Math.max.apply(
+            null,
+            rainValues
+          )
+        )
+      : null;
+
+  const maxWind =
+    winds.length
+      ? Math.round(
+          Math.max.apply(
+            null,
+            winds
+          )
+        )
+      : null;
+
+  const feltMin =
+    apparent.length
+      ? Math.round(
+          Math.min.apply(
+            null,
+            apparent
+          )
+        )
+      : null;
+
+  const feltMax =
+    apparent.length
+      ? Math.round(
+          Math.max.apply(
+            null,
+            apparent
+          )
+        )
+      : null;
+
+  const condition =
+    weatherCodeLabel(
+      mostFrequent(codes)
+    );
+
+  const placeLabel =
+    [
+      location.name,
+      location.admin1
+    ]
+      .filter(Boolean)
+      .join(', ');
+
+  const parts = [
+    'À ' +
+      placeLabel +
+      ' ' +
+      target.relativeLabel +
+      ' ' +
+      target.periodLabel +
+      ', prévois environ ' +
+      minTemp +
+      ' à ' +
+      maxTemp +
+      ' °C, avec ' +
+      condition +
+      '.'
+  ];
+
+  if (maxRain != null) {
+    parts.push(
+      'Risque de pluie jusqu’à ' +
+      maxRain +
+      ' %.'
+    );
+  }
+
+  if (
+    feltMin != null &&
+    feltMax != null &&
+    (
+      feltMin !== minTemp ||
+      feltMax !== maxTemp
+    )
+  ) {
+    parts.push(
+      'Ressenti autour de ' +
+      feltMin +
+      ' à ' +
+      feltMax +
+      ' °C.'
+    );
+  }
+
+  if (
+    maxWind != null &&
+    maxWind >= 20
+  ) {
+    parts.push(
+      'Vent pouvant atteindre environ ' +
+      maxWind +
+      ' km/h.'
+    );
+  }
+
+  return {
+    answer:
+      parts.join(' '),
+    actions: [],
+    source: 'Open-Meteo'
+  };
+}
+
 async function callGemini(key, prompt) {
   const model =
     process.env.GEMINI_MODEL ||
@@ -342,14 +828,32 @@ export default async function handler(req, res) {
     const key =
       process.env.GEMINI_API_KEY;
 
+    const clean =
+      cleanHistory(history);
+
+    const weatherAnswer =
+      await getWeatherAnswer(
+        message
+      );
+
+    if (weatherAnswer) {
+      res.setHeader(
+        'Cache-Control',
+        'no-store'
+      );
+
+      return res
+        .status(200)
+        .json(
+          weatherAnswer
+        );
+    }
+
     if (!key) {
       throw new Error(
         "GEMINI_API_KEY n'est pas configurée dans Vercel."
       );
     }
-
-    const clean =
-      cleanHistory(history);
 
     const [
       cuisineDirectory
