@@ -7,11 +7,11 @@ function cleanHistory(history) {
         (m.role === 'user' || m.role === 'assistant') &&
         typeof m.text === 'string';
     })
-    .slice(-40)
+    .slice(-12)
     .map(function (m) {
       return {
         role: m.role,
-        text: m.text.slice(0, 3000)
+        text: m.text.slice(0, 1400)
       };
     });
 }
@@ -21,6 +21,299 @@ function cleanJson(text) {
     .replace(/```json/gi, '')
     .replace(/```/g, '')
     .trim();
+}
+
+function normalizeText(value) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+}
+
+function isCulinaryQuery(message, history) {
+  const recent = cleanHistory(history)
+    .slice(-4)
+    .map(function (item) {
+      return item.text;
+    })
+    .join(' ');
+
+  const text = normalizeText(
+    recent + ' ' + String(message || '')
+  );
+
+  const words = [
+    'repertoire cuisine',
+    'recette',
+    'cuisine',
+    'cuisiner',
+    'patisserie',
+    'patissier',
+    'dessert',
+    'entremet',
+    'tarte',
+    'creme',
+    'ganache',
+    'mousse',
+    'meringue',
+    'confit',
+    'glace',
+    'sorbet',
+    'boulangerie',
+    'brioche',
+    'pain',
+    'pate ',
+    'pate de',
+    'appareil',
+    'sauce',
+    'jus ',
+    'cuisson',
+    'temperature',
+    'ingredient',
+    'dressage',
+    'technique',
+    'allergene',
+    'portion',
+    'gramme',
+    'farine',
+    'beurre',
+    'oeuf',
+    'chocolat',
+    'fruit',
+    'viande',
+    'poisson',
+    'legume'
+  ];
+
+  return words.some(function (word) {
+    return text.includes(word);
+  });
+}
+
+async function fetchWithTimeout(url, timeoutMs) {
+  const controller = new AbortController();
+  const timer = setTimeout(function () {
+    controller.abort();
+  }, timeoutMs);
+
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'User-Agent': 'Mon-Assistant-ReadOnly/1.0'
+      },
+      signal: controller.signal
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        'Répertoire ' +
+        response.status
+      );
+    }
+
+    return await response.json();
+
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function readCuisineDirectory(message, history) {
+  if (!isCulinaryQuery(message, history)) {
+    return [];
+  }
+
+  const baseUrls = [
+    process.env.REPERTOIRE_CUISINE_URL,
+    'https://repertoire-cuisine.vercel.app',
+    'https://repertoire-cuisine-tableu-de-bord.vercel.app'
+  ].filter(Boolean);
+
+  const query = encodeURIComponent(
+    String(message || '').slice(0, 260)
+  );
+
+  const attempts = baseUrls.map(function (base) {
+    const url =
+      String(base).replace(/\/$/, '') +
+      '/api/readonly?q=' +
+      query +
+      '&limit=5';
+
+    return fetchWithTimeout(url, 1800)
+      .then(function (payload) {
+        if (
+          !payload ||
+          !Array.isArray(payload.recipes)
+        ) {
+          throw new Error(
+            'Réponse répertoire invalide'
+          );
+        }
+
+        return payload.recipes;
+      });
+  });
+
+  if (!attempts.length) {
+    return [];
+  }
+
+  try {
+    return await Promise.any(attempts);
+  } catch (_error) {
+    return [];
+  }
+}
+
+function contextLines(context) {
+  const source =
+    context &&
+    typeof context === 'object'
+      ? context
+      : {};
+
+  const rows = [];
+
+  if (source.tasks) {
+    rows.push(
+      'Tâches: ' +
+      JSON.stringify(source.tasks)
+    );
+  }
+
+  if (source.shopping) {
+    rows.push(
+      'Courses: ' +
+      JSON.stringify(source.shopping)
+    );
+  }
+
+  if (source.accounts) {
+    rows.push(
+      'Comptes: ' +
+      JSON.stringify(source.accounts)
+    );
+  }
+
+  if (source.transactions) {
+    rows.push(
+      'Mouvements récents: ' +
+      JSON.stringify(source.transactions)
+    );
+  }
+
+  if (source.goals) {
+    rows.push(
+      'Objectifs: ' +
+      JSON.stringify(source.goals)
+    );
+  }
+
+  if (source.events) {
+    rows.push(
+      'Calendrier: ' +
+      JSON.stringify(source.events)
+    );
+  }
+
+  if (source.notes) {
+    rows.push(
+      'Notes: ' +
+      JSON.stringify(source.notes)
+    );
+  }
+
+  if (source.portfolio) {
+    rows.push(
+      'Portfolio: ' +
+      JSON.stringify(source.portfolio)
+    );
+  }
+
+  if (source.places) {
+    rows.push(
+      'Lieux: ' +
+      JSON.stringify(source.places)
+    );
+  }
+
+  if (source.settings) {
+    rows.push(
+      'Paramètres: ' +
+      JSON.stringify(source.settings)
+    );
+  }
+
+  if (
+    Object.prototype.hasOwnProperty.call(
+      source,
+      'mailConnected'
+    )
+  ) {
+    rows.push(
+      'Mails connectés: ' +
+      Boolean(source.mailConnected)
+    );
+
+    rows.push(
+      'Mails disponibles: ' +
+      JSON.stringify(source.mails || [])
+    );
+  }
+
+  return rows.join('\n');
+}
+
+async function callGemini(key, prompt) {
+  const model =
+    process.env.GEMINI_MODEL ||
+    'gemini-3.6-flash';
+
+  const response = await fetch(
+    'https://generativelanguage.googleapis.com/v1beta/models/' +
+      encodeURIComponent(model) +
+      ':generateContent?key=' +
+      encodeURIComponent(key),
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type':
+          'application/json'
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [
+              {
+                text: prompt
+              }
+            ]
+          }
+        ],
+        generationConfig: {
+          temperature: 0.3,
+          maxOutputTokens: 1200,
+          responseMimeType:
+            'application/json'
+        }
+      })
+    }
+  );
+
+  if (!response.ok) {
+    const errorText =
+      await response.text();
+
+    throw new Error(
+      'Erreur Gemini : ' +
+      errorText.slice(0, 500)
+    );
+  }
+
+  return response.json();
 }
 
 export default async function handler(req, res) {
@@ -55,8 +348,20 @@ export default async function handler(req, res) {
       );
     }
 
+    const clean =
+      cleanHistory(history);
+
+    const [
+      cuisineDirectory
+    ] = await Promise.all([
+      readCuisineDirectory(
+        message,
+        clean
+      )
+    ]);
+
     const conversation =
-      cleanHistory(history)
+      clean
         .map(function (m) {
           return (
             (
@@ -64,131 +369,81 @@ export default async function handler(req, res) {
                 ? 'Utilisateur'
                 : 'Assistant'
             ) +
-            ' : ' +
+            ': ' +
             m.text
           );
         })
         .join('\n');
 
-    const prompt = `Tu es l'assistant personnel de Lilian dans son tableau de bord Mon Assistant.
+    const dashboardContext =
+      contextLines(context);
 
-STYLE
-- Tutoye l'utilisateur.
-- Réponds naturellement, simplement et précisément.
-- Utilise le contexte et l'historique.
-- Ne prétends jamais avoir modifié quelque chose tant que l'action n'a pas été confirmée dans l'interface.
-- Quand une demande est ambiguë pour une modification importante, pose une question au lieu d'inventer.
-- Tu peux analyser librement toutes les données fournies.
+    const cuisineContext =
+      cuisineDirectory.length
+        ? JSON.stringify(
+            cuisineDirectory
+          ).slice(0, 14000)
+        : '';
 
-DONNÉES ACTUELLES
-Tâches : ${JSON.stringify(context?.tasks || [])}
-Courses : ${JSON.stringify(context?.shopping || [])}
-Comptes : ${JSON.stringify(context?.accounts || [])}
-Mouvements : ${JSON.stringify(context?.transactions || [])}
-Objectifs : ${JSON.stringify(context?.goals || [])}
-Calendrier : ${JSON.stringify(context?.events || [])}
-Notes : ${JSON.stringify(context?.notes || [])}
-Portfolio : ${JSON.stringify(context?.portfolio || [])}
-Lieux : ${JSON.stringify(context?.places || [])}
-Paramètres : ${JSON.stringify(context?.settings || {})}
-Mails connectés : ${Boolean(context?.mailConnected)}
-Mails disponibles : ${JSON.stringify(context?.mails || [])}
+    const prompt = `Tu es l'assistant personnel de Lilian dans Mon Assistant.
 
-ACTIONS AUTORISÉES APRÈS CONFIRMATION
-Tu peux préparer de 0 à 10 actions.
+Réponds en français, en tutoyant l'utilisateur. Tu peux répondre à des questions générales de tous types avec tes connaissances, même si elles ne concernent pas le tableau de bord.
 
-Format d'une action :
+Utilise seulement les données de Mon Assistant qui sont fournies ci-dessous. Si une rubrique n'est pas fournie, ne suppose pas son contenu.
+
+CONTEXTE MON ASSISTANT
+${dashboardContext || '(aucune donnée personnelle nécessaire pour cette question)'}
+
+RÉPERTOIRE CUISINE EN LECTURE SEULE
+${cuisineContext || '(aucune fiche du répertoire nécessaire ou trouvée)'}
+Tu peux consulter ces fiches pour répondre aux questions de cuisine. Le Répertoire cuisine est STRICTEMENT en lecture seule : ne propose jamais d'action create/update/delete sur ce répertoire. Le Portfolio de Mon Assistant est distinct et reste modifiable.
+
+ACTIONS SUR MON ASSISTANT
+Si l'utilisateur demande une modification dans Mon Assistant, prépare jusqu'à 10 actions. Elles ne seront exécutées qu'après confirmation dans l'interface.
+
+Format:
 {
-  "operation": "create" | "update" | "delete",
-  "collection": "tasks" | "shopping" | "accounts" | "transactions" | "goals" | "events" | "notes" | "portfolio" | "places" | "settings",
-  "match": "id, nom ou titre de l'élément existant pour update/delete",
-  "values": {}
+  "operation":"create"|"update"|"delete",
+  "collection":"tasks"|"shopping"|"accounts"|"transactions"|"goals"|"events"|"notes"|"portfolio"|"places"|"settings",
+  "match":"id, nom ou titre pour update/delete",
+  "values":{}
 }
 
-SCHÉMAS UTILES
-tasks: { title, priority: "Urgente"|"Importante"|"Normale"|"Faible", due:"YYYY-MM-DD", done:boolean }
-shopping: { name, quantity, category, priority, done }
-accounts: { name, balance, allocation, interestRate }
-transactions: { accountId ou account, type:"add"|"remove", amount, note } OU pour un virement interne { type:"transfer", fromAccountId ou fromAccount, toAccountId ou toAccount, amount, note }
-goals: { name, target, saved }
-events: { title, start:"YYYY-MM-DDTHH:mm", end:"YYYY-MM-DDTHH:mm", category }
-notes: { title, content }
-portfolio: { title, category, description, techniques, realizationDate:"YYYY-MM-DD", favorite:boolean }
-places: { name, category, address, latitude, longitude }
-settings: valeurs à modifier, par exemple { quietStart:"22:00", quietEnd:"08:00" }
+Schémas utiles:
+tasks {title,priority,due,done}
+shopping {name,quantity,category,priority,done}
+accounts {name,balance,allocation,interestRate}
+transactions ajout/retrait {accountId ou account,type:"add"|"remove",amount,note}
+transactions virement interne {type:"transfer",fromAccountId ou fromAccount,toAccountId ou toAccount,amount,note}
+goals {name,target,saved}
+events {title,start,end,category}
+notes {title,content}
+portfolio {title,category,description,techniques,realizationDate,favorite}
+places {name,category,address,latitude,longitude}
+settings {quietStart,quietEnd,...}
 
-RÈGLES
-- Pour ajouter ou retirer de l'argent, utilise collection "transactions" et operation "create".
-- Pour déplacer de l'argent entre deux comptes du tableau de bord, utilise collection "transactions", operation "create", type "transfer", avec fromAccount/fromAccountId et toAccount/toAccountId.
-- Un virement interne ne doit jamais être représenté par deux actions séparées.
-- Pour changer directement le solde, le nom, la répartition ou le taux d'un compte, utilise "accounts" + "update".
-- Pour le Livret A, le compte existant s'appelle généralement "Livret A".
-- Pour le Livret Jeune, le compte existant s'appelle généralement "Livret Jeune".
-- Tu peux supprimer ou modifier tâches, courses, mouvements, objectifs, événements, notes, éléments du portfolio et lieux.
-- Les comptes principaux sont structurels : préfère les modifier plutôt que les supprimer.
-- Les mails ne sont pas modifiables tant que Mails connectés vaut false. Si l'utilisateur le demande, explique simplement qu'il faut d'abord connecter réellement Gmail/iCloud et ne crée aucune action fictive.
-- N'invente jamais un identifiant. Utilise "match" avec le nom/titre quand l'id n'est pas connu.
+Règles:
+- Ne prétends pas qu'une action a déjà été effectuée avant confirmation.
+- Pour un virement interne, crée UNE SEULE transaction de type "transfer".
+- Pour les mails, ne crée aucune action tant qu'ils ne sont pas réellement connectés.
+- N'invente jamais un identifiant.
 - Si aucune modification n'est demandée, renvoie actions: [].
+- Réponds de façon concise sauf si l'utilisateur demande du détail.
 
-HISTORIQUE
-${conversation || '(aucun échange précédent)'}
+HISTORIQUE RÉCENT
+${conversation || '(aucun)'}
 
-Réponds UNIQUEMENT avec un JSON valide :
-{
-  "answer": "réponse naturelle",
-  "actions": [
-    {
-      "operation": "create",
-      "collection": "tasks",
-      "match": "",
-      "values": {}
-    }
-  ]
-}
+MESSAGE
+${String(message).trim()}
 
-NOUVEAU MESSAGE
-Utilisateur : ${String(message).trim()}`;
-
-    const response = await fetch(
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=' +
-        encodeURIComponent(key),
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type':
-            'application/json'
-        },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                {
-                  text: prompt
-                }
-              ]
-            }
-          ],
-          generationConfig: {
-            temperature: 0.35,
-            responseMimeType:
-              'application/json'
-          }
-        })
-      }
-    );
-
-    if (!response.ok) {
-      const errorText =
-        await response.text();
-
-      throw new Error(
-        'Erreur Gemini : ' +
-        errorText.slice(0, 500)
-      );
-    }
+Réponds UNIQUEMENT avec un JSON valide:
+{"answer":"réponse naturelle","actions":[]}`;
 
     const gemini =
-      await response.json();
+      await callGemini(
+        key,
+        prompt
+      );
 
     const raw =
       gemini
@@ -215,11 +470,7 @@ Utilisateur : ${String(message).trim()}`;
     const actions =
       Array.isArray(result.actions)
         ? result.actions.slice(0, 10)
-        : result.action &&
-          typeof result.action === 'object' &&
-          result.action.type !== 'none'
-          ? [result.action]
-          : [];
+        : [];
 
     return res.status(200).json({
       answer:
@@ -227,7 +478,9 @@ Utilisateur : ${String(message).trim()}`;
           result.answer ||
           'D’accord.'
         ),
-      actions
+      actions,
+      cuisineMatches:
+        cuisineDirectory.length
     });
 
   } catch (error) {
