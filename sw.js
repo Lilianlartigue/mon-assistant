@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mon-assistant-v13-actions-fix';
+const CACHE_NAME = 'mon-assistant-v14-list-controls';
 const STATIC_ASSETS = [
   './manifest.webmanifest',
   './icon.svg'
