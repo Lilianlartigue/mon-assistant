@@ -403,3 +403,14 @@ body[data-page="map"] .map-preview{
   }
   .interest-value{text-align:left}
 }
+
+
+/* Virements internes */
+body[data-page="finance"] .transaction-transfer{
+  background:#efe3b9!important;
+  color:#8a6515!important;
+}
+body[data-page="finance"] .transfer-amount{
+  color:#8a6515!important;
+  white-space:nowrap;
+}
