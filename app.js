@@ -130,12 +130,61 @@ function normalizeDataShape(input) {
 }
 
 
+
+function applyFinanceSnapshotMigration(value) {
+  const next = value && typeof value === 'object' ? value : {};
+  next.settings = {
+    ...(next.settings || {})
+  };
+
+  const version = '2026-09-23-caisse-epargne-snapshot-v1';
+
+  if (next.settings.financeSnapshotVersion === version) {
+    return next;
+  }
+
+  if (!Array.isArray(next.accounts)) {
+    next.accounts = [];
+  }
+
+  function ensure(idValue, name, balance, interestRate) {
+    let account = next.accounts.find(function(item) {
+      return item.id === idValue;
+    });
+
+    if (!account) {
+      account = {
+        id: idValue,
+        name: name,
+        balance: balance,
+        allocation: 0
+      };
+      next.accounts.push(account);
+    }
+
+    account.name = name;
+    account.balance = balance;
+
+    if (interestRate != null) {
+      account.interestRate = interestRate;
+    }
+  }
+
+  ensure('current', 'Compte courant', 59.83, null);
+  ensure('livret', 'Livret A', 5640.00, 1.7);
+  ensure('livret_jeune', 'Livret Jeune', 1600.00, 3.0);
+
+  next.settings.financeSnapshotVersion = version;
+
+  return next;
+}
+
 function loadData() {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    if (saved && typeof saved === 'object') return normalizeDataShape(saved);
+    if (saved && typeof saved === 'object') return applyFinanceSnapshotMigration(normalizeDataShape(saved));
   } catch (error) {}
-  return normalizeDataShape(defaultData());
+  return applyFinanceSnapshotMigration(normalizeDataShape(defaultData()));
 }
 
 function looksLikeDemoTasks(items) {
@@ -243,11 +292,11 @@ async function loadCloudData() {
 
     isApplyingCloudData = true;
 
-    const merged = normalizeDataShape({
+    const merged = applyFinanceSnapshotMigration(normalizeDataShape({
       ...defaultData(),
       ...localData,
       ...remoteData
-    });
+    }));
 
     if (
       (!Array.isArray(remoteData.portfolio) || remoteData.portfolio.length === 0) &&
@@ -732,7 +781,27 @@ function renderFinance() {
       card('Intérêts des livrets', '<div class="card-body"><form id="interest-form">' + interestRows + '<p class="section-note">Le calcul affiché est une estimation simple sur le solde actuel. Les intérêts réglementés sont réellement calculés selon les règles du livret.</p><div class="form-actions"><button class="secondary-button" type="submit">Enregistrer les taux</button></div></form></div>') +
       card('Historique des mouvements', '<div class="card-body">' + transactions + '</div>') +
     '</div><div class="stack">' +
-      card('Ajouter ou retirer de l’argent', '<div class="card-body"><form id="money-form"><div class="form-grid"><label class="field">Opération<select name="type"><option value="add">Ajouter de l’argent</option><option value="remove">Retirer de l’argent</option></select></label><label class="field">Compte<select name="accountId">' + data.accounts.map(function(account) { return '<option value="' + account.id + '">' + escapeHtml(account.name) + '</option>'; }).join('') + '</select></label><label class="field">Montant<input id="money-amount" required name="amount" type="number" min="0.01" step="0.01" placeholder="0,00"></label><label class="field">Motif (optionnel)<input name="note" placeholder="Ex. Salaire"></label></div><div class="form-actions"><button class="primary-button" type="submit">Enregistrer le mouvement</button></div></form></div>') +
+      card('Ajouter ou retirer de l’argent', '<div class="card-body"><form id="money-form"><div class="form-grid"><label class="field">Opération<select name="type"><option value="add">Ajouter de l’argent</option><option value="remove">Retirer de l’argent</option></select></label><label class="field">Compte<select name="accountId">' + data.accounts.map(function(account) { return '<option value="' + account.id + '">' + escapeHtml(account.name) + '</option>'; }).join('') + '</select></label><label class="field">Montant<input id="money-amount" required name="amount" type="number" min="0.01" step="0.01" placeholder="0,00"></label><label class="field">Motif<select name="note">
+<option value="Alimentation">Alimentation</option>
+<option value="Restaurant / café">Restaurant / café</option>
+<option value="Transport">Transport</option>
+<option value="Carburant">Carburant</option>
+<option value="Logement">Logement</option>
+<option value="Abonnements">Abonnements</option>
+<option value="Téléphone / Internet">Téléphone / Internet</option>
+<option value="Santé">Santé</option>
+<option value="Études / Lycée">Études / Lycée</option>
+<option value="Loisirs">Loisirs</option>
+<option value="Shopping">Shopping</option>
+<option value="Cadeaux">Cadeaux</option>
+<option value="Frais bancaires">Frais bancaires</option>
+<option value="Retrait espèces">Retrait espèces</option>
+<option value="Virement">Virement</option>
+<option value="Épargne">Épargne</option>
+<option value="Salaire / revenu">Salaire / revenu</option>
+<option value="Remboursement">Remboursement</option>
+<option value="Autre">Autre</option>
+</select></label></div><div class="form-actions"><button class="primary-button" type="submit">Enregistrer le mouvement</button></div></form></div>') +
       card('Objectifs financiers', '<div class="card-body"><div>' + goals + '</div><form id="goal-form" style="margin-top:14px"><div class="form-grid"><label class="field">Nom<input required name="name" placeholder="Ex. Permis"></label><label class="field">Montant cible<input required name="target" type="number" min="1" step="0.01"></label></div><div class="form-actions"><button class="secondary-button" type="submit">Créer un objectif</button></div></form></div>') +
     '</div></div>';
 }
