@@ -1367,16 +1367,169 @@ function submitForm(form) {
   }
 }
 
-document.addEventListener('submit', function(event) {
-  event.preventDefault();
-  submitForm(event.target);
-});
-
 document.addEventListener('click', function(event) {
-  const pageButton = event.target.closest('button[data-page], a[data-page]');
-  if (pageButton) return goTo(pageButton.dataset.page);
   const button = event.target.closest('[data-action]');
   if (!button) return;
+
+  const action = button.dataset.action;
+  const itemId = button.dataset.id;
+
+  const listActions = [
+    'toggle-task',
+    'delete-task',
+    'edit-task',
+    'cancel-task',
+    'focus-task',
+    'task-filter',
+    'toggle-shopping',
+    'delete-shopping',
+    'edit-shopping',
+    'cancel-shopping',
+    'focus-shopping',
+    'shopping-filter'
+  ];
+
+  if (!listActions.includes(action)) {
+    return;
+  }
+
+  event.preventDefault();
+  event.stopImmediatePropagation();
+
+  try {
+    if (action === 'toggle-task') {
+      const task = data.tasks.find(function(item) { return item.id === itemId; });
+      if (task) {
+        task.done = !task.done;
+        save();
+        render();
+      }
+      return;
+    }
+
+    if (action === 'delete-task') {
+      removeFrom('tasks', itemId);
+      showToast('Tâche supprimée.');
+      return;
+    }
+
+    if (action === 'edit-task') {
+      ui.taskEditing = itemId;
+      render();
+      setTimeout(function() {
+        const field = document.querySelector('#task-title');
+        if (field) field.focus();
+      }, 0);
+      return;
+    }
+
+    if (action === 'cancel-task') {
+      ui.taskEditing = null;
+      render();
+      return;
+    }
+
+    if (action === 'focus-task') {
+      goTo('tasks');
+      setTimeout(function() {
+        const form = document.querySelector('#task-form');
+        const field = document.querySelector('#task-title');
+        if (form) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (field) field.focus();
+      }, 30);
+      return;
+    }
+
+    if (action === 'task-filter') {
+      ui.taskFilter = button.dataset.filter;
+      render();
+      return;
+    }
+
+    if (action === 'toggle-shopping') {
+      const item = data.shopping.find(function(row) { return row.id === itemId; });
+      if (item) {
+        item.done = !item.done;
+        save();
+        render();
+      }
+      return;
+    }
+
+    if (action === 'delete-shopping') {
+      removeFrom('shopping', itemId);
+      showToast('Article supprimé.');
+      return;
+    }
+
+    if (action === 'edit-shopping') {
+      ui.shoppingEditing = itemId;
+      render();
+      setTimeout(function() {
+        const field = document.querySelector('#shopping-name');
+        if (field) field.focus();
+      }, 0);
+      return;
+    }
+
+    if (action === 'cancel-shopping') {
+      ui.shoppingEditing = null;
+      render();
+      return;
+    }
+
+    if (action === 'focus-shopping') {
+      goTo('shopping');
+      setTimeout(function() {
+        const form = document.querySelector('#shopping-form');
+        const field = document.querySelector('#shopping-name');
+        if (form) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (field) field.focus();
+      }, 30);
+      return;
+    }
+
+    if (action === 'shopping-filter') {
+      ui.shoppingFilter = button.dataset.filter;
+      render();
+    }
+  } catch (error) {
+    console.error('Erreur liste :', error);
+    showToast('Une erreur empêche cette action. Recharge la page puis réessaie.');
+  }
+}, true);
+
+document.addEventListener('submit', function(event) {
+  const form = event.target;
+
+  if (!(form instanceof HTMLFormElement)) {
+    return;
+  }
+
+  event.preventDefault();
+
+  try {
+    submitForm(form);
+  } catch (error) {
+    console.error('Erreur formulaire :', error);
+    showToast(
+      'Le formulaire a rencontré une erreur. Recharge la page puis réessaie.'
+    );
+  }
+}, true);
+
+document.addEventListener('click', function(event) {
+  const button = event.target.closest('[data-action]');
+
+  if (!button) {
+    const pageButton = event.target.closest('button[data-page], a[data-page]');
+    if (pageButton) {
+      event.preventDefault();
+      return goTo(pageButton.dataset.page);
+    }
+    return;
+  }
+
   const action = button.dataset.action;
   const itemId = button.dataset.id;
   if (action === 'toggle-task') {
@@ -1386,7 +1539,15 @@ document.addEventListener('click', function(event) {
   if (action === 'delete-task') removeFrom('tasks', itemId);
   if (action === 'edit-task') { ui.taskEditing = itemId; render(); }
   if (action === 'cancel-task') { ui.taskEditing = null; render(); }
-  if (action === 'focus-task') { goTo('tasks'); setTimeout(function() { const field = document.querySelector('#task-title'); if (field) field.focus(); }, 0); }
+  if (action === 'focus-task') {
+    goTo('tasks');
+    setTimeout(function() {
+      const form = document.querySelector('#task-form');
+      const field = document.querySelector('#task-title');
+      if (form) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (field) field.focus();
+    }, 30);
+  }
   if (action === 'task-filter') { ui.taskFilter = button.dataset.filter; render(); }
   if (action === 'toggle-shopping') {
     const item = data.shopping.find(function(row) { return row.id === itemId; });
@@ -1395,7 +1556,15 @@ document.addEventListener('click', function(event) {
   if (action === 'delete-shopping') removeFrom('shopping', itemId);
   if (action === 'edit-shopping') { ui.shoppingEditing = itemId; render(); }
   if (action === 'cancel-shopping') { ui.shoppingEditing = null; render(); }
-  if (action === 'focus-shopping') { goTo('shopping'); setTimeout(function() { const field = document.querySelector('#shopping-name'); if (field) field.focus(); }, 0); }
+  if (action === 'focus-shopping') {
+    goTo('shopping');
+    setTimeout(function() {
+      const form = document.querySelector('#shopping-form');
+      const field = document.querySelector('#shopping-name');
+      if (form) form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (field) field.focus();
+    }, 30);
+  }
   if (action === 'shopping-filter') { ui.shoppingFilter = button.dataset.filter; render(); }
   if (action === 'focus-money') { goTo('finance'); setTimeout(function() { const field = document.querySelector('#money-amount'); if (field) field.focus(); }, 0); }
   if (action === 'delete-goal') { removeFrom('goals', itemId); }
