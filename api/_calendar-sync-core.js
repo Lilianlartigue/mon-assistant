@@ -31,7 +31,23 @@ async function fetchBirthdays(book){
   return rows
 }
 async function collectIcloudSnapshot(){const items=[];const calendars=[];const addressBooks=[];const [calResult,bookResult]=await Promise.allSettled([listCalendars(),listAddressBooks()]);const cals=calResult.status==='fulfilled'?calResult.value:[];const books=bookResult.status==='fulfilled'?bookResult.value:[];const calRows=await Promise.all(cals.map(async c=>{try{const rows=await fetchCalendarResources(c);calendars.push({name:c.name,count:rows.length,error:null});return rows}catch(e){calendars.push({name:c.name,count:0,error:e.message});return[]}}));const birthRows=await Promise.all(books.map(async b=>{try{const rows=await fetchBirthdays(b);addressBooks.push({name:b.name,birthdays:rows.length,error:null});return rows}catch(e){addressBooks.push({name:b.name,birthdays:0,error:e.message});return[]}}));for(const rows of [...calRows,...birthRows])items.push(...rows);if(calResult.status==='rejected')calendars.push({name:'iCloud',count:0,error:calResult.reason?.message||'Erreur'});if(bookResult.status==='rejected')addressBooks.push({name:'iCloud',birthdays:0,error:bookResult.reason?.message||'Erreur'});return{items,calendars,addressBooks}}
-function supabaseHeaders(){const key=required('SUPABASE_SERVICE_ROLE_KEY');return{apikey:key,Authorization:'Bearer '+key,'Content-Type':'application/json',Prefer:'return=minimal'}}
+function supabaseHeaders(){
+  const key=required('SUPABASE_SERVICE_ROLE_KEY');
+  const headers={
+    apikey:key,
+    'Content-Type':'application/json',
+    Prefer:'return=minimal'
+  };
+
+  // Legacy service_role keys are JWTs and can be sent as Bearer tokens.
+  // New sb_secret_ keys are API keys, not JWTs: sending them in
+  // Authorization causes Supabase to reject the request with HTTP 401.
+  if(!String(key).startsWith('sb_secret_')){
+    headers.Authorization='Bearer '+key;
+  }
+
+  return headers;
+}
 function supabaseBase(){return required('SUPABASE_URL').replace(/\/$/,'')+'/rest/v1'}
 async function supabase(path,options={}){const response=await fetch(supabaseBase()+path,{...options,headers:{...supabaseHeaders(),...(options.headers||{})}});const text=await response.text();if(!response.ok)throw new Error(`Supabase ${response.status}: ${text.slice(0,500)}`);return text?JSON.parse(text):null}
 module.exports={required,collectIcloudSnapshot,supabase};
