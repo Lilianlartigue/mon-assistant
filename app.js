@@ -35,15 +35,8 @@ function dayShift(offset) {
 
 function defaultData() {
   return {
-    tasks: [
-      { id: id('task'), title: 'Répondre aux messages importants', priority: 'Importante', due: dayShift(0).slice(0, 10), done: false },
-      { id: id('task'), title: 'Faire les courses de la semaine', priority: 'Normale', due: dayShift(0).slice(0, 10), done: false },
-      { id: id('task'), title: 'Planifier le week-end', priority: 'Faible', due: dayShift(2).slice(0, 10), done: false }
-    ],
-    shopping: [
-      { id: id('shop'), name: 'Lait', quantity: '2', category: 'Épicerie', priority: 'Normale', done: false },
-      { id: id('shop'), name: 'Fruits de saison', quantity: '1 kg', category: 'Fruits et légumes', priority: 'Importante', done: false }
-    ],
+    tasks: [],
+    shopping: [],
     accounts: [
       { id: 'current', name: 'Compte courant', balance: 1250, allocation: 70 },
       { id: 'livret', name: 'Livret A', balance: 5400, allocation: 30, interestRate: 1.7 },
@@ -133,6 +126,35 @@ function normalizeDataShape(input) {
       favorite: Boolean(item.favorite)
     };
   });
+
+  const demoTaskTitles = new Set([
+    'Répondre aux messages importants',
+    'Faire les courses de la semaine',
+    'Planifier le week-end'
+  ]);
+
+  if (
+    next.tasks.length > 0 &&
+    next.tasks.every(function(item) {
+      return demoTaskTitles.has(item.title);
+    })
+  ) {
+    next.tasks = [];
+  }
+
+  const demoShoppingNames = new Set([
+    'Lait',
+    'Fruits de saison'
+  ]);
+
+  if (
+    next.shopping.length > 0 &&
+    next.shopping.every(function(item) {
+      return demoShoppingNames.has(item.name);
+    })
+  ) {
+    next.shopping = [];
+  }
 
   return next;
 }
@@ -1351,7 +1373,7 @@ document.addEventListener('submit', function(event) {
 });
 
 document.addEventListener('click', function(event) {
-  const pageButton = event.target.closest('[data-page]');
+  const pageButton = event.target.closest('button[data-page], a[data-page]');
   if (pageButton) return goTo(pageButton.dataset.page);
   const button = event.target.closest('[data-action]');
   if (!button) return;
