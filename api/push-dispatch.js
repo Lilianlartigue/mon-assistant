@@ -69,13 +69,45 @@ module.exports = async function handler(req, res) {
     });
   }
 
-  const slot =
+  const requested =
+    String(req.query?.slot || '');
+
+  const schedule =
+    String(
+      req.headers[
+        'x-vercel-cron-schedule'
+      ] || ''
+    );
+
+  let slot =
     ['morning', 'midday', 'evening']
-      .includes(
-        String(req.query?.slot)
-      )
-      ? String(req.query.slot)
+      .includes(requested)
+      ? requested
       : 'midday';
+
+  if (!requested) {
+    if (
+      /^0 (6|7) \* \* \*$/.test(
+        schedule
+      )
+    ) {
+      slot = 'morning';
+
+    } else if (
+      /^0 (11|12) \* \* \*$/.test(
+        schedule
+      )
+    ) {
+      slot = 'midday';
+
+    } else if (
+      /^0 (17|18) \* \* \*$/.test(
+        schedule
+      )
+    ) {
+      slot = 'evening';
+    }
+  }
 
   const now =
     new Date();
