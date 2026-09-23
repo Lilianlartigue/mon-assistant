@@ -109,7 +109,7 @@ SCHÉMAS UTILES
 tasks: { title, priority: "Urgente"|"Importante"|"Normale"|"Faible", due:"YYYY-MM-DD", done:boolean }
 shopping: { name, quantity, category, priority, done }
 accounts: { name, balance, allocation, interestRate }
-transactions: { accountId ou account, type:"add"|"remove", amount, note }
+transactions: { accountId ou account, type:"add"|"remove", amount, note } OU pour un virement interne { type:"transfer", fromAccountId ou fromAccount, toAccountId ou toAccount, amount, note }
 goals: { name, target, saved }
 events: { title, start:"YYYY-MM-DDTHH:mm", end:"YYYY-MM-DDTHH:mm", category }
 notes: { title, content }
@@ -119,6 +119,8 @@ settings: valeurs à modifier, par exemple { quietStart:"22:00", quietEnd:"08:00
 
 RÈGLES
 - Pour ajouter ou retirer de l'argent, utilise collection "transactions" et operation "create".
+- Pour déplacer de l'argent entre deux comptes du tableau de bord, utilise collection "transactions", operation "create", type "transfer", avec fromAccount/fromAccountId et toAccount/toAccountId.
+- Un virement interne ne doit jamais être représenté par deux actions séparées.
 - Pour changer directement le solde, le nom, la répartition ou le taux d'un compte, utilise "accounts" + "update".
 - Pour le Livret A, le compte existant s'appelle généralement "Livret A".
 - Pour le Livret Jeune, le compte existant s'appelle généralement "Livret Jeune".
