@@ -1,6 +1,8 @@
 const STORAGE_KEY = 'mon-assistant-data-v2';
 const SUPABASE_URL = 'https://arnjwtcjesgxpdtjptmt.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_4-hMh1oMaJCu4Gz0-OlPSA_a3g3gj4N';
+const BACKUP_SUPABASE_URL = 'https://bojogujlycpscugdptwz.supabase.co';
+const BACKUP_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_KhoPHymnPNer33NgO9_WxQ_vZewz_3N';
 
 let cloudSyncTimer = null;
 let isApplyingCloudData = false;
@@ -38,21 +40,22 @@ function defaultData() {
     tasks: [],
     shopping: [],
     accounts: [
-      { id: 'current', name: 'Compte courant', balance: 1250, allocation: 70 },
-      { id: 'livret', name: 'Livret A', balance: 5400, allocation: 30, interestRate: 1.7 },
-      { id: 'livret_jeune', name: 'Livret Jeune', balance: 0, allocation: 0, interestRate: 1.7 }
+      { id: 'current', name: 'Compte courant', balance: 59.83, allocation: 0 },
+      { id: 'livret', name: 'Livret A', balance: 5640, allocation: 0, interestRate: 1.7 },
+      { id: 'livret_jeune', name: 'Livret Jeune', balance: 1600, allocation: 0, interestRate: 3 }
     ],
     transactions: [],
-    goals: [{ id: id('goal'), name: 'Voyage', target: 1200, saved: 350 }],
-    events: [
-      { id: id('event'), title: 'Déjeuner', start: dayShift(0).slice(0, 11) + '12:30', end: dayShift(0).slice(0, 11) + '13:30', category: 'Personnel' },
-      { id: id('event'), title: 'Appel', start: dayShift(1).slice(0, 11) + '10:00', end: dayShift(1).slice(0, 11) + '10:30', category: 'Travail' }
-    ],
-    notes: [{ id: id('note'), title: 'Bienvenue', content: 'Toutes vos données restent dans le navigateur de cet appareil.', updatedAt: new Date().toISOString() }],
-    recipes: [{ id: id('recipe'), title: 'Pâtes tomate basilic', ingredients: 'Pâtes, tomates, basilic, parmesan', servings: 2, method: 'Cuire les pâtes puis mélanger avec la sauce tomate et le basilic.' }],
+    goals: [],
+    events: [],
+    notes: [],
+    recipes: [],
     portfolio: [],
-    places: [{ id: id('place'), name: 'Maison', category: 'Favori', address: '', latitude: '', longitude: '' }],
-    settings: { quietStart: '22:00', quietEnd: '08:00', notifications: false }
+    places: [],
+    settings: {
+      quietStart: '22:00',
+      quietEnd: '08:00',
+      notifications: false
+    }
   };
 }
 
@@ -295,6 +298,213 @@ async function supabaseRequest(path, options) {
   return text ? JSON.parse(text) : null;
 }
 
+async function backupSupabaseRequest(path) {
+  const response = await fetch(
+    BACKUP_SUPABASE_URL + '/rest/v1/' + path,
+    {
+      headers: {
+        apikey: BACKUP_SUPABASE_PUBLISHABLE_KEY,
+        'Content-Type': 'application/json'
+      },
+      cache: 'no-store'
+    }
+  );
+
+  const text = await response.text();
+
+  if (!response.ok) {
+    throw new Error(text || 'Erreur sauvegarde Supabase ' + response.status);
+  }
+
+  return text ? JSON.parse(text) : null;
+}
+
+function looksLikeCorruptedDemoState(remoteData) {
+  if (!remoteData || typeof remoteData !== 'object') return false;
+
+  const eventTitles = Array.isArray(remoteData.events)
+    ? remoteData.events.map(function(item) { return item && item.title; }).sort()
+    : [];
+
+  const demoEvents =
+    eventTitles.length === 2 &&
+    eventTitles.includes('Déjeuner') &&
+    eventTitles.includes('Appel');
+
+  const demoNote =
+    Array.isArray(remoteData.notes) &&
+    remoteData.notes.length === 1 &&
+    remoteData.notes[0] &&
+    remoteData.notes[0].title === 'Bienvenue';
+
+  const demoGoal =
+    Array.isArray(remoteData.goals) &&
+    remoteData.goals.length === 1 &&
+    remoteData.goals[0] &&
+    remoteData.goals[0].name === 'Voyage';
+
+  return demoEvents || demoNote || demoGoal;
+}
+
+async function recoverFromBackupIfNeeded(remoteData) {
+  if (!looksLikeCorruptedDemoState(remoteData)) {
+    return remoteData;
+  }
+
+  try {
+    const rows = await backupSupabaseRequest(
+      'finances?id=eq.main&select=id,data,updated_at&limit=1'
+    );
+
+    const backup =
+      rows &&
+      rows[0] &&
+      rows[0].data &&
+      typeof rows[0].data === 'object'
+        ? rows[0].data
+        : null;
+
+    if (!backup) return remoteData;
+
+    return {
+      ...remoteData,
+      transactions: Array.isArray(backup.transactions) ? backup.transactions : (remoteData.transactions || []),
+      goals: Array.isArray(backup.goals) ? backup.goals : (remoteData.goals || []),
+      events: Array.isArray(backup.events) ? backup.events : (remoteData.events || []),
+      notes: Array.isArray(backup.notes) ? backup.notes : (remoteData.notes || []),
+      places: Array.isArray(backup.places) ? backup.places : (remoteData.places || []),
+      portfolio: Array.isArray(backup.portfolio) ? backup.portfolio : (remoteData.portfolio || []),
+      lycee: Array.isArray(backup.lycee) ? backup.lycee : (remoteData.lycee || []),
+      settings: {
+        ...(backup.settings || {}),
+        ...(remoteData.settings || {}),
+        dataRecoveryVersion: 'backup-2026-09-23-v1'
+      }
+    };
+  } catch (error) {
+    console.error('Récupération sauvegarde :', error);
+    return remoteData;
+  }
+}
+
+function taskFromSupabase(row, existing) {
+  return {
+    id: existing && existing.id ? existing.id : 'task-' + String(row.id),
+    remoteId: row.id,
+    title: row.name || (existing && existing.title) || '',
+    priority: (existing && existing.priority) || 'Normale',
+    due: (existing && existing.due) || '',
+    done: Boolean(row.done)
+  };
+}
+
+function shoppingFromSupabase(row, existing) {
+  return {
+    id: existing && existing.id ? existing.id : 'shopping-' + String(row.id),
+    remoteId: row.id,
+    name: row.name || (existing && existing.name) || '',
+    quantity: row.quantity || (existing && existing.quantity) || '1',
+    category: row.category || (existing && existing.category) || 'Autre',
+    priority: row.priority || (existing && existing.priority) || 'Normale',
+    done: Boolean(row.done)
+  };
+}
+
+function existingByRemoteOrName(list, row, nameKey) {
+  if (!Array.isArray(list)) return null;
+
+  return list.find(function(item) {
+    return String(item.remoteId || '') === String(row.id);
+  }) || list.find(function(item) {
+    return String(item[nameKey] || '').trim().toLocaleLowerCase('fr-FR') ===
+      String(row.name || '').trim().toLocaleLowerCase('fr-FR');
+  }) || null;
+}
+
+function listTableName(listName) {
+  return listName === 'tasks'
+    ? 'tasks'
+    : listName === 'shopping'
+      ? 'course'
+      : null;
+}
+
+function listPayload(listName, item) {
+  if (listName === 'tasks') {
+    return {
+      name: item.title,
+      done: Boolean(item.done)
+    };
+  }
+
+  if (listName === 'shopping') {
+    return {
+      name: item.name,
+      done: Boolean(item.done),
+      quantity: item.quantity || '1',
+      category: item.category || 'Autre',
+      priority: item.priority || 'Normale'
+    };
+  }
+
+  return null;
+}
+
+async function syncListItem(listName, item) {
+  const table = listTableName(listName);
+  const payload = listPayload(listName, item);
+
+  if (!table || !payload || !item) return;
+
+  try {
+    if (item.remoteId) {
+      await supabaseRequest(
+        table + '?id=eq.' + encodeURIComponent(item.remoteId),
+        {
+          method: 'PATCH',
+          headers: supabaseHeaders({ Prefer: 'return=minimal' }),
+          body: JSON.stringify(payload)
+        }
+      );
+      return;
+    }
+
+    const rows = await supabaseRequest(
+      table,
+      {
+        method: 'POST',
+        headers: supabaseHeaders({ Prefer: 'return=representation' }),
+        body: JSON.stringify(payload)
+      }
+    );
+
+    if (rows && rows[0] && rows[0].id != null) {
+      item.remoteId = rows[0].id;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      scheduleCloudSync();
+    }
+  } catch (error) {
+    console.error('Synchronisation liste :', error);
+    showToast('L’élément est gardé sur cet appareil, mais la synchronisation a échoué.');
+  }
+}
+
+function deleteRemoteListItem(listName, item) {
+  const table = listTableName(listName);
+
+  if (!table || !item || item.remoteId == null) return;
+
+  supabaseRequest(
+    table + '?id=eq.' + encodeURIComponent(item.remoteId),
+    {
+      method: 'DELETE',
+      headers: supabaseHeaders({ Prefer: 'return=minimal' })
+    }
+  ).catch(function(error) {
+    console.error('Suppression liste :', error);
+  });
+}
+
 async function syncCloudData() {
   if (isApplyingCloudData) return;
 
@@ -329,11 +539,19 @@ async function loadCloudData() {
       ),
       supabaseRequest(
         'portfolio?select=id,name,title,category,description,techniques,realization_date,favorite&order=id.asc'
+      ).catch(function () { return []; }),
+      supabaseRequest(
+        'tasks?select=*&order=id.asc'
+      ).catch(function () { return []; }),
+      supabaseRequest(
+        'course?select=*&order=id.asc'
       ).catch(function () { return []; })
     ]);
 
     const rows = results[0] || [];
     const legacyPortfolio = results[1] || [];
+    const taskRows = results[2] || [];
+    const shoppingRows = results[3] || [];
 
     if (!rows || !rows[0] || !rows[0].data) {
       await syncCloudData();
@@ -341,7 +559,8 @@ async function loadCloudData() {
     }
 
     const localData = data;
-    const remoteData = rows[0].data;
+    const originalRemoteData = rows[0].data;
+    const remoteData = await recoverFromBackupIfNeeded(originalRemoteData);
 
     isApplyingCloudData = true;
 
@@ -368,36 +587,33 @@ async function loadCloudData() {
       });
     }
 
-    if (!Array.isArray(remoteData.tasks) && looksLikeDemoTasks(localData.tasks)) {
-      merged.tasks = [];
-    } else if (
-      Array.isArray(remoteData.tasks) &&
-      remoteData.tasks.length === 0 &&
-      Array.isArray(localData.tasks) &&
-      localData.tasks.length > 0 &&
-      !looksLikeDemoTasks(localData.tasks)
-    ) {
-      merged.tasks = localData.tasks.map(function(item) { return { ...item }; });
+    const mergedTaskSource = Array.isArray(merged.tasks) ? merged.tasks : [];
+    const mergedShoppingSource = Array.isArray(merged.shopping) ? merged.shopping : [];
+
+    if (taskRows.length) {
+      merged.tasks = taskRows.map(function(row) {
+        return taskFromSupabase(
+          row,
+          existingByRemoteOrName(mergedTaskSource, row, 'title')
+        );
+      });
+    } else {
+      merged.tasks = mergedTaskSource.filter(function(item) {
+        return item && item.title;
+      });
     }
 
-    if (!Array.isArray(remoteData.shopping) && looksLikeDemoShopping(localData.shopping)) {
-      merged.shopping = [];
-    } else if (
-      Array.isArray(remoteData.shopping) &&
-      remoteData.shopping.length === 0 &&
-      Array.isArray(localData.shopping) &&
-      localData.shopping.length > 0 &&
-      !looksLikeDemoShopping(localData.shopping)
-    ) {
-      merged.shopping = localData.shopping.map(function(item) { return { ...item }; });
-    }
-
-    if (!Array.isArray(remoteData.recipes) && looksLikeDemoRecipes(localData.recipes)) {
-      merged.recipes = [];
-    }
-
-    if (!Array.isArray(remoteData.places) && looksLikeDemoPlaces(localData.places)) {
-      merged.places = [];
+    if (shoppingRows.length) {
+      merged.shopping = shoppingRows.map(function(row) {
+        return shoppingFromSupabase(
+          row,
+          existingByRemoteOrName(mergedShoppingSource, row, 'name')
+        );
+      });
+    } else {
+      merged.shopping = mergedShoppingSource.filter(function(item) {
+        return item && item.name;
+      });
     }
 
     data = merged;
@@ -411,7 +627,23 @@ async function loadCloudData() {
 
     render();
 
+    if (!taskRows.length && data.tasks.length) {
+      data.tasks.forEach(function(item) {
+        syncListItem('tasks', item);
+      });
+    }
+
+    if (!shoppingRows.length && data.shopping.length) {
+      data.shopping.forEach(function(item) {
+        syncListItem('shopping', item);
+      });
+    }
+
     await syncCloudData();
+
+    if (looksLikeCorruptedDemoState(originalRemoteData)) {
+      showToast('Tes données ont été restaurées depuis la sauvegarde.');
+    }
 
   } catch (error) {
     isApplyingCloudData = false;
@@ -426,6 +658,8 @@ let ui = {
   shoppingFilter: 'Toutes',
   calendarDate: new Date(),
   calendarView: 'month',
+  taskEditing: null,
+  shoppingEditing: null,
   eventEditing: null,
   noteEditing: null,
   portfolioEditing: null,
@@ -895,7 +1129,7 @@ function renderTasks() {
   return heading('ORGANISATION', 'Tâches', 'Les tâches sont triées automatiquement par état, priorité et date limite.', '<button class="primary-button" data-action="focus-task">Ajouter une tâche</button>') +
     '<div class="two-columns"><div class="stack">' +
       card(editing ? 'Modifier la tâche' : 'Nouvelle tâche',
-        '<div class="card-body"><form id="task-form"><input type="hidden" name="id" value="' + (editing ? editing.id : '') + '"><div class="form-grid"><label class="field full">Tâche<input id="task-title" required name="title" value="' + escapeHtml(editing ? editing.title : '') + '" placeholder="Ex. Appeler le médecin"></label><label class="field">Priorité<select name="priority">' + ['Urgente', 'Importante', 'Normale', 'Faible'].map(function(priority) { return '<option ' + ((editing ? editing.priority : 'Normale') === priority ? 'selected' : '') + '>' + priority + '</option>'; }).join('') + '</select></label><label class="field">Date limite<input type="date" name="due" value="' + dateInput(editing ? editing.due : '') + '"></label></div><div class="form-actions"><button class="primary-button" type="submit">' + (editing ? 'Enregistrer' : 'Ajouter la tâche') + '</button>' + (editing ? '<button class="secondary-button" type="button" data-action="cancel-task">Annuler</button>' : '') + '</div></form></div>') +
+        '<div class="card-body"><form id="task-form"><input type="hidden" name="id" value="' + (editing ? editing.id : '') + '"><div class="form-grid"><label class="field full">Tâche<input id="task-title" required name="title" value="' + escapeHtml(editing ? editing.title : '') + '" placeholder="Ex. Appeler le médecin"></label><label class="field">Priorité<select name="priority">' + ['Urgente', 'Importante', 'Normale', 'Faible'].map(function(priority) { return '<option ' + ((editing ? editing.priority : 'Normale') === priority ? 'selected' : '') + '>' + priority + '</option>'; }).join('') + '</select></label><label class="field">Date limite<input type="date" name="due" value="' + dateInput(editing ? editing.due : '') + '"></label></div><div class="form-actions"><button class="primary-button" type="button" data-action="save-task-form">' + (editing ? 'Enregistrer' : 'Ajouter la tâche') + '</button>' + (editing ? '<button class="secondary-button" type="button" data-action="cancel-task">Annuler</button>' : '') + '</div></form></div>') +
       card('Mes tâches', '<div class="card-body"><div class="filter-bar">' + ['Toutes', 'Urgente', 'Importante', 'Normale', 'Faible'].map(function(filter) { return '<button class="filter-chip ' + (filter === ui.taskFilter ? 'active' : '') + '" data-action="task-filter" data-filter="' + filter + '">' + filter + '</button>'; }).join('') + '</div><div class="item-list">' + rows + '</div></div>') +
     '</div><div class="stack">' +
       card('Priorités', '<div class="card-body"><p class="section-note"><strong>Urgente</strong> : à traiter sans attendre.<br><br><strong>Importante</strong> : essentielle à votre journée.<br><br><strong>Normale</strong> : à faire dès que possible.<br><br><strong>Faible</strong> : à garder en vue.</p></div>') +
@@ -912,7 +1146,7 @@ function renderShopping() {
   return heading('ORGANISATION', 'Courses', 'Une liste claire, organisée par catégorie et priorité.', '<button class="primary-button" data-action="focus-shopping">Ajouter un article</button>') +
     '<div class="two-columns"><div class="stack">' +
       card(editing ? 'Modifier un article' : 'Ajouter un article',
-        '<div class="card-body"><form id="shopping-form"><input type="hidden" name="id" value="' + (editing ? editing.id : '') + '"><div class="form-grid"><label class="field full">Produit<input id="shopping-name" required name="name" value="' + escapeHtml(editing ? editing.name : '') + '" placeholder="Ex. Yaourts"></label><label class="field">Quantité<input name="quantity" value="' + escapeHtml(editing ? editing.quantity : '1') + '" placeholder="Ex. 2 paquets"></label><label class="field">Catégorie<select name="category">' + categoriesShop.map(function(category) { return '<option ' + ((editing ? editing.category : 'Épicerie') === category ? 'selected' : '') + '>' + category + '</option>'; }).join('') + '</select></label><label class="field">Priorité<select name="priority">' + ['Urgente', 'Importante', 'Normale', 'Faible'].map(function(priority) { return '<option ' + ((editing ? editing.priority : 'Normale') === priority ? 'selected' : '') + '>' + priority + '</option>'; }).join('') + '</select></label></div><div class="form-actions"><button class="primary-button" type="submit">' + (editing ? 'Enregistrer' : 'Ajouter à la liste') + '</button>' + (editing ? '<button class="secondary-button" type="button" data-action="cancel-shopping">Annuler</button>' : '') + '</div></form></div>') +
+        '<div class="card-body"><form id="shopping-form"><input type="hidden" name="id" value="' + (editing ? editing.id : '') + '"><div class="form-grid"><label class="field full">Produit<input id="shopping-name" required name="name" value="' + escapeHtml(editing ? editing.name : '') + '" placeholder="Ex. Yaourts"></label><label class="field">Quantité<input name="quantity" value="' + escapeHtml(editing ? editing.quantity : '1') + '" placeholder="Ex. 2 paquets"></label><label class="field">Catégorie<select name="category">' + categoriesShop.map(function(category) { return '<option ' + ((editing ? editing.category : 'Épicerie') === category ? 'selected' : '') + '>' + category + '</option>'; }).join('') + '</select></label><label class="field">Priorité<select name="priority">' + ['Urgente', 'Importante', 'Normale', 'Faible'].map(function(priority) { return '<option ' + ((editing ? editing.priority : 'Normale') === priority ? 'selected' : '') + '>' + priority + '</option>'; }).join('') + '</select></label></div><div class="form-actions"><button class="primary-button" type="button" data-action="save-shopping-form">' + (editing ? 'Enregistrer' : 'Ajouter à la liste') + '</button>' + (editing ? '<button class="secondary-button" type="button" data-action="cancel-shopping">Annuler</button>' : '') + '</div></form></div>') +
       card('Ma liste', '<div class="card-body"><div class="filter-bar">' + ['Toutes'].concat(categoriesShop).map(function(filter) { return '<button class="filter-chip ' + (filter === ui.shoppingFilter ? 'active' : '') + '" data-action="shopping-filter" data-filter="' + filter + '">' + filter + '</button>'; }).join('') + '</div><div class="item-list">' + rows + '</div></div>') +
     '</div><div class="stack">' +
       card('Résumé', '<div class="card-body"><div class="three-columns"><div class="stat-card"><p>À acheter</p><strong>' + data.shopping.filter(function(item) { return !item.done; }).length + '</strong></div><div class="stat-card"><p>Urgents</p><strong>' + data.shopping.filter(function(item) { return !item.done && item.priority === 'Urgente'; }).length + '</strong></div><div class="stat-card"><p>Terminés</p><strong>' + data.shopping.filter(function(item) { return item.done; }).length + '</strong></div></div></div>') +
@@ -1142,9 +1376,22 @@ function goTo(page) {
 }
 
 function removeFrom(listName, itemId) {
-  data[listName] = data[listName].filter(function(item) { return item.id !== itemId; });
+  if (!Array.isArray(data[listName])) return;
+
+  const item = data[listName].find(function(row) {
+    return row.id === itemId;
+  });
+
+  data[listName] = data[listName].filter(function(row) {
+    return row.id !== itemId;
+  });
+
   save();
   render();
+
+  if (listName === 'tasks' || listName === 'shopping') {
+    deleteRemoteListItem(listName, item);
+  }
 }
 
 function editOrCreate(listName, values) {
@@ -1209,28 +1456,30 @@ function submitForm(form) {
       data.tasks = [];
     }
 
-    const existing = values.id
+    let item = values.id
       ? data.tasks.find(function(task) { return task.id === values.id; })
       : null;
 
-    if (existing) {
-      existing.title = title;
-      existing.priority = values.priority || 'Normale';
-      existing.due = values.due || '';
+    if (item) {
+      item.title = title;
+      item.priority = values.priority || 'Normale';
+      item.due = values.due || '';
     } else {
-      data.tasks.unshift({
+      item = {
         id: id('task'),
         title: title,
         priority: values.priority || 'Normale',
         due: values.due || '',
         done: false
-      });
+      };
+      data.tasks.unshift(item);
     }
 
     ui.taskEditing = null;
     save();
     render();
-    showToast('Tâche ajoutée.');
+    syncListItem('tasks', item);
+    showToast('Tâche enregistrée.');
     return;
   }
 
@@ -1246,32 +1495,35 @@ function submitForm(form) {
       data.shopping = [];
     }
 
-    const existing = values.id
-      ? data.shopping.find(function(item) { return item.id === values.id; })
+    let item = values.id
+      ? data.shopping.find(function(row) { return row.id === values.id; })
       : null;
 
-    if (existing) {
-      existing.name = name;
-      existing.quantity = String(values.quantity || '1').trim() || '1';
-      existing.category = values.category || 'Autre';
-      existing.priority = values.priority || 'Normale';
+    if (item) {
+      item.name = name;
+      item.quantity = String(values.quantity || '1').trim() || '1';
+      item.category = values.category || 'Autre';
+      item.priority = values.priority || 'Normale';
     } else {
-      data.shopping.unshift({
+      item = {
         id: id('shopping'),
         name: name,
         quantity: String(values.quantity || '1').trim() || '1',
         category: values.category || 'Autre',
         priority: values.priority || 'Normale',
         done: false
-      });
+      };
+      data.shopping.unshift(item);
     }
 
     ui.shoppingEditing = null;
     save();
     render();
-    showToast('Article ajouté à la liste.');
+    syncListItem('shopping', item);
+    showToast('Article enregistré.');
     return;
   }
+
   if (form.id === 'interest-form') {
     const livretA = accountById('livret');
     const livretJeune = accountById('livret_jeune');
@@ -1591,7 +1843,7 @@ document.addEventListener('click', function(event) {
   const itemId = button.dataset.id;
   if (action === 'toggle-task') {
     const task = data.tasks.find(function(item) { return item.id === itemId; });
-    if (task) { task.done = !task.done; save(); render(); }
+    if (task) { task.done = !task.done; save(); render(); syncListItem('tasks', task); }
   }
   if (action === 'delete-task') removeFrom('tasks', itemId);
   if (action === 'edit-task') { ui.taskEditing = itemId; render(); }
@@ -1608,7 +1860,7 @@ document.addEventListener('click', function(event) {
   if (action === 'task-filter') { ui.taskFilter = button.dataset.filter; render(); }
   if (action === 'toggle-shopping') {
     const item = data.shopping.find(function(row) { return row.id === itemId; });
-    if (item) { item.done = !item.done; save(); render(); }
+    if (item) { item.done = !item.done; save(); render(); syncListItem('shopping', item); }
   }
   if (action === 'delete-shopping') removeFrom('shopping', itemId);
   if (action === 'edit-shopping') { ui.shoppingEditing = itemId; render(); }
