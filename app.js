@@ -74,6 +74,29 @@ function normalizeDataShape(input) {
     ? source.shopping.map(function(item) { return { ...item }; })
     : [];
 
+  if (!next.settings.demoListsCleanedV2) {
+    const demoTaskTitles = new Set([
+      'Répondre aux messages importants',
+      'Faire les courses de la semaine',
+      'Planifier le week-end'
+    ]);
+
+    const demoShoppingNames = new Set([
+      'Lait',
+      'Fruits de saison'
+    ]);
+
+    next.tasks = next.tasks.filter(function(item) {
+      return !demoTaskTitles.has(String(item.title || ''));
+    });
+
+    next.shopping = next.shopping.filter(function(item) {
+      return !demoShoppingNames.has(String(item.name || ''));
+    });
+
+    next.settings.demoListsCleanedV2 = true;
+  }
+
   next.accounts = Array.isArray(source.accounts)
     ? source.accounts.map(function(account) { return { ...account }; })
     : base.accounts.map(function(account) { return { ...account }; });
@@ -1386,7 +1409,9 @@ document.addEventListener('click', function(event) {
     'edit-shopping',
     'cancel-shopping',
     'focus-shopping',
-    'shopping-filter'
+    'shopping-filter',
+    'save-task-form',
+    'save-shopping-form'
   ];
 
   if (!listActions.includes(action)) {
@@ -1397,6 +1422,38 @@ document.addEventListener('click', function(event) {
   event.stopImmediatePropagation();
 
   try {
+    if (action === 'save-task-form') {
+      const form = document.getElementById('task-form');
+
+      if (!form) {
+        showToast('Le formulaire Tâches est introuvable.');
+        return;
+      }
+
+      if (!form.reportValidity()) {
+        return;
+      }
+
+      submitForm(form);
+      return;
+    }
+
+    if (action === 'save-shopping-form') {
+      const form = document.getElementById('shopping-form');
+
+      if (!form) {
+        showToast('Le formulaire Courses est introuvable.');
+        return;
+      }
+
+      if (!form.reportValidity()) {
+        return;
+      }
+
+      submitForm(form);
+      return;
+    }
+
     if (action === 'toggle-task') {
       const task = data.tasks.find(function(item) { return item.id === itemId; });
       if (task) {
