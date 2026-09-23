@@ -483,6 +483,114 @@ function findCollectionItem(collection, match, values) {
   }) || null;
 }
 
+function resolveFinanceAccount(reference) {
+  if (!reference) return null;
+  return accountById(String(reference)) ||
+    findCollectionItem('accounts', String(reference), {});
+}
+
+function normalizeTransactionValues(values) {
+  const v = values && typeof values === 'object' ? values : {};
+  const type = ['add', 'remove', 'transfer'].includes(v.type) ? v.type : 'add';
+  const amount = Number(v.amount || 0);
+
+  if (type === 'transfer') {
+    const from = resolveFinanceAccount(v.fromAccountId || v.fromAccount);
+    const to = resolveFinanceAccount(v.toAccountId || v.toAccount);
+
+    if (!from || !to || from.id === to.id || amount <= 0) return null;
+
+    return {
+      id: v.id || id('transaction'),
+      type: 'transfer',
+      fromAccountId: from.id,
+      toAccountId: to.id,
+      amount: amount,
+      note: String(v.note || v.description || 'Virement interne').trim(),
+      createdAt: v.createdAt || new Date().toISOString()
+    };
+  }
+
+  const account = resolveFinanceAccount(v.accountId || v.account);
+  if (!account || amount <= 0) return null;
+
+  return {
+    id: v.id || id('transaction'),
+    accountId: account.id,
+    type: type,
+    amount: amount,
+    note: String(v.note || v.description || '').trim(),
+    createdAt: v.createdAt || new Date().toISOString()
+  };
+}
+
+function canApplyTransaction(transaction, direction) {
+  const amount = Number(transaction.amount || 0);
+  if (amount <= 0) return false;
+
+  if (transaction.type === 'add') {
+    const account = accountById(transaction.accountId);
+    return Boolean(account) &&
+      (direction > 0 || Number(account.balance || 0) >= amount);
+  }
+
+  if (transaction.type === 'remove') {
+    const account = accountById(transaction.accountId);
+    return Boolean(account) &&
+      (direction < 0 || Number(account.balance || 0) >= amount);
+  }
+
+  if (transaction.type === 'transfer') {
+    const from = accountById(transaction.fromAccountId);
+    const to = accountById(transaction.toAccountId);
+    if (!from || !to || from.id === to.id) return false;
+
+    return direction > 0
+      ? Number(from.balance || 0) >= amount
+      : Number(to.balance || 0) >= amount;
+  }
+
+  return false;
+}
+
+function applyTransactionBalance(transaction, direction) {
+  const factor = direction >= 0 ? 1 : -1;
+  const amount = Number(transaction.amount || 0);
+
+  if (!canApplyTransaction(transaction, factor)) return false;
+
+  if (transaction.type === 'add') {
+    const account = accountById(transaction.accountId);
+    account.balance = Number(account.balance || 0) + factor * amount;
+    return true;
+  }
+
+  if (transaction.type === 'remove') {
+    const account = accountById(transaction.accountId);
+    account.balance = Number(account.balance || 0) - factor * amount;
+    return true;
+  }
+
+  if (transaction.type === 'transfer') {
+    const from = accountById(transaction.fromAccountId);
+    const to = accountById(transaction.toAccountId);
+    from.balance = Number(from.balance || 0) - factor * amount;
+    to.balance = Number(to.balance || 0) + factor * amount;
+    return true;
+  }
+
+  return false;
+}
+
+function addFinanceTransaction(values) {
+  const transaction = normalizeTransactionValues(values);
+  if (!transaction) return false;
+  if (!applyTransactionBalance(transaction, 1)) return false;
+  data.transactions.unshift(transaction);
+  return true;
+}
+
+
 function createAssistantItem(collection, values) {
   const v = values && typeof values === 'object' ? { ...values } : {};
 
@@ -521,21 +629,7 @@ function createAssistantItem(collection, values) {
   }
 
   if (collection === 'transactions') {
-    const account = accountById(v.accountId) || findCollectionItem('accounts', v.account, {});
-    const amount = Number(v.amount || 0);
-    const type = v.type === 'remove' ? 'remove' : 'add';
-    if (!account || amount <= 0) return false;
-    if (type === 'remove' && amount > Number(account.balance || 0)) return false;
-    account.balance = Number(account.balance || 0) + (type === 'add' ? amount : -amount);
-    data.transactions.unshift({
-      id: id('transaction'),
-      accountId: account.id,
-      type: type,
-      amount: amount,
-      note: String(v.note || v.description || '').trim(),
-      createdAt: new Date().toISOString()
-    });
-    return true;
+    return addFinanceTransaction(v);
   }
 
   if (collection === 'goals') {
@@ -624,16 +718,28 @@ function applyAssistantAction(action) {
 
   if (operation === 'update') {
     if (collection === 'transactions') {
-      const oldAccount = accountById(item.accountId);
-      if (oldAccount) {
-        oldAccount.balance = Number(oldAccount.balance || 0) + (item.type === 'add' ? -Number(item.amount || 0) : Number(item.amount || 0));
+      const original = { ...item };
+
+      if (!applyTransactionBalance(original, -1)) {
+        return false;
       }
-      Object.assign(item, values);
-      const newAccount = accountById(item.accountId);
-      if (!newAccount) return false;
-      const newAmount = Number(item.amount || 0);
-      if (item.type === 'remove' && newAmount > Number(newAccount.balance || 0)) return false;
-      newAccount.balance = Number(newAccount.balance || 0) + (item.type === 'remove' ? -newAmount : newAmount);
+
+      const updated = normalizeTransactionValues({
+        ...original,
+        ...values,
+        id: original.id,
+        createdAt: original.createdAt
+      });
+
+      if (!updated || !applyTransactionBalance(updated, 1)) {
+        applyTransactionBalance(original, 1);
+        return false;
+      }
+
+      Object.keys(item).forEach(function(key) {
+        delete item[key];
+      });
+      Object.assign(item, updated);
       return true;
     }
 
@@ -650,9 +756,8 @@ function applyAssistantAction(action) {
     }
 
     if (collection === 'transactions') {
-      const account = accountById(item.accountId);
-      if (account) {
-        account.balance = Number(account.balance || 0) + (item.type === 'add' ? -Number(item.amount || 0) : Number(item.amount || 0));
+      if (!applyTransactionBalance(item, -1)) {
+        return false;
       }
     }
 
@@ -761,10 +866,17 @@ function renderFinance() {
     return '<div class="interest-row"><div><strong>' + escapeHtml(account.name) + '</strong><p>Estimation annuelle si le solde reste inchangé.</p></div><label class="field">Taux annuel<input name="rate-' + account.id + '" type="number" min="0" step="0.01" value="' + Number(account.interestRate || 0) + '"></label><div class="interest-value"><small>Intérêts estimés</small><strong>' + money(estimatedAnnualInterest(account)) + '</strong></div></div>';
   }).join('');
 
-  const transactions = data.transactions.slice(0, 8).map(function(transaction) {
+  const transactions = data.transactions.slice(0, 12).map(function(transaction) {
+    if (transaction.type === 'transfer') {
+      const from = accountById(transaction.fromAccountId);
+      const to = accountById(transaction.toAccountId);
+
+      return '<div class="transaction"><span class="transaction-icon transaction-transfer">↔</span><div class="transaction-main"><strong>' + escapeHtml(transaction.note || 'Virement interne') + '</strong><br><small>' + escapeHtml(from ? from.name : 'Compte source') + ' → ' + escapeHtml(to ? to.name : 'Compte destination') + ' · ' + dateLabel(transaction.createdAt, true) + '</small></div><strong class="transfer-amount">' + money(transaction.amount) + '</strong></div>';
+    }
+
     const account = accountById(transaction.accountId);
     return '<div class="transaction"><span class="transaction-icon ' + (transaction.type === 'add' ? 'transaction-in' : 'transaction-out') + '">' + (transaction.type === 'add' ? '+' : '−') + '</span><div class="transaction-main"><strong>' + escapeHtml(transaction.note || (transaction.type === 'add' ? 'Ajout d’argent' : 'Retrait d’argent')) + '</strong><br><small>' + escapeHtml(account ? account.name : '') + ' · ' + dateLabel(transaction.createdAt, true) + '</small></div><strong class="' + (transaction.type === 'add' ? 'positive' : 'negative') + '">' + (transaction.type === 'add' ? '+' : '−') + money(transaction.amount) + '</strong></div>';
-  }).join('') || empty('Aucun mouvement', 'Vos ajouts et retraits apparaîtront ici.');
+  }).join('') || empty('Aucun mouvement', 'Vos ajouts, retraits et virements apparaîtront ici.');
 
   const goals = data.goals.map(function(goal) {
     const percent = goal.target ? Math.min(100, Math.round((goal.saved / goal.target) * 100)) : 0;
@@ -802,6 +914,7 @@ function renderFinance() {
 <option value="Remboursement">Remboursement</option>
 <option value="Autre">Autre</option>
 </select></label></div><div class="form-actions"><button class="primary-button" type="submit">Enregistrer le mouvement</button></div></form></div>') +
+      card('Virement interne', '<div class="card-body"><form id="transfer-form"><div class="form-grid"><label class="field">Depuis<select name="fromAccountId">' + data.accounts.map(function(account) { return '<option value="' + account.id + '">' + escapeHtml(account.name) + ' · ' + money(account.balance) + '</option>'; }).join('') + '</select></label><label class="field">Vers<select name="toAccountId">' + data.accounts.map(function(account, index) { return '<option value="' + account.id + '" ' + (index === 1 ? 'selected' : '') + '>' + escapeHtml(account.name) + ' · ' + money(account.balance) + '</option>'; }).join('') + '</select></label><label class="field">Montant<input required name="amount" type="number" min="0.01" step="0.01" placeholder="0,00"></label><label class="field">Motif<select name="note"><option>Épargne</option><option>Rééquilibrage</option><option>Virement interne</option><option>Autre</option></select></label></div><p class="section-note" style="margin-top:10px">Le total général ne change pas : l’argent passe simplement d’un de tes comptes à un autre.</p><div class="form-actions"><button class="primary-button" type="submit">Effectuer le virement</button></div></form></div>') +
       card('Objectifs financiers', '<div class="card-body"><div>' + goals + '</div><form id="goal-form" style="margin-top:14px"><div class="form-grid"><label class="field">Nom<input required name="name" placeholder="Ex. Permis"></label><label class="field">Montant cible<input required name="target" type="number" min="1" step="0.01"></label></div><div class="form-actions"><button class="secondary-button" type="submit">Créer un objectif</button></div></form></div>') +
     '</div></div>';
 }
@@ -1068,15 +1181,42 @@ function submitForm(form) {
     showToast('Comptes et répartitions enregistrés.');
   }
   if (form.id === 'money-form') {
-    const account = accountById(values.accountId);
-    const amount = Number(values.amount);
-    if (!account || !amount || amount <= 0) return showToast('Indiquez un montant valide.');
-    if (values.type === 'remove' && amount > account.balance) return showToast('Le retrait dépasse le solde du compte.');
-    account.balance += values.type === 'add' ? amount : -amount;
-    data.transactions.unshift({ id: id('transaction'), accountId: account.id, type: values.type, amount: amount, note: values.note.trim(), createdAt: new Date().toISOString() });
+    const ok = addFinanceTransaction({
+      accountId: values.accountId,
+      type: values.type,
+      amount: Number(values.amount),
+      note: values.note
+    });
+
+    if (!ok) {
+      return showToast('Impossible d’enregistrer ce mouvement. Vérifie le compte et le solde.');
+    }
+
     save();
     render();
     showToast('Mouvement enregistré.');
+  }
+
+  if (form.id === 'transfer-form') {
+    if (values.fromAccountId === values.toAccountId) {
+      return showToast('Choisis deux comptes différents.');
+    }
+
+    const ok = addFinanceTransaction({
+      type: 'transfer',
+      fromAccountId: values.fromAccountId,
+      toAccountId: values.toAccountId,
+      amount: Number(values.amount),
+      note: values.note
+    });
+
+    if (!ok) {
+      return showToast('Virement impossible. Vérifie le montant et le solde du compte de départ.');
+    }
+
+    save();
+    render();
+    showToast('Virement interne effectué.');
   }
   if (form.id === 'goal-form') {
     data.goals.push({ id: id('goal'), name: values.name.trim(), target: Number(values.target), saved: 0 });
