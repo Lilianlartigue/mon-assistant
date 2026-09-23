@@ -221,9 +221,17 @@ function scheduleCloudSync() {
 
 async function loadCloudData() {
   try {
-    const rows = await supabaseRequest(
-      'finances?id=eq.main&select=id,data,updated_at&limit=1'
-    );
+    const results = await Promise.all([
+      supabaseRequest(
+        'finances?id=eq.main&select=id,data,updated_at&limit=1'
+      ),
+      supabaseRequest(
+        'portfolio?select=id,name,title,category,description,techniques,realization_date,favorite&order=id.asc'
+      ).catch(function () { return []; })
+    ]);
+
+    const rows = results[0] || [];
+    const legacyPortfolio = results[1] || [];
 
     if (!rows || !rows[0] || !rows[0].data) {
       await syncCloudData();
@@ -240,6 +248,23 @@ async function loadCloudData() {
       ...localData,
       ...remoteData
     });
+
+    if (
+      (!Array.isArray(remoteData.portfolio) || remoteData.portfolio.length === 0) &&
+      legacyPortfolio.length
+    ) {
+      merged.portfolio = legacyPortfolio.map(function(item) {
+        return {
+          id: 'portfolio-' + String(item.id),
+          title: item.title || item.name || 'Réalisation',
+          category: item.category || 'Autre',
+          description: item.description || '',
+          techniques: item.techniques || '',
+          realizationDate: item.realization_date || '',
+          favorite: Boolean(item.favorite)
+        };
+      });
+    }
 
     if (!Array.isArray(remoteData.tasks) && looksLikeDemoTasks(localData.tasks)) {
       merged.tasks = [];
@@ -938,10 +963,23 @@ function submitForm(form) {
     showToast('Article enregistré.');
   }
   if (form.id === 'interest-form') {
-    ['livret', 'livret_jeune'].forEach(function(accountId) {
-      const account = accountById(accountId);
-      if (account) account.interestRate = Math.max(0, Number(values['rate-' + accountId] || 0));
-    });
+    const livretA = accountById('livret');
+    const livretJeune = accountById('livret_jeune');
+
+    if (livretA) {
+      livretA.interestRate = Math.max(
+        0,
+        Number(values['rate-livret'] || 0)
+      );
+    }
+
+    if (livretJeune) {
+      livretJeune.interestRate = Math.max(
+        Number(livretA ? livretA.interestRate : 0),
+        Number(values['rate-livret_jeune'] || 0)
+      );
+    }
+
     save();
     render();
     showToast('Taux d’intérêt enregistrés.');
