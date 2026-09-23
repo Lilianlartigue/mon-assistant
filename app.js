@@ -13,6 +13,7 @@ const pages = [
   ['calendar', '📅', 'Calendrier'],
   ['tasks', '✓', 'Tâches'],
   ['shopping', '🛒', 'Courses'],
+  ['lycee', '🎓', 'Lycée'],
   ['finance', '💰', 'Finances'],
   ['mail', '📧', 'Mails'],
   ['map', '🗺️', 'Carte'],
@@ -39,6 +40,7 @@ function defaultData() {
   return {
     tasks: [],
     shopping: [],
+    lycee: [],
     accounts: [
       { id: 'current', name: 'Compte courant', balance: 59.83, allocation: 0 },
       { id: 'livret', name: 'Livret A', balance: 5640, allocation: 0, interestRate: 1.7 },
@@ -75,6 +77,10 @@ function normalizeDataShape(input) {
 
   next.shopping = Array.isArray(source.shopping)
     ? source.shopping.map(function(item) { return { ...item }; })
+    : [];
+
+  next.lycee = Array.isArray(source.lycee)
+    ? source.lycee.map(function(item) { return { ...item }; })
     : [];
 
   if (!next.settings.demoListsCleanedV2) {
@@ -660,6 +666,7 @@ let ui = {
   calendarView: 'month',
   taskEditing: null,
   shoppingEditing: null,
+  lyceeEditing: null,
   eventEditing: null,
   noteEditing: null,
   portfolioEditing: null,
@@ -1153,6 +1160,90 @@ function renderShopping() {
     '</div></div>';
 }
 
+function renderLycee() {
+  const items = Array.isArray(data.lycee)
+    ? data.lycee.slice().sort(function(a, b) {
+        if (Boolean(a.done) !== Boolean(b.done)) {
+          return Number(a.done) - Number(b.done);
+        }
+
+        return (
+          (priorityOrder[a.priority || 'Normale'] ?? 2) -
+          (priorityOrder[b.priority || 'Normale'] ?? 2)
+        );
+      })
+    : [];
+
+  const editing = ui.lyceeEditing
+    ? items.find(function(item) {
+        return item.id === ui.lyceeEditing;
+      })
+    : null;
+
+  const rows = items.length
+    ? items.map(function(item) {
+        return (
+          '<div class="item-row ' + (item.done ? 'completed' : '') + '">' +
+          '<button class="check ' + (item.done ? 'done' : '') + '" data-action="toggle-lycee" data-id="' + item.id + '" aria-label="Changer l’état"></button>' +
+          '<div class="item-main">' +
+          '<span class="item-title">' + escapeHtml(item.title || '') + '</span>' +
+          '<div class="item-meta">' +
+          priorityBadge(item.priority || 'Normale') +
+          (item.details ? '<span>' + escapeHtml(item.details) + '</span>' : '') +
+          '</div>' +
+          '</div>' +
+          '<button class="icon-action" data-action="edit-lycee" data-id="' + item.id + '" aria-label="Modifier">✎</button>' +
+          '<button class="icon-action" data-action="delete-lycee" data-id="' + item.id + '" aria-label="Supprimer">×</button>' +
+          '</div>'
+        );
+      }).join('')
+    : empty('Liste Lycée vide', 'Ajoute ton premier élément.');
+
+  const priorities = ['Urgente', 'Importante', 'Normale', 'Faible']
+    .map(function(priority) {
+      const current = editing ? editing.priority : 'Normale';
+      return '<option value="' + priority + '" ' + (current === priority ? 'selected' : '') + '>' + priority + '</option>';
+    })
+    .join('');
+
+  return (
+    heading(
+      'ÉCOLE',
+      'Lycée',
+      'Tes affaires, documents et choses à faire pour le lycée.',
+      '<button class="primary-button" data-action="focus-lycee">Ajouter</button>'
+    ) +
+    '<div class="two-columns">' +
+    '<div class="stack">' +
+    card(
+      'Ma liste Lycée',
+      '<div class="card-body"><div class="item-list">' + rows + '</div></div>'
+    ) +
+    '</div>' +
+    '<div class="stack">' +
+    card(
+      editing ? 'Modifier' : 'Nouvel élément',
+      '<div class="card-body">' +
+      '<form id="lycee-form">' +
+      '<input type="hidden" name="id" value="' + (editing ? editing.id : '') + '">' +
+      '<div class="form-grid">' +
+      '<label class="field full">Titre<input id="lycee-title" required name="title" value="' + escapeHtml(editing ? editing.title : '') + '" placeholder="Ex. Prendre les draps"></label>' +
+      '<label class="field full">Détails<textarea name="details" placeholder="Informations facultatives">' + escapeHtml(editing ? (editing.details || '') : '') + '</textarea></label>' +
+      '<label class="field">Priorité<select name="priority">' + priorities + '</select></label>' +
+      '</div>' +
+      '<div class="form-actions">' +
+      '<button class="primary-button" type="button" data-action="save-lycee-form">' + (editing ? 'Enregistrer' : 'Ajouter') + '</button>' +
+      (editing ? '<button class="secondary-button" type="button" data-action="cancel-lycee">Annuler</button>' : '') +
+      '</div>' +
+      '</form>' +
+      '</div>'
+    ) +
+    '</div>' +
+    '</div>'
+  );
+}
+
+
 function renderFinance() {
   const allocation = data.accounts.reduce(function(sum, account) { return sum + Number(account.allocation || 0); }, 0);
   const allocationOk = Math.abs(allocation - 100) < .01;
@@ -1358,6 +1449,7 @@ function render() {
     home: renderHome,
     tasks: renderTasks,
     shopping: renderShopping,
+    lycee: renderLycee,
     finance: renderFinance,
     calendar: renderCalendar,
     assistant: renderAssistant,
@@ -1643,6 +1735,8 @@ function submitForm(form) {
 }
 
 document.addEventListener('click', function(event) {
+  if (window.__LIST_CONTROLLER_ACTIVE) return;
+
   const button = event.target.closest('[data-action]');
   if (!button) return;
 
@@ -1812,6 +1906,13 @@ document.addEventListener('submit', function(event) {
   const form = event.target;
 
   if (!(form instanceof HTMLFormElement)) {
+    return;
+  }
+
+  if (
+    window.__LIST_CONTROLLER_ACTIVE &&
+    ['task-form', 'shopping-form', 'lycee-form'].includes(form.id)
+  ) {
     return;
   }
 
