@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mon-assistant-v6-personal-push';
+const CACHE_NAME = 'mon-assistant-v7-dashboard';
 const STATIC_ASSETS = [
   './manifest.webmanifest',
   './icon.svg'
