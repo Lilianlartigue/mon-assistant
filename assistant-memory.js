@@ -1,6 +1,6 @@
-/* Mon Assistant - IA réelle + mémoire locale persistante */
+/* Mon Assistant - IA avec contexte ciblé et mémoire locale */
 (function () {
-  const MAX_HISTORY = 80;
+  const MAX_HISTORY = 24;
   const ALLOWED_COLLECTIONS = [
     'tasks',
     'shopping',
@@ -16,6 +16,7 @@
 
   function cleanHistory(history) {
     if (!Array.isArray(history)) return [];
+
     return history
       .filter(function (m) {
         return m &&
@@ -26,7 +27,7 @@
       .map(function (m) {
         return {
           role: m.role,
-          text: m.text.slice(0, 4000)
+          text: m.text.slice(0, 1800)
         };
       });
   }
@@ -36,29 +37,170 @@
     save();
   }
 
-  function assistantContext() {
-    return {
-      tasks: data.tasks || [],
-      shopping: data.shopping || [],
-      accounts: data.accounts || [],
-      transactions: (data.transactions || []).slice(0, 100),
-      goals: data.goals || [],
-      events: (data.events || [])
+  function normalizeText(value) {
+    return String(value || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase();
+  }
+
+  function relevantText(message, history) {
+    const recent = cleanHistory(history)
+      .slice(-4)
+      .map(function (m) {
+        return m.text;
+      })
+      .join(' ');
+
+    return normalizeText(
+      recent + ' ' + String(message || '')
+    );
+  }
+
+  function hasAny(text, words) {
+    return words.some(function (word) {
+      return text.includes(word);
+    });
+  }
+
+  function assistantContext(message, history) {
+    const text = relevantText(message, history);
+    const context = {};
+
+    const dayRequest = hasAny(text, [
+      'ma journee',
+      'aujourd hui',
+      'aujourdhui',
+      'demain',
+      'cette semaine',
+      'organise ma',
+      'planning'
+    ]);
+
+    const taskRequest = dayRequest || hasAny(text, [
+      'tache',
+      'todo',
+      'a faire',
+      'priorite'
+    ]);
+
+    const shoppingRequest = dayRequest || hasAny(text, [
+      'course',
+      'acheter',
+      'achat',
+      'liste de course'
+    ]);
+
+    const financeRequest = hasAny(text, [
+      'finance',
+      'argent',
+      'budget',
+      'compte',
+      'livret',
+      'solde',
+      'epargne',
+      'virement',
+      'interet',
+      'transaction',
+      'mouvement',
+      'euro',
+      '€'
+    ]);
+
+    const calendarRequest = dayRequest || hasAny(text, [
+      'agenda',
+      'calendrier',
+      'evenement',
+      'rendez',
+      'rdv',
+      'planning'
+    ]);
+
+    const noteRequest = hasAny(text, [
+      'note',
+      'memo',
+      'souvenir'
+    ]);
+
+    const portfolioRequest = hasAny(text, [
+      'portfolio',
+      'realisation',
+      'stage'
+    ]);
+
+    const placeRequest = hasAny(text, [
+      'lieu',
+      'adresse',
+      'carte',
+      'restaurant'
+    ]);
+
+    const settingsRequest = hasAny(text, [
+      'parametre',
+      'notification',
+      'silencieuse',
+      'silencieux'
+    ]);
+
+    const mailRequest = hasAny(text, [
+      'mail',
+      'gmail',
+      'icloud',
+      'courriel',
+      'message recu',
+      'boite mail'
+    ]);
+
+    if (taskRequest) {
+      context.tasks = data.tasks || [];
+    }
+
+    if (shoppingRequest) {
+      context.shopping = data.shopping || [];
+    }
+
+    if (financeRequest) {
+      context.accounts = data.accounts || [];
+      context.transactions = (data.transactions || []).slice(0, 40);
+      context.goals = data.goals || [];
+    }
+
+    if (calendarRequest) {
+      context.events = (data.events || [])
         .slice()
         .sort(function (a, b) {
           return String(a.start || '')
             .localeCompare(String(b.start || ''));
         })
-        .slice(-180),
-      notes: (data.notes || []).slice(0, 80),
-      portfolio: (data.portfolio || []).slice(0, 80),
-      places: (data.places || []).slice(0, 80),
-      settings: data.settings || {},
-      mailConnected: Boolean(data.mailConnected),
-      mails: data.mailConnected && Array.isArray(data.mails)
-        ? data.mails.slice(0, 60)
-        : []
-    };
+        .slice(-100);
+    }
+
+    if (noteRequest) {
+      context.notes = (data.notes || []).slice(0, 40);
+    }
+
+    if (portfolioRequest) {
+      context.portfolio = (data.portfolio || []).slice(0, 40);
+    }
+
+    if (placeRequest) {
+      context.places = (data.places || []).slice(0, 40);
+    }
+
+    if (settingsRequest) {
+      context.settings = data.settings || {};
+    }
+
+    if (mailRequest) {
+      context.mailConnected = Boolean(data.mailConnected);
+      context.mails =
+        data.mailConnected &&
+        Array.isArray(data.mails)
+          ? data.mails.slice(0, 20)
+          : [];
+    }
+
+    return context;
   }
 
   function actionLabel(action) {
@@ -81,13 +223,18 @@
       settings: 'les paramètres'
     }[action.collection] || action.collection;
 
-    const target = action.match ||
+    const target =
+      action.match ||
       action.values?.title ||
       action.values?.name ||
       '';
 
     return operation + ' ' + collection +
-      (target ? ' « ' + String(target).slice(0, 80) + ' »' : '');
+      (
+        target
+          ? ' « ' + String(target).slice(0, 80) + ' »'
+          : ''
+      );
   }
 
   function cleanActions(value) {
@@ -109,9 +256,11 @@
           operation: action.operation,
           collection: action.collection,
           match: String(action.match || '').trim(),
-          values: action.values && typeof action.values === 'object'
-            ? action.values
-            : {}
+          values:
+            action.values &&
+            typeof action.values === 'object'
+              ? action.values
+              : {}
         };
       });
   }
@@ -122,7 +271,8 @@
 
     return {
       actions: actions,
-      summary: actions.map(actionLabel).join(' • ')
+      summary:
+        actions.map(actionLabel).join(' • ')
     };
   }
 
@@ -131,6 +281,7 @@
     if (!input) return;
 
     const previousHistory = cleanHistory(ui.chat);
+    const context = assistantContext(input, previousHistory);
 
     ui.chat.push({
       role: 'user',
@@ -156,14 +307,15 @@
             localStorage.getItem('assistant_user_id') ||
             'default',
           message: input,
-          history: previousHistory,
-          context: assistantContext()
+          history: previousHistory.slice(-16),
+          context: context
         })
       });
 
-      const result = await response.json().catch(function () {
-        return {};
-      });
+      const result =
+        await response.json().catch(function () {
+          return {};
+        });
 
       if (
         ui.chat[ui.chat.length - 1] &&
@@ -181,12 +333,17 @@
 
       ui.chat.push({
         role: 'assistant',
-        text: String(result.answer || 'D’accord.')
+        text: String(
+          result.answer ||
+          'D’accord.'
+        )
       });
 
-      const pending = pendingFromActions(
-        result.actions || result.action
-      );
+      const pending =
+        pendingFromActions(
+          result.actions ||
+          result.action
+        );
 
       if (pending) {
         ui.pendingAction = pending;
@@ -225,9 +382,10 @@
     Array.isArray(data.assistantHistory) &&
     data.assistantHistory.length
   ) {
-    ui.chat = cleanHistory(
-      data.assistantHistory
-    );
+    ui.chat =
+      cleanHistory(
+        data.assistantHistory
+      );
   } else {
     data.assistantHistory =
       cleanHistory(ui.chat);
