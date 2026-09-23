@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mon-assistant-v9-transfer';
+const CACHE_NAME = 'mon-assistant-v10-jsfix';
 const STATIC_ASSETS = [
   './manifest.webmanifest',
   './icon.svg'
