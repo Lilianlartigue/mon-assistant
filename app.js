@@ -15,7 +15,7 @@ const pages = [
   ['mail', '📧', 'Mails'],
   ['map', '🗺️', 'Carte'],
   ['notes', '📝', 'Notes'],
-  ['cooking', '👨‍🍳', 'Cuisine'],
+  ['portfolio', '📁', 'Portfolio'],
   ['settings', '⚙️', 'Paramètres']
 ];
 
@@ -46,7 +46,8 @@ function defaultData() {
     ],
     accounts: [
       { id: 'current', name: 'Compte courant', balance: 1250, allocation: 70 },
-      { id: 'livret', name: 'Livret A', balance: 5400, allocation: 30 }
+      { id: 'livret', name: 'Livret A', balance: 5400, allocation: 30, interestRate: 1.7 },
+      { id: 'livret_jeune', name: 'Livret Jeune', balance: 0, allocation: 0, interestRate: 1.7 }
     ],
     transactions: [],
     goals: [{ id: id('goal'), name: 'Voyage', target: 1200, saved: 350 }],
@@ -56,17 +57,85 @@ function defaultData() {
     ],
     notes: [{ id: id('note'), title: 'Bienvenue', content: 'Toutes vos données restent dans le navigateur de cet appareil.', updatedAt: new Date().toISOString() }],
     recipes: [{ id: id('recipe'), title: 'Pâtes tomate basilic', ingredients: 'Pâtes, tomates, basilic, parmesan', servings: 2, method: 'Cuire les pâtes puis mélanger avec la sauce tomate et le basilic.' }],
+    portfolio: [],
     places: [{ id: id('place'), name: 'Maison', category: 'Favori', address: '', latitude: '', longitude: '' }],
     settings: { quietStart: '22:00', quietEnd: '08:00', notifications: false }
   };
 }
 
+function normalizeDataShape(input) {
+  const source = input && typeof input === 'object' ? input : {};
+  const base = defaultData();
+  const next = { ...base, ...source };
+
+  next.settings = {
+    ...base.settings,
+    ...(source.settings || {})
+  };
+
+  next.accounts = Array.isArray(source.accounts)
+    ? source.accounts.map(function(account) { return { ...account }; })
+    : base.accounts.map(function(account) { return { ...account }; });
+
+  function ensureAccount(account) {
+    const existing = next.accounts.find(function(item) { return item.id === account.id; });
+    if (!existing) {
+      next.accounts.push({ ...account });
+      return;
+    }
+    if (existing.interestRate == null && account.interestRate != null) {
+      existing.interestRate = account.interestRate;
+    }
+  }
+
+  ensureAccount({ id: 'current', name: 'Compte courant', balance: 0, allocation: 0 });
+  ensureAccount({ id: 'livret', name: 'Livret A', balance: 0, allocation: 0, interestRate: 1.7 });
+  ensureAccount({ id: 'livret_jeune', name: 'Livret Jeune', balance: 0, allocation: 0, interestRate: 1.7 });
+
+  if (!Array.isArray(next.portfolio)) next.portfolio = [];
+
+  if (
+    next.portfolio.length === 0 &&
+    Array.isArray(source.recipes) &&
+    source.recipes.length
+  ) {
+    next.portfolio = source.recipes.map(function(recipe) {
+      return {
+        id: 'portfolio-' + String(recipe.id || id('legacy')),
+        title: recipe.title || 'Réalisation culinaire',
+        category: 'Cuisine',
+        description: recipe.ingredients
+          ? 'Ingrédients : ' + recipe.ingredients
+          : '',
+        techniques: recipe.method || '',
+        realizationDate: '',
+        favorite: false
+      };
+    });
+  }
+
+  next.portfolio = next.portfolio.map(function(item) {
+    return {
+      id: item.id || id('portfolio'),
+      title: item.title || item.name || 'Réalisation',
+      category: item.category || 'Autre',
+      description: item.description || '',
+      techniques: item.techniques || '',
+      realizationDate: item.realizationDate || item.realization_date || '',
+      favorite: Boolean(item.favorite)
+    };
+  });
+
+  return next;
+}
+
+
 function loadData() {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    if (saved && typeof saved === 'object') return { ...defaultData(), ...saved };
+    if (saved && typeof saved === 'object') return normalizeDataShape(saved);
   } catch (error) {}
-  return defaultData();
+  return normalizeDataShape(defaultData());
 }
 
 function looksLikeDemoTasks(items) {
@@ -166,11 +235,11 @@ async function loadCloudData() {
 
     isApplyingCloudData = true;
 
-    const merged = {
+    const merged = normalizeDataShape({
       ...defaultData(),
       ...localData,
       ...remoteData
-    };
+    });
 
     if (!Array.isArray(remoteData.tasks) && looksLikeDemoTasks(localData.tasks)) {
       merged.tasks = [];
@@ -216,7 +285,7 @@ let ui = {
   calendarView: 'month',
   eventEditing: null,
   noteEditing: null,
-  recipeEditing: null,
+  portfolioEditing: null,
   placeEditing: null,
   pendingAction: null,
   chat: [{ role: 'assistant', text: 'Bonjour ! Je peux organiser tes tâches, courses, finances, calendrier et notes. Que souhaites-tu faire ?' }]
@@ -263,7 +332,8 @@ function isSameDay(a, b) {
 }
 
 function pageId() {
-  const page = location.hash.replace('#/', '') || 'home';
+  let page = location.hash.replace('#/', '') || 'home';
+  if (page === 'cooking') page = 'portfolio';
   return pages.some(function(item) { return item[0] === page; }) ? page : 'home';
 }
 
@@ -313,6 +383,222 @@ function accountById(accountId) {
   return data.accounts.find(function(account) { return account.id === accountId; });
 }
 
+
+function estimatedAnnualInterest(account) {
+  if (!account) return 0;
+  return Number(account.balance || 0) * Number(account.interestRate || 0) / 100;
+}
+
+function normalizeMatch(value) {
+  return String(value || '').trim().toLocaleLowerCase('fr-FR');
+}
+
+function findCollectionItem(collection, match, values) {
+  const list = data[collection];
+  if (!Array.isArray(list)) return null;
+  const wanted = normalizeMatch(match || values?.id || values?.name || values?.title);
+  if (!wanted) return null;
+  return list.find(function(item) {
+    return [
+      item.id,
+      item.name,
+      item.title
+    ].some(function(value) {
+      return normalizeMatch(value) === wanted;
+    });
+  }) || null;
+}
+
+function createAssistantItem(collection, values) {
+  const v = values && typeof values === 'object' ? { ...values } : {};
+
+  if (collection === 'tasks') {
+    data.tasks.push({
+      id: id('task'),
+      title: String(v.title || v.name || 'Nouvelle tâche').trim(),
+      priority: v.priority || 'Normale',
+      due: v.due || '',
+      done: Boolean(v.done)
+    });
+    return true;
+  }
+
+  if (collection === 'shopping') {
+    data.shopping.push({
+      id: id('shopping'),
+      name: String(v.name || v.title || 'Nouvel article').trim(),
+      quantity: String(v.quantity || '1'),
+      category: v.category || 'Autre',
+      priority: v.priority || 'Normale',
+      done: Boolean(v.done)
+    });
+    return true;
+  }
+
+  if (collection === 'accounts') {
+    data.accounts.push({
+      id: v.id || id('account'),
+      name: String(v.name || 'Nouveau compte').trim(),
+      balance: Number(v.balance || 0),
+      allocation: Number(v.allocation || 0),
+      interestRate: v.interestRate == null ? undefined : Number(v.interestRate)
+    });
+    return true;
+  }
+
+  if (collection === 'transactions') {
+    const account = accountById(v.accountId) || findCollectionItem('accounts', v.account, {});
+    const amount = Number(v.amount || 0);
+    const type = v.type === 'remove' ? 'remove' : 'add';
+    if (!account || amount <= 0) return false;
+    if (type === 'remove' && amount > Number(account.balance || 0)) return false;
+    account.balance = Number(account.balance || 0) + (type === 'add' ? amount : -amount);
+    data.transactions.unshift({
+      id: id('transaction'),
+      accountId: account.id,
+      type: type,
+      amount: amount,
+      note: String(v.note || v.description || '').trim(),
+      createdAt: new Date().toISOString()
+    });
+    return true;
+  }
+
+  if (collection === 'goals') {
+    data.goals.push({
+      id: id('goal'),
+      name: String(v.name || v.title || 'Nouvel objectif').trim(),
+      target: Number(v.target || 0),
+      saved: Number(v.saved || 0)
+    });
+    return true;
+  }
+
+  if (collection === 'events') {
+    data.events.push({
+      id: id('event'),
+      title: String(v.title || v.name || 'Nouvel événement').trim(),
+      start: v.start || v.startAt || dayShift(0),
+      end: v.end || v.endAt || v.start || v.startAt || dayShift(0),
+      category: v.category || 'Personnel'
+    });
+    return true;
+  }
+
+  if (collection === 'notes') {
+    data.notes.push({
+      id: id('note'),
+      title: String(v.title || v.name || 'Nouvelle note').trim(),
+      content: String(v.content || v.description || '').trim(),
+      updatedAt: new Date().toISOString()
+    });
+    return true;
+  }
+
+  if (collection === 'portfolio') {
+    data.portfolio.push({
+      id: id('portfolio'),
+      title: String(v.title || v.name || 'Nouvelle réalisation').trim(),
+      category: v.category || 'Autre',
+      description: String(v.description || '').trim(),
+      techniques: String(v.techniques || '').trim(),
+      realizationDate: v.realizationDate || v.date || '',
+      favorite: Boolean(v.favorite)
+    });
+    return true;
+  }
+
+  if (collection === 'places') {
+    data.places.push({
+      id: id('place'),
+      name: String(v.name || v.title || 'Nouveau lieu').trim(),
+      category: v.category || 'Favori',
+      address: String(v.address || '').trim(),
+      latitude: v.latitude == null ? '' : String(v.latitude),
+      longitude: v.longitude == null ? '' : String(v.longitude)
+    });
+    return true;
+  }
+
+  return false;
+}
+
+function applyAssistantAction(action) {
+  if (!action || !action.operation || !action.collection) return false;
+
+  const operation = String(action.operation);
+  const collection = String(action.collection);
+  const values = action.values && typeof action.values === 'object' ? action.values : {};
+
+  const allowed = ['tasks','shopping','accounts','transactions','goals','events','notes','portfolio','places','settings'];
+  if (!allowed.includes(collection)) return false;
+
+  if (collection === 'settings') {
+    if (operation === 'update') {
+      data.settings = { ...data.settings, ...values };
+      return true;
+    }
+    return false;
+  }
+
+  if (operation === 'create') {
+    return createAssistantItem(collection, values);
+  }
+
+  const item = findCollectionItem(collection, action.match, values);
+  if (!item) return false;
+
+  if (operation === 'update') {
+    if (collection === 'transactions') {
+      const oldAccount = accountById(item.accountId);
+      if (oldAccount) {
+        oldAccount.balance = Number(oldAccount.balance || 0) + (item.type === 'add' ? -Number(item.amount || 0) : Number(item.amount || 0));
+      }
+      Object.assign(item, values);
+      const newAccount = accountById(item.accountId);
+      if (!newAccount) return false;
+      const newAmount = Number(item.amount || 0);
+      if (item.type === 'remove' && newAmount > Number(newAccount.balance || 0)) return false;
+      newAccount.balance = Number(newAccount.balance || 0) + (item.type === 'remove' ? -newAmount : newAmount);
+      return true;
+    }
+
+    Object.assign(item, values);
+
+    if (collection === 'notes') item.updatedAt = new Date().toISOString();
+    if (collection === 'accounts' && item.interestRate != null) item.interestRate = Number(item.interestRate);
+    return true;
+  }
+
+  if (operation === 'delete') {
+    if (collection === 'accounts' && ['current','livret','livret_jeune'].includes(item.id)) {
+      return false;
+    }
+
+    if (collection === 'transactions') {
+      const account = accountById(item.accountId);
+      if (account) {
+        account.balance = Number(account.balance || 0) + (item.type === 'add' ? -Number(item.amount || 0) : Number(item.amount || 0));
+      }
+    }
+
+    data[collection] = data[collection].filter(function(row) { return row.id !== item.id; });
+    return true;
+  }
+
+  return false;
+}
+
+function applyAssistantActions(actions) {
+  const list = Array.isArray(actions) ? actions.slice(0, 10) : [];
+  let applied = 0;
+  list.forEach(function(action) {
+    if (applyAssistantAction(action)) applied += 1;
+  });
+  if (applied) save();
+  return applied;
+}
+
 function renderNav(active) {
   nav.innerHTML = pages.map(function(item) {
     return '<button class="nav-button ' + (item[0] === active ? 'active' : '') + '" data-page="' + item[0] + '" type="button"><span class="nav-icon">' + item[1] + '</span><span>' + item[2] + '</span></button>';
@@ -337,7 +623,7 @@ function renderHome() {
     ['shopping', '🛒', 'Courses', data.shopping.filter(function(item) { return !item.done; }).length + ' article(s)', 'yellow'],
     ['finance', '💰', 'Finances', money(total), 'green'],
     ['notes', '📝', 'Notes', data.notes.length + ' note(s)', 'pink'],
-    ['cooking', '👨‍🍳', 'Cuisine', data.recipes.length + ' recette(s)', 'orange']
+    ['portfolio', '📁', 'Portfolio', data.portfolio.length + ' réalisation(s)', 'orange']
   ];
   return heading('BONJOUR', 'Votre journée en un coup d’œil', 'Retrouve ici ce qui mérite ton attention.', '<button class="primary-button" data-page="assistant">Demander à l’IA</button>') +
     '<section class="quick-grid">' + shortcuts.map(function(item) {
@@ -388,21 +674,37 @@ function renderShopping() {
 function renderFinance() {
   const allocation = data.accounts.reduce(function(sum, account) { return sum + Number(account.allocation || 0); }, 0);
   const allocationOk = Math.abs(allocation - 100) < .01;
+
   const accountFields = data.accounts.map(function(account) {
     return '<div class="allocation-row"><label class="field">' + escapeHtml(account.name) + '<input name="balance-' + account.id + '" type="number" step="0.01" value="' + Number(account.balance || 0) + '"></label><label class="field">Répartition<input name="allocation-' + account.id + '" type="number" min="0" max="100" step="1" value="' + Number(account.allocation || 0) + '"></label><div class="money">' + money(account.balance) + '</div></div>';
   }).join('');
+
+  const savingsAccounts = data.accounts.filter(function(account) {
+    return account.id === 'livret' || account.id === 'livret_jeune';
+  });
+
+  const interestRows = savingsAccounts.map(function(account) {
+    return '<div class="interest-row"><div><strong>' + escapeHtml(account.name) + '</strong><p>Estimation annuelle si le solde reste inchangé.</p></div><label class="field">Taux annuel<input name="rate-' + account.id + '" type="number" min="0" step="0.01" value="' + Number(account.interestRate || 0) + '"></label><div class="interest-value"><small>Intérêts estimés</small><strong>' + money(estimatedAnnualInterest(account)) + '</strong></div></div>';
+  }).join('');
+
   const transactions = data.transactions.slice(0, 8).map(function(transaction) {
     const account = accountById(transaction.accountId);
     return '<div class="transaction"><span class="transaction-icon ' + (transaction.type === 'add' ? 'transaction-in' : 'transaction-out') + '">' + (transaction.type === 'add' ? '+' : '−') + '</span><div class="transaction-main"><strong>' + escapeHtml(transaction.note || (transaction.type === 'add' ? 'Ajout d’argent' : 'Retrait d’argent')) + '</strong><br><small>' + escapeHtml(account ? account.name : '') + ' · ' + dateLabel(transaction.createdAt, true) + '</small></div><strong class="' + (transaction.type === 'add' ? 'positive' : 'negative') + '">' + (transaction.type === 'add' ? '+' : '−') + money(transaction.amount) + '</strong></div>';
   }).join('') || empty('Aucun mouvement', 'Vos ajouts et retraits apparaîtront ici.');
+
   const goals = data.goals.map(function(goal) {
     const percent = goal.target ? Math.min(100, Math.round((goal.saved / goal.target) * 100)) : 0;
     return '<div class="goal"><div class="goal-line"><strong>' + escapeHtml(goal.name) + '</strong><span>' + money(goal.saved) + ' / ' + money(goal.target) + '</span></div><div class="progress"><span style="width:' + percent + '%"></span></div><div class="card-actions"><button class="text-button" data-action="add-goal-savings" data-id="' + goal.id + '">Ajouter une épargne</button><button class="text-button" data-action="delete-goal" data-id="' + goal.id + '">Supprimer</button></div></div>';
   }).join('') || empty('Aucun objectif', 'Créez un objectif financier.');
-  return heading('BUDGET', 'Finances', 'Gérez vos comptes, vos répartitions et vos objectifs.', '<button class="primary-button" data-action="focus-money">Ajouter un mouvement</button>') +
-    '<div class="three-columns"><section class="card stat-card"><p>Total général</p><strong class="money">' + money(totalBalance()) + '</strong></section>' + data.accounts.map(function(account) { return '<section class="card stat-card"><p>' + escapeHtml(account.name) + '</p><strong class="money">' + money(account.balance) + '</strong></section>'; }).join('') + '</div>' +
+
+  return heading('BUDGET', 'Finances', 'Gérez vos comptes, vos répartitions, vos intérêts et vos objectifs.', '<button class="primary-button" data-action="focus-money">Ajouter un mouvement</button>') +
+    '<div class="three-columns finance-summary"><section class="card stat-card"><p>Total général</p><strong class="money">' + money(totalBalance()) + '</strong></section>' +
+    data.accounts.map(function(account) {
+      return '<section class="card stat-card"><p>' + escapeHtml(account.name) + '</p><strong class="money">' + money(account.balance) + '</strong>' + ((account.id === 'livret' || account.id === 'livret_jeune') ? '<small>' + Number(account.interestRate || 0).toLocaleString('fr-FR') + ' % · ' + money(estimatedAnnualInterest(account)) + '/an estimés</small>' : '') + '</section>';
+    }).join('') + '</div>' +
     '<div class="two-columns" style="margin-top:21px"><div class="stack">' +
       card('Comptes et répartitions', '<div class="card-body"><form id="accounts-form">' + accountFields + '<p class="allocation-total ' + (allocationOk ? '' : 'invalid') + '">Répartition totale : ' + number(allocation) + ' %' + (allocationOk ? ' ✓' : ' — elle doit faire 100 %.') + '</p><div class="form-actions"><button class="primary-button" type="submit">Enregistrer les comptes</button></div></form></div>') +
+      card('Intérêts des livrets', '<div class="card-body"><form id="interest-form">' + interestRows + '<p class="section-note">Le calcul affiché est une estimation simple sur le solde actuel. Les intérêts réglementés sont réellement calculés selon les règles du livret.</p><div class="form-actions"><button class="secondary-button" type="submit">Enregistrer les taux</button></div></form></div>') +
       card('Historique des mouvements', '<div class="card-body">' + transactions + '</div>') +
     '</div><div class="stack">' +
       card('Ajouter ou retirer de l’argent', '<div class="card-body"><form id="money-form"><div class="form-grid"><label class="field">Opération<select name="type"><option value="add">Ajouter de l’argent</option><option value="remove">Retirer de l’argent</option></select></label><label class="field">Compte<select name="accountId">' + data.accounts.map(function(account) { return '<option value="' + account.id + '">' + escapeHtml(account.name) + '</option>'; }).join('') + '</select></label><label class="field">Montant<input id="money-amount" required name="amount" type="number" min="0.01" step="0.01" placeholder="0,00"></label><label class="field">Motif (optionnel)<input name="note" placeholder="Ex. Salaire"></label></div><div class="form-actions"><button class="primary-button" type="submit">Enregistrer le mouvement</button></div></form></div>') +
@@ -465,14 +767,20 @@ function renderCalendar() {
 }
 
 function renderAssistant() {
-  const conversation = ui.chat.map(function(message) { return '<div class="message ' + message.role + '">' + escapeHtml(message.text) + '</div>'; }).join('');
-  const confirmation = ui.pendingAction ? '<div class="confirm-box"><p><strong>Confirmation requise</strong><br>' + escapeHtml(ui.pendingAction.summary) + '</p><button class="primary-button" data-action="assistant-confirm">Confirmer</button> <button class="secondary-button" data-action="assistant-cancel">Annuler</button></div>' : '';
-  return heading('ASSISTANT PERSONNEL', 'Assistant IA', 'Il connaît les données enregistrées dans cet espace et demande confirmation avant toute modification.', '') +
+  const conversation = ui.chat.map(function(message) {
+    return '<div class="message ' + message.role + '">' + escapeHtml(message.text) + '</div>';
+  }).join('');
+
+  const confirmation = ui.pendingAction
+    ? '<div class="confirm-box"><p><strong>Confirmation requise</strong><br>' + escapeHtml(ui.pendingAction.summary) + '</p><button class="primary-button" data-action="assistant-confirm">Confirmer</button> <button class="secondary-button" data-action="assistant-cancel">Annuler</button></div>'
+    : '';
+
+  return heading('ASSISTANT PERSONNEL', 'Assistant IA', 'Il peut consulter toutes les données du tableau de bord et préparer des créations, modifications ou suppressions. Toute action attend ta confirmation.', '') +
     '<div class="two-columns"><div class="stack">' +
-      card('Conversation', '<div class="assistant-chat">' + conversation + confirmation + '</div><form id="assistant-form" class="assistant-composer"><input required name="message" placeholder="Ex. Combien de tâches restent à faire ?"><button class="primary-button" type="submit">Envoyer</button></form><div class="suggestions"><button class="suggestion" data-action="assistant-suggestion" data-message="Combien de tâches restent à faire ?">Mes tâches</button><button class="suggestion" data-action="assistant-suggestion" data-message="Quel est mon total financier ?">Mes finances</button><button class="suggestion" data-action="assistant-suggestion" data-message="Quels sont mes prochains événements ?">Mon agenda</button><button class="suggestion" data-action="assistant-suggestion" data-message="Ajoute une tâche : appeler le médecin">Ajouter une tâche</button></div>') +
+      card('Conversation', '<div class="assistant-chat">' + conversation + confirmation + '</div><form id="assistant-form" class="assistant-composer"><input required name="message" placeholder="Ex. Mets 50 € sur le Livret Jeune"><button class="primary-button" type="submit">Envoyer</button></form><div class="suggestions"><button class="suggestion" data-action="assistant-suggestion" data-message="Fais-moi le point sur ma journée">Ma journée</button><button class="suggestion" data-action="assistant-suggestion" data-message="Quel est mon total financier et mes intérêts estimés ?">Mes finances</button><button class="suggestion" data-action="assistant-suggestion" data-message="Quels sont mes prochains événements ?">Mon agenda</button><button class="suggestion" data-action="assistant-suggestion" data-message="Ajoute une note intitulée Idées et écris penser au dessert">Ajouter une note</button></div>') +
     '</div><div class="stack">' +
-      card('Données accessibles', '<div class="card-body"><p class="section-note">✓ Tâches<br><br>✓ Courses<br><br>✓ Finances<br><br>✓ Calendrier<br><br>✓ Notes</p></div>') +
-      card('Confidentialité', '<div class="card-body"><p class="section-note">Cette version fonctionne localement. Pour un modèle IA externe, une clé API et une fonction serveur sécurisée sont nécessaires : ne mettez jamais une clé secrète directement dans ce fichier.</p></div>') +
+      card('Données accessibles', '<div class="card-body"><p class="section-note">✓ Tâches et courses<br><br>✓ Comptes, mouvements, objectifs et taux d’intérêt<br><br>✓ Calendrier<br><br>✓ Notes<br><br>✓ Portfolio<br><br>✓ Lieux et paramètres<br><br>◌ Mails : disponibles dès qu’une boîte mail est réellement connectée.</p></div>') +
+      card('Actions', '<div class="card-body"><p class="section-note">L’IA peut créer, modifier et supprimer les éléments du tableau de bord après confirmation. Les comptes système indispensables ne peuvent pas être supprimés pour éviter de casser les finances.</p></div>') +
     '</div></div>';
 }
 
@@ -487,15 +795,35 @@ function renderNotes() {
     '</div></div>';
 }
 
-function renderCooking() {
-  const editing = ui.recipeEditing ? data.recipes.find(function(recipe) { return recipe.id === ui.recipeEditing; }) : null;
-  const recipes = data.recipes.map(function(recipe) {
-    return '<article class="recipe-card"><h3>' + escapeHtml(recipe.title) + '</h3><p><strong>' + escapeHtml(recipe.servings) + ' portions</strong></p><ul>' + escapeHtml(recipe.ingredients).split(',').map(function(item) { return '<li>' + item.trim() + '</li>'; }).join('') + '</ul><p>' + escapeHtml(recipe.method) + '</p><div class="card-actions"><button class="text-button" data-action="edit-recipe" data-id="' + recipe.id + '">Modifier</button><button class="text-button" data-action="delete-recipe" data-id="' + recipe.id + '">Supprimer</button></div></article>';
-  }).join('') || empty('Aucune recette', 'Ajoutez votre première recette.');
-  return heading('CUISINE', 'Cuisine', 'Recettes, fiches techniques et quantités pour vos repas.', '<button class="primary-button" data-action="new-recipe">Ajouter une recette</button>') +
-    '<div class="two-columns"><div class="stack">' + card('Mes recettes', '<div class="card-body"><div class="recipe-grid">' + recipes + '</div></div>') + '</div><div class="stack">' +
-      card(editing ? 'Modifier une recette' : 'Nouvelle recette', '<div class="card-body"><form id="recipe-form"><input type="hidden" name="id" value="' + (editing ? editing.id : '') + '"><div class="form-grid"><label class="field full">Nom<input required name="title" value="' + escapeHtml(editing ? editing.title : '') + '" placeholder="Ex. Curry de légumes"></label><label class="field">Portions<input required name="servings" type="number" min="1" value="' + escapeHtml(editing ? editing.servings : '2') + '"></label><label class="field full">Ingrédients<textarea required name="ingredients" placeholder="Séparez les ingrédients par une virgule.">' + escapeHtml(editing ? editing.ingredients : '') + '</textarea></label><label class="field full">Préparation<textarea required name="method">' + escapeHtml(editing ? editing.method : '') + '</textarea></label></div><div class="form-actions"><button class="primary-button" type="submit">' + (editing ? 'Enregistrer' : 'Créer la recette') + '</button>' + (editing ? '<button class="secondary-button" type="button" data-action="cancel-recipe">Annuler</button>' : '') + '</div></form></div>') +
-      card('Produits de saison', '<div class="card-body"><p class="section-note">Consultez les fruits et légumes de saison auprès de sources locales. Cette section est prête à être reliée à une source de données quand vous le souhaiterez.</p></div>') +
+function renderPortfolio() {
+  const editing = ui.portfolioEditing
+    ? data.portfolio.find(function(item) { return item.id === ui.portfolioEditing; })
+    : null;
+
+  const categoriesPortfolio = ['Cuisine', 'Dessert', 'Pâtisserie', 'Boulangerie', 'Technique', 'Stage', 'Autre'];
+
+  const cards = data.portfolio
+    .slice()
+    .sort(function(a, b) {
+      return Number(Boolean(b.favorite)) - Number(Boolean(a.favorite)) ||
+        String(b.realizationDate || '').localeCompare(String(a.realizationDate || ''));
+    })
+    .map(function(item) {
+      return '<article class="portfolio-card">' +
+        '<div class="portfolio-card-head"><span class="badge category-badge">' + escapeHtml(item.category) + '</span>' + (item.favorite ? '<span class="portfolio-favorite">★</span>' : '') + '</div>' +
+        '<h3>' + escapeHtml(item.title) + '</h3>' +
+        (item.realizationDate ? '<small>' + dateLabel(item.realizationDate) + '</small>' : '') +
+        (item.description ? '<p>' + escapeHtml(item.description).replace(/\n/g, '<br>') + '</p>' : '') +
+        (item.techniques ? '<p><strong>Techniques :</strong> ' + escapeHtml(item.techniques) + '</p>' : '') +
+        '<div class="card-actions"><button class="text-button" data-action="edit-portfolio" data-id="' + item.id + '">Modifier</button><button class="text-button" data-action="delete-portfolio" data-id="' + item.id + '">Supprimer</button></div>' +
+      '</article>';
+    }).join('') || empty('Portfolio vide', 'Ajoute une réalisation, un dessert, une technique ou un projet.');
+
+  return heading('RÉALISATIONS', 'Portfolio', 'Garde une trace de tes réalisations, techniques, stages et créations culinaires.', '<button class="primary-button" data-action="new-portfolio">Ajouter une réalisation</button>') +
+    '<div class="two-columns"><div class="stack">' +
+      card('Mes réalisations', '<div class="card-body"><div class="portfolio-grid">' + cards + '</div></div>') +
+    '</div><div class="stack">' +
+      card(editing ? 'Modifier la réalisation' : 'Nouvelle réalisation', '<div class="card-body"><form id="portfolio-form"><input type="hidden" name="id" value="' + (editing ? editing.id : '') + '"><div class="form-grid"><label class="field full">Titre<input required name="title" value="' + escapeHtml(editing ? editing.title : '') + '" placeholder="Ex. Dessert pêche-verveine"></label><label class="field">Catégorie<select name="category">' + categoriesPortfolio.map(function(category) { return '<option ' + ((editing ? editing.category : 'Cuisine') === category ? 'selected' : '') + '>' + category + '</option>'; }).join('') + '</select></label><label class="field">Date<input name="realizationDate" type="date" value="' + escapeHtml(editing ? editing.realizationDate : '') + '"></label><label class="field full">Description<textarea name="description" placeholder="Contexte, composition, résultat…">' + escapeHtml(editing ? editing.description : '') + '</textarea></label><label class="field full">Techniques<textarea name="techniques" placeholder="Cuissons, sauces, montages, dressage…">' + escapeHtml(editing ? editing.techniques : '') + '</textarea></label><label class="field full portfolio-check"><input name="favorite" type="checkbox" ' + (editing && editing.favorite ? 'checked' : '') + '> Mettre en favori</label></div><div class="form-actions"><button class="primary-button" type="submit">' + (editing ? 'Enregistrer' : 'Ajouter au portfolio') + '</button>' + (editing ? '<button class="secondary-button" type="button" data-action="cancel-portfolio">Annuler</button>' : '') + '</div></form></div>') +
     '</div></div>';
 }
 
@@ -527,13 +855,14 @@ function renderSettings() {
       card('Notifications personnalisées', '<div class="card-body"><div class="settings-row"><span class="quick-icon violet">🔔</span><div class="item-main"><strong>Notifications de ta journée</strong><p>État actuel : ' + escapeHtml(permission) + '</p></div>' + (support ? '<div class="form-actions"><button class="secondary-button" data-action="request-notifications">Activer</button><button class="secondary-button" data-action="test-notification">Tester maintenant</button></div>' : '') + '</div><p class="section-note" style="margin:12px 0 16px">Le contenu est construit avec tes tâches, ton calendrier et tes courses. Trois points sont prévus vers 8 h, 13 h et 19 h.</p><form id="settings-form"><div class="settings-row"><span class="quick-icon blue">🌙</span><div class="item-main"><strong>Heures silencieuses</strong><p>Aucune notification pendant cette plage.</p></div><label class="field">De<input name="quietStart" type="time" value="' + escapeHtml(data.settings.quietStart) + '"></label><label class="field">À<input name="quietEnd" type="time" value="' + escapeHtml(data.settings.quietEnd) + '"></label></div><div class="form-actions"><button class="primary-button" type="submit">Enregistrer</button></div></form></div>') +
       card('PWA', '<div class="card-body"><p class="status ' + (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches ? 'success' : 'info') + '">' + (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches ? 'L’application est installée.' : 'L’application peut être installée depuis le menu du navigateur.') + '</p><p class="section-note" style="margin-top:12px">Les notifications Web Push peuvent arriver même lorsque Mon assistant est fermé. Sur iPhone, utilise l’application ajoutée à l’écran d’accueil.</p></div>') +
     '</div><div class="stack">' +
-      card('Vos données', '<div class="card-body"><p class="section-note">Les tâches, courses, finances, calendrier, notes, recettes et lieux sont synchronisés avec ton espace Mon assistant.</p><div class="form-actions"><button class="secondary-button" data-action="export-data">Exporter une sauvegarde</button><button class="danger-button" data-action="reset-data">Réinitialiser les données</button></div></div>') +
+      card('Vos données', '<div class="card-body"><p class="section-note">Les tâches, courses, finances, calendrier, notes, portfolio et lieux sont synchronisés avec ton espace Mon assistant.</p><div class="form-actions"><button class="secondary-button" data-action="export-data">Exporter une sauvegarde</button><button class="danger-button" data-action="reset-data">Réinitialiser les données</button></div></div>') +
       card('Connexions externes', '<div class="card-body"><p class="section-note">Les connexions externes sont gérées séparément afin de protéger tes comptes.</p></div>') +
     '</div></div>';
 }
 
 function render() {
   const current = pageId();
+  document.body.dataset.page = current;
   renderNav(current);
   const view = {
     home: renderHome,
@@ -543,7 +872,7 @@ function render() {
     calendar: renderCalendar,
     assistant: renderAssistant,
     notes: renderNotes,
-    cooking: renderCooking,
+    portfolio: renderPortfolio,
     map: renderMap,
     mail: renderMail,
     settings: renderSettings
@@ -608,6 +937,15 @@ function submitForm(form) {
     ui.shoppingEditing = null;
     showToast('Article enregistré.');
   }
+  if (form.id === 'interest-form') {
+    ['livret', 'livret_jeune'].forEach(function(accountId) {
+      const account = accountById(accountId);
+      if (account) account.interestRate = Math.max(0, Number(values['rate-' + accountId] || 0));
+    });
+    save();
+    render();
+    showToast('Taux d’intérêt enregistrés.');
+  }
   if (form.id === 'accounts-form') {
     const sum = data.accounts.reduce(function(total, account) { return total + Number(values['allocation-' + account.id] || 0); }, 0);
     if (Math.abs(sum - 100) > .01) {
@@ -650,10 +988,18 @@ function submitForm(form) {
     ui.noteEditing = null;
     showToast('Note enregistrée.');
   }
-  if (form.id === 'recipe-form') {
-    editOrCreate('recipes', { id: values.id, title: values.title.trim(), ingredients: values.ingredients.trim(), servings: values.servings, method: values.method.trim() });
-    ui.recipeEditing = null;
-    showToast('Recette enregistrée.');
+  if (form.id === 'portfolio-form') {
+    editOrCreate('portfolio', {
+      id: values.id,
+      title: values.title.trim(),
+      category: values.category,
+      description: values.description.trim(),
+      techniques: values.techniques.trim(),
+      realizationDate: values.realizationDate,
+      favorite: values.favorite === 'on'
+    });
+    ui.portfolioEditing = null;
+    showToast('Portfolio enregistré.');
   }
   if (form.id === 'place-form') {
     editOrCreate('places', { id: values.id, name: values.name.trim(), category: values.category.trim() || 'Favori', address: values.address.trim(), latitude: values.latitude.trim(), longitude: values.longitude.trim() });
@@ -721,10 +1067,13 @@ document.addEventListener('click', function(event) {
   if (action === 'cancel-event') { ui.eventEditing = null; render(); }
   if (action === 'assistant-suggestion') handleAssistant(button.dataset.message);
   if (action === 'assistant-confirm' && ui.pendingAction) {
-    if (ui.pendingAction.type === 'task') data.tasks.push({ ...ui.pendingAction.values, id: id('task') });
-    if (ui.pendingAction.type === 'shopping') data.shopping.push({ ...ui.pendingAction.values, id: id('shopping') });
-    save();
-    ui.chat.push({ role: 'assistant', text: 'C’est enregistré.' });
+    const count = applyAssistantActions(ui.pendingAction.actions || []);
+    ui.chat.push({
+      role: 'assistant',
+      text: count
+        ? (count === 1 ? 'C’est fait.' : count + ' actions ont été effectuées.')
+        : 'Je n’ai pas pu appliquer cette action sans risquer d’endommager les données.'
+    });
     ui.pendingAction = null;
     render();
   }
@@ -733,10 +1082,10 @@ document.addEventListener('click', function(event) {
   if (action === 'edit-note') { ui.noteEditing = itemId; render(); }
   if (action === 'delete-note') removeFrom('notes', itemId);
   if (action === 'cancel-note') { ui.noteEditing = null; render(); }
-  if (action === 'new-recipe') { ui.recipeEditing = null; goTo('cooking'); render(); }
-  if (action === 'edit-recipe') { ui.recipeEditing = itemId; render(); }
-  if (action === 'delete-recipe') removeFrom('recipes', itemId);
-  if (action === 'cancel-recipe') { ui.recipeEditing = null; render(); }
+  if (action === 'new-portfolio') { ui.portfolioEditing = null; goTo('portfolio'); render(); }
+  if (action === 'edit-portfolio') { ui.portfolioEditing = itemId; render(); }
+  if (action === 'delete-portfolio') removeFrom('portfolio', itemId);
+  if (action === 'cancel-portfolio') { ui.portfolioEditing = null; render(); }
   if (action === 'new-place') { ui.placeEditing = null; goTo('map'); render(); }
   if (action === 'edit-place') { ui.placeEditing = itemId; render(); }
   if (action === 'delete-place') removeFrom('places', itemId);
