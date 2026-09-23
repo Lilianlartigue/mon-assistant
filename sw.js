@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mon-assistant-v5-data-restore';
+const CACHE_NAME = 'mon-assistant-v6-personal-push';
 const STATIC_ASSETS = [
   './manifest.webmanifest',
   './icon.svg'
@@ -58,3 +58,81 @@ self.addEventListener('fetch', event => {
   );
 });
 
+
+
+self.addEventListener('push', event => {
+  let payload = {};
+
+  try {
+    payload = event.data
+      ? event.data.json()
+      : {};
+  } catch (_error) {
+    payload = {
+      title: 'Mon assistant',
+      body: event.data
+        ? event.data.text()
+        : ''
+    };
+  }
+
+  event.waitUntil(
+    self.registration.showNotification(
+      payload.title || 'Mon assistant',
+      {
+        body:
+          payload.body ||
+          'Tu as un nouveau rappel.',
+        icon:
+          '/favicon.png',
+        badge:
+          '/icon.svg',
+        tag:
+          payload.tag ||
+          'mon-assistant-personal',
+        renotify:
+          true,
+        data: {
+          url:
+            payload.url ||
+            '/#/home'
+        }
+      }
+    )
+  );
+});
+
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+
+  const target =
+    event.notification.data?.url ||
+    '/#/home';
+
+  event.waitUntil(
+    clients
+      .matchAll({
+        type: 'window',
+        includeUncontrolled: true
+      })
+      .then(windowClients => {
+        for (
+          const client of windowClients
+        ) {
+          if (
+            'focus' in client
+          ) {
+            client
+              .navigate(target)
+              .catch(function () {});
+
+            return client.focus();
+          }
+        }
+
+        return clients.openWindow
+          ? clients.openWindow(target)
+          : null;
+      })
+  );
+});
