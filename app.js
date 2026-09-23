@@ -73,6 +73,14 @@ function normalizeDataShape(input) {
     ...(source.settings || {})
   };
 
+  next.tasks = Array.isArray(source.tasks)
+    ? source.tasks.map(function(item) { return { ...item }; })
+    : [];
+
+  next.shopping = Array.isArray(source.shopping)
+    ? source.shopping.map(function(item) { return { ...item }; })
+    : [];
+
   next.accounts = Array.isArray(source.accounts)
     ? source.accounts.map(function(account) { return { ...account }; })
     : base.accounts.map(function(account) { return { ...account }; });
@@ -317,10 +325,26 @@ async function loadCloudData() {
 
     if (!Array.isArray(remoteData.tasks) && looksLikeDemoTasks(localData.tasks)) {
       merged.tasks = [];
+    } else if (
+      Array.isArray(remoteData.tasks) &&
+      remoteData.tasks.length === 0 &&
+      Array.isArray(localData.tasks) &&
+      localData.tasks.length > 0 &&
+      !looksLikeDemoTasks(localData.tasks)
+    ) {
+      merged.tasks = localData.tasks.map(function(item) { return { ...item }; });
     }
 
     if (!Array.isArray(remoteData.shopping) && looksLikeDemoShopping(localData.shopping)) {
       merged.shopping = [];
+    } else if (
+      Array.isArray(remoteData.shopping) &&
+      remoteData.shopping.length === 0 &&
+      Array.isArray(localData.shopping) &&
+      localData.shopping.length > 0 &&
+      !looksLikeDemoShopping(localData.shopping)
+    ) {
+      merged.shopping = localData.shopping.map(function(item) { return { ...item }; });
     }
 
     if (!Array.isArray(remoteData.recipes) && looksLikeDemoRecipes(localData.recipes)) {
@@ -1079,9 +1103,23 @@ function removeFrom(listName, itemId) {
 }
 
 function editOrCreate(listName, values) {
-  const existing = values.id ? data[listName].find(function(item) { return item.id === values.id; }) : null;
-  if (existing) Object.assign(existing, values);
-  else data[listName].push({ ...values, id: id(listName) });
+  if (!Array.isArray(data[listName])) {
+    data[listName] = [];
+  }
+
+  const existing = values.id
+    ? data[listName].find(function(item) { return item.id === values.id; })
+    : null;
+
+  if (existing) {
+    Object.assign(existing, values);
+  } else {
+    data[listName].push({
+      ...values,
+      id: id(listName)
+    });
+  }
+
   save();
   render();
 }
@@ -1115,14 +1153,79 @@ function handleAssistant(message) {
 function submitForm(form) {
   const values = Object.fromEntries(new FormData(form).entries());
   if (form.id === 'task-form') {
-    editOrCreate('tasks', { id: values.id, title: values.title.trim(), priority: values.priority, due: values.due, done: ui.taskEditing ? data.tasks.find(function(task) { return task.id === values.id; }).done : false });
+    const title = String(values.title || '').trim();
+
+    if (!title) {
+      showToast('Indique un nom pour la tâche.');
+      return;
+    }
+
+    if (!Array.isArray(data.tasks)) {
+      data.tasks = [];
+    }
+
+    const existing = values.id
+      ? data.tasks.find(function(task) { return task.id === values.id; })
+      : null;
+
+    if (existing) {
+      existing.title = title;
+      existing.priority = values.priority || 'Normale';
+      existing.due = values.due || '';
+    } else {
+      data.tasks.unshift({
+        id: id('task'),
+        title: title,
+        priority: values.priority || 'Normale',
+        due: values.due || '',
+        done: false
+      });
+    }
+
     ui.taskEditing = null;
-    showToast('Tâche enregistrée.');
+    save();
+    render();
+    showToast('Tâche ajoutée.');
+    return;
   }
+
   if (form.id === 'shopping-form') {
-    editOrCreate('shopping', { id: values.id, name: values.name.trim(), quantity: values.quantity.trim() || '1', category: values.category, priority: values.priority, done: ui.shoppingEditing ? data.shopping.find(function(item) { return item.id === values.id; }).done : false });
+    const name = String(values.name || '').trim();
+
+    if (!name) {
+      showToast('Indique un produit.');
+      return;
+    }
+
+    if (!Array.isArray(data.shopping)) {
+      data.shopping = [];
+    }
+
+    const existing = values.id
+      ? data.shopping.find(function(item) { return item.id === values.id; })
+      : null;
+
+    if (existing) {
+      existing.name = name;
+      existing.quantity = String(values.quantity || '1').trim() || '1';
+      existing.category = values.category || 'Autre';
+      existing.priority = values.priority || 'Normale';
+    } else {
+      data.shopping.unshift({
+        id: id('shopping'),
+        name: name,
+        quantity: String(values.quantity || '1').trim() || '1',
+        category: values.category || 'Autre',
+        priority: values.priority || 'Normale',
+        done: false
+      });
+    }
+
     ui.shoppingEditing = null;
-    showToast('Article enregistré.');
+    save();
+    render();
+    showToast('Article ajouté à la liste.');
+    return;
   }
   if (form.id === 'interest-form') {
     const livretA = accountById('livret');
